@@ -50,8 +50,8 @@ html, body {
 
 @mixin embossed-bg {
   background:
-    linear-gradient(to bottom, rgba(#000, 0.2), rgba(#000, 0) 8px),
-    linear-gradient(to top, rgba(#000, 0.2), rgba(#000, 0) 8px),
+    linear-gradient(to bottom, rgba(#000, 0.1), rgba(#000, 0) 8px),
+    linear-gradient(to top, rgba(#000, 0.1), rgba(#000, 0) 8px),
     linear-gradient(to bottom, rgba($nav-embossed-border-top, 1), rgba($nav-embossed-border-top, 0) 1.5px),
     linear-gradient(to top, rgba($nav-embossed-border-bottom, 1), rgba($nav-embossed-border-bottom, 0) 1.5px),
     $nav-subitem-bg;
@@ -485,6 +485,9 @@ html, body {
     &.success {
       background-color: $aside-success-bg;
       @include text-shadow(0 1px 0 lighten($aside-success-bg, 15%));
+    }
+    &.notice {
+      color: #fff;
     }
   }
 
