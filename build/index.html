@@ -1,0 +1,1417 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>REL-ID SDK</title>
+
+    <link href="stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" type="text/css" media="print" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      <script src="javascripts/all.js" type="text/javascript"></script>
+
+      <script>
+        $(function() {
+          setupLanguages(["c","java","objective_c","cpp"]);
+        });
+      </script>
+  </head>
+
+  <body class="index">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <img src="images/logo.png" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="c">ANSI C</a>
+              <a href="#" data-language-name="java">Java</a>
+              <a href="#" data-language-name="objective_c">Objective C</a>
+              <a href="#" data-language-name="cpp">C++</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li><a href='http://www.uniken.com'>Uniken Website</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="introduction">Introduction</h1>
+
+<p>Welcome to the REL-ID API!</p>
+
+<p>REL-ID is a digital trust platform that connects things, securely. It creates a closed, private, massively scalable, networked application ecosystem to protect enterprise applications and data from unauthorized and fraudulent access and tampering.</p>
+
+<p>The REL-ID API enables applications to be written to leverage the path-breaking security REL-ID provides. The API SDK is shipped with client-side API libraries, reference implementations and documentation, as well as the server-side REL-ID platform.</p>
+
+<p>The core API is implemented in ANSI C, and has wrappers/bindings for Java (Android), Objective-C (iOS) and C++ (Windows Phone).</p>
+
+<p>At a high level, the REL-ID API provides the following features that enable applications to leapfrog ahead in terms of securing themselves - mutual identity and authentication, device fingerprinting and binding, privacy of data, and the digital network adapter (aka DNA). An additional feature of capability to pause and resume the API runtime, on demand, has been provided particularly keeping mobile smartphone device platforms in mind.</p>
+
+<h2 id="mutual-identity-and-authentication">Mutual identity and authentication</h2>
+
+<p><u>Relative Identity</u> (or <u>REL-ID</u> for short) is a mutual identity that encapsulates/represents uniquely the relationship between 2 parties/entities. This mutual identity is mathematically split and distributed securely to the communicating parties. The identity of each end-point party/entity is thus relative to the identity of the other end-point party/entity. REL-ID can be used to represent the relationship between user and app, user and user, or app and other app, thus providing a holistic digital identity model</p>
+
+<p>The protocol handshake that authenticates a REL-ID between 2 parties/entities is RMAK – which is short form for ‘<u><b>R</b>EL-ID <b>M</b>utual <b>A</b>uthentication and <b>K</b>ey-exchange</u>’. It is a unique and patented protocol handshake that provides MITM-resistant true mutual authentication to the authenticating parties. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.</p>
+
+<aside class="notice"><i><b><u>Agent REL-ID</u></b> and <b><u>User REL-ID</u></b></i> -
+<li>An <u><b>Agent REL-ID</b></u> is used to represent the relationship between software applicaition and the REL-ID platform backend.
+<li>An <u><b>User REL-ID</b></u> is used to represent the relationship between end-user of the application and the REL-ID platform backend.
+<br>
+<i>Note that the REL-ID platform backend represents the enterprise.</i>
+</aside>
+
+<h2 id="device-fingerprinting-and-binding">Device fingerprinting and binding</h2>
+
+<p>Every end-point computing device has a number of unique identities associated with it – this includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point device’s fingerprint is created by collecting these various identities, and using them together to uniquely identify it. </p>
+
+<p>The REL-ID platform’s multi-factor authentication (MFA) is implemented by binding the device’s fingerprint/identity with the REL-ID of the user/app – thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).</p>
+
+<h2 id="privacy-of-data">Privacy of Data</h2>
+
+<p>One of the important functionalities the API SDK provides is to encrypt and decrypt application data, on demand. The following scopes of privacy are provided - session-scope, device-scope, user-scope and agent-scope. In all cases, the API-client application can additionally specify cipher-specs for the encryption algorithm and mode to use, as well as specify its own salting vector (or IV).</p>
+
+<table><thead>
+<tr>
+<th>Privacy Scope</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Session</td>
+<td>The keys used are specific to the REL-ID session and valid for the duration of the session. These keys are primarily used to secure the privacy of data in transit between the API-client application and the REL-ID DNA, as well as between the API-client application and its backend services.</td>
+</tr>
+<tr>
+<td>Device</td>
+<td>The keys used are specific to the end-point device. These keys are primarily used by the API-client application to secure the privacy of data that the API-client application might want to persist on the device.</td>
+</tr>
+<tr>
+<td>User</td>
+<td>The keys used are specific to the user.</td>
+</tr>
+<tr>
+<td>Agent</td>
+<td>The keys used are specific to the agent (i.e. the application using the API)</td>
+</tr>
+</tbody></table>
+
+<h2 id="digital-network-adapter-dna">Digital Network Adapter (DNA)</h2>
+
+<p>After successful mutual authentication between the REL-ID API layer and the REL-ID platform backend (the REL-ID Authentication Gateway), the REL-Id Digital Network Adapter (or DNA) is setup inside the API layer for enabling secure communications of the API-client application with its own enterprise backend services. These services are hidden behind the REL-ID Access Gateway(s) and are accessible ONLY via the REL-ID DNA, which possesses the capability to tunnel/patch through application traffic between the client app and its backend services via the gateway.</p>
+
+<p>The backend coordinates of the enterprise services that are accessible for a given software agent REL-ID or user REL-ID are configured into the REL-ID platform on the REL-ID Gateway Manager console. During this configuration, these coordinates are supplied in the form that they are reachable from the REL-ID Access Gateway(s), i.e. using the internal IP addresses.</p>
+
+<p>The DNA provides multiple mechanisms to enable this tunneling of traffic - an HTTP proxy facade, a SOCKS proxy facade and any number of forwarded TCP ports corresponding to backend enterprise service TCP coordinates.</p>
+
+<h3 id="http-proxy-facade">HTTP Proxy facade</h3>
+
+<p>The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on the loopback adapter (127.0.0.1/::1)</p>
+
+<h3 id="socks-proxy-facade">SOCKS Proxy facade</h3>
+
+<p>The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified SOCKS proxy running on the loopback adapter (127.0.0.1/::1)</p>
+
+<h3 id="forwarded-port-facade">Forwarded port facade</h3>
+
+<p>The API client connects directly to a locally present port which represents the backend enterprise service coordinate</p>
+
+<table><thead>
+<tr>
+<th>Facade</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>HTTP-Proxy</td>
+<td>The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on the loopback adapter (127.0.0.1/::1)</td>
+</tr>
+<tr>
+<td>SOCKS-Proxy</td>
+<td>The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified SOCKS proxy running on the loopback adapter (127.0.0.1/::1)</td>
+</tr>
+<tr>
+<td>Forwarded-Port</td>
+<td>The API client connects directly to a locally present port which represents the backend enterprise service coordinate</td>
+</tr>
+</tbody></table>
+
+<h2 id="pause-resume-of-api-runtime">Pause-resume of API runtime</h2>
+
+<p>Applications written for mobile platforms like Android, iOS and WindowsPhone today are typically almost always handle the &lsquo;OS is pausing your application&rsquo; and the &#39;OS is resuming your application&rsquo; events (the successful applications almost always implement this handling).</p>
+
+<p>The REL-ID API includes <code class="prettyprint">PauseRuntime</code> and <code class="prettyprint">ResumeRuntime</code> routines that terminate-and-save the runtime state and restore-and-reinitialize the runtime state respectively:</p>
+
+<table><thead>
+<tr>
+<th>Routine</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>PauseRuntime</td>
+<td>Routine that terminates the API runtime, saves a <u><i>private</i></u> copy of the relevant data structures, and returns an encoded dump of the saved information as a null-terminated string.<br><br>When an API-client application is asked to <i>pause</i> itself, it anyway saves its runtime state in a bundle of some kind and persists it (either using OS services, or separately where it knows to look when the application is resumed)<br>At this point, the API-client application must also invoke the <code class="prettyprint">PauseRuntime</code> routine and save the returned string as well.</td>
+</tr>
+<tr>
+<td>ResumeRuntime</td>
+<td>Routine that accepts a previously saved <u><i>private</i></u> copy of the API runtime, and restores the API runtime back to the saved state while validating some of the saved state (like session information - validity/life, other information).<br><br>When an API-client application is asked to <i>resume</i> itself, it anyway restores its own runtime status from a previously persisted information bundle of some kind<br><b>BEFORE</b> it does that, it should first restore the previously persisted <i><u>private</u></i> copy of the API runtime state (from a previously executed <code class="prettyprint">PauseRuntime</code>) and invoke the <code class="prettyprint">ResumeRuntime</code> routine passing this state information in to it.</td>
+</tr>
+</tbody></table>
+
+<h2 id="non-blocking-api">Non-blocking API</h2>
+
+<p>The API is written with non-blocking interactions in mind - none of the API routines will block for any kind of network I/O.</p>
+
+<p>When an API routine requires to perform network I/O with backend services in order to service the API-client, that I/O is delegated to the DNA which is part of the API runtime, and the results are communicated back to via callback routines supplied by the API-client. The DNA itself uses non-blocking I/O for all the network communication it performs. </p>
+
+<ul>
+<li>Each API routine returns immediately without blocking on any network I/O</li>
+<li>Where applicable, API call results are communicated asynchronously via API-client supplied callback routines</li>
+</ul>
+
+<h1 id="getting-started">Getting started</h1>
+
+<p>The following table lists and briefly describes the different interactions with the REL-ID API:</p>
+
+<table><thead>
+<tr>
+<th>Interaction</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><u>Initialization</u></td>
+<td>Initialize the API runtime by establishing a REL-ID session and setting up the API runtime, including a DNA instance</td>
+</tr>
+<tr>
+<td><u>User-Identity</u></td>
+<td>Take the REL-ID session established during <u>Initialization</u> and take it through a bunch of states via this bunch of API routines, to the final SECONDARY (user REL-ID authenticated) state.</td>
+</tr>
+<tr>
+<td><u>Access</u></td>
+<td>Provide the API-client application with connectivity to its backend enterprise services via the DNA in the API runtime - to those backend services the REL-ID session has access to.</td>
+</tr>
+<tr>
+<td><u>Pause-Resume</u></td>
+<td>Save API runtime state and shutdown runtime - subsequently restore runtime state and re-initialize the runtime</td>
+</tr>
+<tr>
+<td><u>Terminate</u></td>
+<td>Clean shutdown of the API runtime</td>
+</tr>
+</tbody></table>
+
+<aside class="notice"><i>The <b><u>User-Identity</u></b> interaction</i> -
+<br>
+is applicable only when an API-client application uses the REL-ID API for the purpose of its user identity as well. This part of the API is called the REL-ID Advanced API. The rest of the interactions are applicable regardless (ie part of the Basic API).
+<br>
+In other words, the Advanced API is nothing but the Basic API + User-Identity interaction.
+</aside>
+
+<h2 id="initialization">Initialization</h2>
+
+<p>This interaction is governed by a single API routine (<code class="prettyprint">Initialize</code>) invocation that sets the stage for all subsequent interactions. </p>
+
+<p>Most importantly, this is the phase when the <u>API runtime establishes an agent-authenticated session with the REL-ID platform</u> backend and <u>bootstraps the DNA for subsequent connectivity with both REL-ID platform services as well as the configured backend enterprise services</u></p>
+
+<p>The following information is supplied by the API-client application to the initialization routing:</p>
+
+<ul>
+<li>Agent information (available as a base64-encoded blob, upon provisioning a new agent REL-ID on a commercially licensed REL-ID Gateway Manager)</li>
+<li>Callback methods/functions that the API runtime will use to communicate with the API-client application (status/error notifications, device context/fingerprint retrieval)</li>
+<li>Network coordinates of the REL-ID Authentication Gateway (hostname/IP address and port number)</li>
+<li>Privacy (encryption) specifications for the Session-Scope - includes cipher specs and salt to use</li>
+<li>Opaque reference to the API-client application context (never interpreted/modified by the API runtime, placeholder for application)</li>
+<li><i>If applicable</i>, proxy information for connecting through to the REL-ID Auth Gateway</li>
+</ul>
+
+<aside class="notice"><i>The <b><u>API-runtime Context</u></b></i> -
+<li>While the &ldquo;`Initialize&rdquo;` API routine returns immediately, it returns an opaque pointer to the API-runtime context which must be supplied with every subsequent call to the API routines. Initialization of this returned context continues, and progress is notified to the API-client via &ldquo;`StatusUpdate&rdquo;` invocations referring to the same API-runtime context.
+<li>Note that the same API-client application process/instance can create multiple API-runtime contexts (via multiple &ldquo;`Initialize&rdquo;` routine calls) to communicate with different enterprise backend service zones. However, note that this type of usage can fail if the REL-ID platform backend is not appropriately configured.
+</aside>
+
+<p>Upon successful initialization, a agent REL-ID-authenticated session is established with the REL-ID platform backend, in a <b>PRIMARY</b> state (i.e. only the software agent has been mutually authenticated, and device has been identified). At this point the application can access backend enterprise services configured into the context of the software agent REL-ID, and not necessarily an user identity.</p>
+
+<aside class="notice"><i>The <b><u>Agent Information</u></b></i> -
+<br>
+is extremely sensitive data, since it uniquely encapsulates the mutual identity between the API-client application and the REL-ID platform backend. This information must be stored securely by the API-client application. <u>The API-client application must take measures to prevent attackers from reverse engineering this information out of its software binary/runtime</u>. For example, employ a mix of steganography and encryption to securely load and decrypt this information before initializing the REL-ID API runtime.
+</aside>
+
+<h2 id="user-identity">User-Identity</h2>
+
+<p>After successful initialization, with the REL-ID session in PRIMARY state, the application can use a bunch of API routines to authenticate the end-user operating the API-client application. This covers user REL-ID activation, binding of device identity to the user REL-ID, credentials update, automated reset of credentials, generation of some one-time-use credentials and notifications to the end-user of information requiring his/her attention/response.</p>
+
+<p>Upon successful user authentication, the REL-ID session moves to a SECONDARY state (i.e. user has been authenticated).</p>
+
+<p>At this point the application access backend enterprise services in the context of the authenticated user REL-ID.</p>
+
+<aside class="notice"><i>The <b><u>Advanced API</u></b></i> -
+<br>The user-identity interaction is accessible to the API-client via an additional set of API routines that build on top of the Basic API. Alongwith the Basic API routines, these additional API routines constitute the <b>REL-ID Advanced API</b>
+</aside>
+
+<h2 id="access">Access</h2>
+
+<p>The ports for the different DNA access facades, for different backend services, are returned in the status callback, when it reports the completion of successful initialization. Any changes in those facades (particularly the forwarded ports) are reported via the status callback upon successful user authentication via the User-Identity routine interactions.</p>
+
+<h2 id="pause-resume">Pause-Resume</h2>
+
+<h3 id="pause">Pause</h3>
+
+<p>On mobile platforms, due to limited resource availability, the OS very often puts your application to sleep, giving the application a chance to save its state so that it may resume later when it is brought back to the foreground.</p>
+
+<p>The pause API routine requires to be called in such an eventuality, so that the API runtime gets a opportunity to save its state and pass that state back to the API client application for saving to persistent storage on the device.</p>
+
+<p>Typically the pause API routine must be last REL-ID API routine to be called, before saving the application state - along with the API runtime state.</p>
+
+<h3 id="resume">Resume</h3>
+
+<p>When a mobile application has been paused, it must invoke the pause API routine, and save the returned API runtime state information, along with its own state.</p>
+
+<p>When the same application is resumed, in its own resume sequence, it must invoke the resume API routine, passing in the runtime state that it had saved earlier, so that the API can reinitialize and resume its runtime operations.</p>
+
+<p>Typically the resume API routine must be first REL-ID API routine to be called, immediately after loading the previously saved application state - along with the API runtime state.</p>
+
+<h2 id="termination">Termination</h2>
+
+<p>The terminate API routime should be called during application shutdown in order to cleanly terminate the API runtime.</p>
+
+<h1 id="structures-and-enumerations">Structures and Enumerations</h1>
+
+<p>The following subsections list down and explain the different data structures and enumerations that are provided by the REL-ID API. The API-client application developer requires to be familiar with these in order to make effective use of the REL-ID API.</p>
+
+<h2 id="callback-routines">Callback routines</h2>
+
+<p>This structure is supplied to the Initialize routing containing API-client application callback routines. These callback routines are invoked by the API runtime at different points in its execution - for updating status, for requesting the API-client application to supply information etc.</p>
+
+<p>There are 3 primary callback routines that are provided - 2 of them are part of the Basic API and 1 of them is part of the Advanced API.</p>
+<pre class="highlight c"><code><span class="cm">/* Update/Notify API-client of state changes, exceptions and notifications */</span>
+<span class="k">typedef</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">fn_status_update_t</span><span class="p">)</span> <span class="p">(</span><span class="n">rdna_status_t</span><span class="o">*</span> <span class="n">pStatus</span><span class="p">);</span>
+
+<span class="cm">/* Retrieve device fingerprint identity information */</span>
+<span class="k">typedef</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">fn_get_device_fingerprint_t</span><span class="p">)</span> <span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="n">psDeviceFingerprint</span><span class="p">);</span>
+
+<span class="cm">/* Unpack 'locked' user RelID received post successful user authentication */</span>
+<span class="k">typedef</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">fn_unpack_enduser_relid_t</span><span class="p">)</span> <span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">euRelId</span><span class="p">,</span> <span class="kt">char</span><span class="o">**</span> <span class="n">uRelId</span><span class="p">);</span>
+
+<span class="cm">/* struct of callback pointers */</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="n">fn_status_update_t</span>          <span class="n">pfnStatusUpdate</span><span class="p">;</span>
+  <span class="n">fn_get_device_fingerprint_t</span> <span class="n">pfnGetDeviceFingerprint</span><span class="p">;</span>
+  <span class="n">fn_unpack_enduser_relid</span>     <span class="n">pfnUnpackEndUserRelId</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">rdna_callbacks_t</span><span class="p">;</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Callbacks</span> <span class="o">{</span>
+    <span class="cm">/* Update/Notify API-client of state changes, exceptions and notifications */</span>
+    <span class="kt">void</span>   <span class="n">StatusUpdate</span>       <span class="o">(</span><span class="n">Status</span> <span class="n">status</span><span class="o">);</span>
+
+    <span class="cm">/* Retrieve device context reference so that fingerprint may be determined */</span>
+    <span class="n">Object</span> <span class="n">GetDeviceContext</span>   <span class="o">();</span>
+
+    <span class="cm">/* Unpack 'locked' user RelID received post successful user authentication */</span>
+    <span class="n">String</span> <span class="n">UnpackEndUserRelId</span> <span class="o">(</span><span class="n">String</span> <span class="n">euRelId</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Callback Routine</th>
+<th>Basic/Advanced</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><b>StatusUpdate</b></td>
+<td>Basic API</td>
+<td>Invoked by the API runtime in order to update the API-client application of the progress of a previously invoked API routine, or state changes and exceptions encountered in general during the course of its execution</td>
+</tr>
+<tr>
+<td><b>GetDeviceFingerprint</b></td>
+<td>Basic API (core/ANSI-C)</td>
+<td>Invoked by the API runtime during initialization (session creation) in order to retrieve the fingerprint identity of the end-point device</td>
+</tr>
+<tr>
+<td><b>GetDeviceContext</b></td>
+<td>Basic API (Java/Obj-C/C++)</td>
+<td>Invoked by the API runtime during initialization (session creation) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device</td>
+</tr>
+<tr>
+<td><b>UnpackEndUserRelId</b></td>
+<td>Advanced API</td>
+<td>Invoked by the API runtime after successful user credential authentication, in order to unpack the <i>locked</i> user Rel-ID as received from the REL-ID platform backend.</td>
+</tr>
+</tbody></table>
+
+<aside class="notice"><i><b><u>GetDeviceFingerprint</u></b> and <b><u>GetDeviceContext</u></b> callback routines</i> -
+<br>
+<u>GetDeviceFingerprint</u> is the callback defined in the ANSI C core API, while
+<br>
+<u>GetDeviceContext</u> is the callback defined in the end-point platform specific wrapper APIs - Android (Java), iOS (Objective C) and WindowsPhone (C++)
+</aside>
+
+<h2 id="proxy-settings">Proxy settings</h2>
+
+<p>This structure is supplied to the Initialize routine when the REL-ID Auth Gateway is accessible only from behind an HTTP proxy. For example, when using a REL-ID-integrated application from a device, when connected to a corporate intranet, where connectivity to internet is only via the corporate proxy.</p>
+
+<p>Hence this structure is an option input parameter to Initialize, and may not always require to be supplied. The API-client application requires to keep track of whether or not this needs to be supplied during initialization - for example by providing a &#39;connect profile settings&rsquo; screen for the end-user.</p>
+
+<p>At an abstract level, the pieces of information supplied by this data structure are:</p>
+<pre class="highlight c"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="kt">char</span><span class="o">*</span> <span class="n">sProxyHNIP</span><span class="p">;</span>
+  <span class="kt">int</span>   <span class="n">nProxyPORT</span><span class="p">;</span>
+  <span class="kt">char</span><span class="o">*</span> <span class="n">sUsername</span><span class="p">;</span>
+  <span class="kt">char</span><span class="o">*</span> <span class="n">sPassword</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">proxy_settings_t</span><span class="p">;</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">ProxySettings</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">proxyHNIP</span><span class="o">;</span>
+    <span class="kt">int</span>    <span class="n">proxyPORT</span><span class="o">;</span>
+    <span class="n">String</span> <span class="n">username</span><span class="o">;</span>
+    <span class="n">String</span> <span class="n">password</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><b>ProxyHNIP</b></td>
+<td><b>H</b>ost<b>N</b>ame or <b>IP</b> address of the proxy server</td>
+</tr>
+<tr>
+<td><b>ProxyPORT</b></td>
+<td>Port number of the proxy server</td>
+</tr>
+<tr>
+<td><b>ProxyUsername</b></td>
+<td>The username to use to authenticate with the proxy server. This is required only when the proxy server requires authentication.</td>
+</tr>
+<tr>
+<td><b>ProxyPassword</b></td>
+<td>The password to use with the username, to authenticate with the proxy server. This too is required only when the proxy server requires authentication.</td>
+</tr>
+</tbody></table>
+
+<h2 id="status-update">Status update</h2>
+
+<p>This structure is supplied to the API-client supplied <code class="prettyprint">StatusUpdate</code> callback routine when it is invoked from the API runtime. This structure covers all possible statuses that the API runtime would notify the API-client application about.</p>
+
+<p>At an abstract level, the pieces of information supplied by this data structure are:</p>
+<pre class="highlight c"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="k">union</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="p">{</span>
+      <span class="n">rdna_port_t</span> <span class="n">httpProxy</span><span class="p">;</span>
+    <span class="p">}</span> <span class="n">initialize</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">errorDesc</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>
+  <span class="p">}</span> <span class="n">u</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">rdna_args_t</span><span class="p">;</span>
+
+<span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="kt">void</span><span class="o">*</span> <span class="n">pvRdnaCtx</span><span class="p">;</span> <span class="cm">/* context of API runtime */</span>
+  <span class="kt">void</span><span class="o">*</span> <span class="n">pvAppCtx</span><span class="p">;</span>  <span class="cm">/* context of API-client  */</span>
+  <span class="n">e_rdna_method_t</span> <span class="n">eMethId</span><span class="p">;</span> <span class="cm">/* update for method */</span>
+  <span class="n">e_rdna_error_t</span>  <span class="n">eErrId</span><span class="p">;</span>  <span class="cm">/* error code return */</span>
+  <span class="n">rdna_args_t</span><span class="o">*</span> <span class="n">pArgs</span><span class="p">;</span>      <span class="cm">/* status details    */</span>
+<span class="p">}</span> <span class="n">rdna_status_t</span><span class="p">;</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Status</span> <span class="o">{</span>
+    <span class="n">RDNA</span>    <span class="n">rdna</span><span class="o">;</span>    <span class="cm">/* context of API runtime */</span>
+    <span class="n">Object</span>  <span class="n">appCtx</span><span class="o">;</span>  <span class="cm">/* context of API-client  */</span>
+    <span class="n">eMethod</span> <span class="n">eMethId</span><span class="o">;</span> <span class="cm">/* update for method */</span>
+    <span class="n">eError</span>  <span class="n">eErrId</span><span class="o">;</span>  <span class="cm">/* error code return */</span>
+    <span class="n">Object</span>  <span class="n">args</span><span class="o">;</span>    <span class="cm">/* status details    */</span>
+  <span class="o">}</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><b>RDNAContext</b></td>
+<td>A reference to the DNA context returned upon successful <code class="prettyprint">Initialize</code> routine invocation. Note that there can technically be multiple such contexts active in the same API-client application - it depends on the application and its purpose.</td>
+</tr>
+<tr>
+<td><b>APIClientContext</b></td>
+<td>An opaque reference to the API-client supplied context. This is supplied by the API-client to the <code class="prettyprint">Initialize</code> routine, and is associated with the REL-ID DNA context throughout its lifetime. Note that this context is never read/interpreted or modified by the API runtime.</td>
+</tr>
+<tr>
+<td><b>MethodIdentifier</b></td>
+<td>An identifier that specifies which method was invoked by the API-client application.</td>
+</tr>
+<tr>
+<td><b>ErrorIdentifier</b></td>
+<td>An identifier that specifies the nature of the error that is being reported in the status update. This can be the special <code class="prettyprint">NONE</code> identifier that indicates no error.</td>
+</tr>
+<tr>
+<td><b>StatusArguments</b></td>
+<td>This is a polymorphic reference to status information - the actual reference to use depends on the method and error identifiers. For example in ANSI C, this points to a <code class="prettyprint">union</code>-based structure, and in Java this points to an <code class="prettyprint">Object</code> reference that must be typecast accordingly.</td>
+</tr>
+</tbody></table>
+
+<h2 id="error-codes-enum">Error codes (enum)</h2>
+<pre class="highlight c"><code><span class="k">typedef</span> <span class="k">enum</span> <span class="p">{</span>
+  <span class="n">RDNA_ERR_NONE</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>        <span class="cm">/* No Error */</span>
+  <span class="n">RDNA_ERR_NULLCONTEXTPTR</span><span class="p">,</span>  <span class="cm">/* Null context ptr passed in */</span>
+  <span class="n">RDNA_ERR_NULLCALLBACKS</span><span class="p">,</span>   <span class="cm">/* Null callback/ptr passed in */</span>
+  <span class="n">RDNA_ERR_NULLEMPTYHNIP</span><span class="p">,</span>   <span class="cm">/* Null or empty hostname/IP */</span>
+  <span class="n">RDNA_ERR_INVALIDPORTNUM</span><span class="p">,</span>  <span class="cm">/* Invalid port number */</span>
+  <span class="n">RDNA_ERR_NOMEMORY</span><span class="p">,</span>        <span class="cm">/* Memory allocation failed */</span>
+  <span class="n">RDNA_ERR_EVENTLOOPINIT</span><span class="p">,</span>   <span class="cm">/* Failed to start event loop */</span>
+  <span class="n">RDNA_ERR_MUTEXINITFAILED</span><span class="p">,</span> <span class="cm">/* Failed to initialize mutex */</span>
+  <span class="n">RDNA_ERR_EVENTINITFAILED</span><span class="p">,</span> <span class="cm">/* Failed to initialize event */</span>
+  <span class="n">RDNA_ERR_THRDSTARTFAILED</span><span class="p">,</span> <span class="cm">/* Failed to start thread */</span>
+  <span class="n">RDNA_ERR_BADDNACONFIG</span><span class="p">,</span>    <span class="cm">/* Bad DNA configuration (tunnelconfig) */</span>
+  <span class="n">RDNA_ERR_DNANOTRUNNING</span><span class="p">,</span>   <span class="cm">/* DNA is not running */</span>
+  <span class="n">RDNA_ERR_ACCESSPORTISUP</span><span class="p">,</span>  <span class="cm">/* Access port has been started */</span>
+  <span class="n">RDNA_ERR_ACCESSPORTISDOWN</span><span class="p">,</span><span class="cm">/* Access port has been stopped */</span>
+  <span class="n">RDNA_ERR_CORRUPTSTATEBUF</span><span class="p">,</span> <span class="cm">/* State buffer passed into ResumeRuntime is corrupt */</span>
+<span class="p">}</span> <span class="n">e_rdna_error_t</span><span class="p">;</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">enum</span> <span class="n">eError</span> <span class="o">{</span>
+    <span class="n">RDNA_ERR_NONE</span> <span class="o">(</span><span class="mi">0</span><span class="o">),</span>        <span class="cm">/* No Error */</span>
+    <span class="n">RDNA_ERR_NULLCONTEXTPTR</span><span class="o">,</span>  <span class="cm">/* Null context ptr passed in */</span>
+    <span class="n">RDNA_ERR_NULLCALLBACKS</span><span class="o">,</span>   <span class="cm">/* Null callback/ptr passed in */</span>
+    <span class="n">RDNA_ERR_NULLEMPTYHNIP</span><span class="o">,</span>   <span class="cm">/* Null or empty hostname/IP */</span>
+    <span class="n">RDNA_ERR_INVALIDPORTNUM</span><span class="o">,</span>  <span class="cm">/* Invalid port number */</span>
+    <span class="n">RDNA_ERR_NOMEMORY</span><span class="o">,</span>        <span class="cm">/* Memory allocation failed */</span>
+    <span class="n">RDNA_ERR_EVENTLOOPINIT</span><span class="o">,</span>   <span class="cm">/* Failed to start event loop */</span>
+    <span class="n">RDNA_ERR_MUTEXINITFAILED</span><span class="o">,</span> <span class="cm">/* Failed to initialize mutex */</span>
+    <span class="n">RDNA_ERR_EVENTINITFAILED</span><span class="o">,</span> <span class="cm">/* Failed to initialize event */</span>
+    <span class="n">RDNA_ERR_THRDSTARTFAILED</span><span class="o">,</span> <span class="cm">/* Failed to start thread */</span>
+    <span class="n">RDNA_ERR_BADDNACONFIG</span><span class="o">,</span>    <span class="cm">/* Bad DNA configuration (tunnelconfig) */</span>
+    <span class="n">RDNA_ERR_DNANOTRUNNING</span><span class="o">,</span>   <span class="cm">/* DNA is not running */</span>
+    <span class="n">RDNA_ERR_ACCESSPORTISUP</span><span class="o">,</span>  <span class="cm">/* Access port has been started */</span>
+    <span class="n">RDNA_ERR_ACCESSPORTISDOWN</span><span class="o">,</span><span class="cm">/* Access port has been stopped */</span>
+    <span class="n">RDNA_ERR_CORRUPTSTATEBUF</span><span class="o">;</span> <span class="cm">/* State buffer passed into ResumeRuntime is corrupt */</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">value</span><span class="o">;</span>
+    <span class="n">eError</span> <span class="o">(</span><span class="kt">int</span> <span class="n">valueIn</span><span class="o">)</span> <span class="o">{</span><span class="n">value</span> <span class="o">=</span> <span class="n">valueIn</span><span class="o">;}</span>
+  <span class="o">}</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Error Code</th>
+<th>Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>RDNA_ERR_NONE (0)</td>
+<td>No Error</td>
+</tr>
+<tr>
+<td>RDNA_ERR_NULLCONTEXTPTR</td>
+<td>Null context ptr passed in</td>
+</tr>
+<tr>
+<td>RDNA_ERR_NULLCALLBACKS</td>
+<td>Null callback/ptr passed in</td>
+</tr>
+<tr>
+<td>RDNA_ERR_NULLEMPTYHNIP</td>
+<td>Null or empty hostname/IP</td>
+</tr>
+<tr>
+<td>RDNA_ERR_INVALIDPORTNUM</td>
+<td>Invalid port number</td>
+</tr>
+<tr>
+<td>RDNA_ERR_NOMEMORY</td>
+<td>Memory allocation failed</td>
+</tr>
+<tr>
+<td>RDNA_ERR_EVENTLOOPINIT</td>
+<td>Failed to start event loop</td>
+</tr>
+<tr>
+<td>RDNA_ERR_MUTEXINITFAILED</td>
+<td>Failed to initialize mutex</td>
+</tr>
+<tr>
+<td>RDNA_ERR_EVENTINITFAILED</td>
+<td>Failed to initialize event</td>
+</tr>
+<tr>
+<td>RDNA_ERR_THRDSTARTFAILED</td>
+<td>Failed to start thread</td>
+</tr>
+<tr>
+<td>RDNA_ERR_BADDNACONFIG</td>
+<td>Bad DNA configuration (tunnelconfig)</td>
+</tr>
+<tr>
+<td>RDNA_ERR_DNANOTRUNNING</td>
+<td>DNA is not running</td>
+</tr>
+<tr>
+<td>RDNA_ERR_ACCESSPORTISUP</td>
+<td>Access port has been started</td>
+</tr>
+<tr>
+<td>RDNA_ERR_ACCESSPORTISDOWN</td>
+<td>port has been stopped</td>
+</tr>
+<tr>
+<td>RDNA_ERR_CORRUPTSTATEBUF</td>
+<td>State buffer passed into ResumeRuntime is corrupt</td>
+</tr>
+</tbody></table>
+
+<h2 id="method-identifiers-enum">Method identifiers (enum)</h2>
+
+<p>These identifiers are used to identify the routine when the <code class="prettyprint">StatusUpdate</code> callback routine is invoked.</p>
+<pre class="highlight c"><code><span class="k">typedef</span> <span class="k">enum</span> <span class="p">{</span>
+  <span class="n">RDNA_METH_NONE</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>       <span class="cm">/* Not a method ID - invalid value */</span>
+  <span class="n">RDNA_METH_INITIALIZE</span><span class="p">,</span>     <span class="cm">/* The Initialize() API routine */</span>
+  <span class="n">RDNA_METH_SVC_AXS_START</span><span class="p">,</span>  <span class="cm">/* The ServiceAccessStart() API routine */</span>
+  <span class="n">RDNA_METH_SVC_AXS_STOP</span><span class="p">,</span>   <span class="cm">/* The ServiceAccessStop() API routine */</span>
+<span class="p">}</span> <span class="n">e_rdna_method_t</span><span class="p">;</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">enum</span> <span class="n">eMethod</span> <span class="o">{</span>
+    <span class="n">RDNA_METH_NONE</span> <span class="o">(</span><span class="mi">0</span><span class="o">),</span>       <span class="cm">/* Not a method ID - invalid value */</span>
+    <span class="n">RDNA_METH_INITIALIZE</span><span class="o">;</span>     <span class="cm">/* The Initialize() API routine */</span>
+    <span class="n">RDNA_METH_SVC_AXS_START</span><span class="o">,</span>  <span class="cm">/* The ServiceAccessStart() API routine */</span>
+    <span class="n">RDNA_METH_SVC_AXS_STOP</span><span class="o">;</span>   <span class="cm">/* The ServiceAccessStop() API routine */</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">value</span><span class="o">;</span>
+    <span class="n">eMethod</span> <span class="o">(</span><span class="kt">int</span> <span class="n">valueIn</span><span class="o">)</span> <span class="o">{</span><span class="n">value</span> <span class="o">=</span> <span class="n">valueIn</span><span class="o">;}</span>
+  <span class="o">}</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Method ID</th>
+<th>Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>RDNA_METH_NONE (0)</td>
+<td>Not a method ID - invalid value</td>
+</tr>
+<tr>
+<td>RDNA_METH_INITIALIZE</td>
+<td>The <code class="prettyprint">Initialize</code> API routine</td>
+</tr>
+<tr>
+<td>RDNA_METH_SVC_AXS_START</td>
+<td>The <code class="prettyprint">ServiceAccessStart</code> API routine</td>
+</tr>
+<tr>
+<td>RDNA_METH_SVC_AXS_STOP</td>
+<td>The <code class="prettyprint">ServiceAccessStop</code> API routine</td>
+</tr>
+</tbody></table>
+
+<h2 id="backend-services-access">Backend services access</h2>
+
+<p>These structures are used with the backend service access routines. They serve to encapsulate the backend services that are accessed by the API-client application. At a high level, the following lines/bullets describe these structures -</p>
+
+<ul>
+<li>Each backend service is representated as a single structure with fields identifying its unique logical name, its target backend coordinate (hostname/IP-address and port number) and its local access ports</li>
+<li>Each backend service is accessible via one or both of the following <i><u>Access Ports</u></i>:
+
+<ul>
+<li>the locally running proxy facade of the DNA and/or</li>
+<li>a dedicated local forwarded port for the service</li>
+</ul></li>
+<li>There are flags associated with each of these access ports which specifies:
+
+<ul>
+<li>whether the local port is bound to all device network interfaces,</li>
+<li>whether it is available automatically, and</li>
+<li>whether it only accepts encrypted infornation (using the *InSession data privacy API routines).</li>
+</ul></li>
+</ul>
+
+<h3 id="access-port-type-flags">Access Port Type flags</h3>
+
+<p>These flags specify attributes of the returned access port for the backend service. The meanings of each flag are as follows -</p>
+<pre class="highlight c"><code><span class="k">typedef</span> <span class="k">enum</span> <span class="p">{</span>
+  <span class="n">RDNA_PORT_TYPE_ALLXS</span> <span class="o">=</span> <span class="mh">0x01</span><span class="p">,</span> <span class="cm">/* bound to all interfaces on device */</span>
+  <span class="n">RDNA_PORT_TYPE_AUTOS</span> <span class="o">=</span> <span class="mh">0x02</span><span class="p">,</span> <span class="cm">/* automatically started and running */</span>
+  <span class="n">RDNA_PORT_TYPE_PRIVY</span> <span class="o">=</span> <span class="mh">0x04</span><span class="p">,</span> <span class="cm">/* only accepts session-private data */</span>
+<span class="p">}</span> <span class="n">e_rdna_port_type_t</span><span class="p">;</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">enum</span> <span class="n">ePortType</span> <span class="o">{</span>
+    <span class="n">RDNA_PORT_TYPE_ALLXS</span> <span class="o">=</span> <span class="mh">0x01</span><span class="o">,</span> <span class="cm">/* bound to all interfaces on device */</span>
+    <span class="n">RDNA_PORT_TYPE_AUTOS</span> <span class="o">=</span> <span class="mh">0x02</span><span class="o">,</span> <span class="cm">/* automatically started and running */</span>
+    <span class="n">RDNA_PORT_TYPE_PRIVY</span> <span class="o">=</span> <span class="mh">0x04</span><span class="o">,</span> <span class="cm">/* only accepts session-private data */</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Flag Name</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>RDNA_PORT_TYPE_ALLXS (0x01)</td>
+<td><li>When set, it means that he access port is bound to all network interfaces on the end-point device.<li>If not, the access port is bound only to the loopback adapter on the end-point device</td>
+</tr>
+<tr>
+<td>RDNA_PORT_TYPE_AUTOS (0x02)</td>
+<td>This flag specifies the availability of access to the related backend service via this access port.<li>When set, the access via this port is immediately available (automatically started).<li>If not, it means that the access via this port must be started using the <code class="prettyprint">ServiceAccessStart</code> and <code class="prettyprint">ServiceAccessStop</code> API routines.</td>
+</tr>
+<tr>
+<td>RDNA_PORT_TYPE_PRIVY (0x04)</td>
+<td>This flag specifies the whether privacy (encryption) is mandatory when communicating via this port.<li>When set, it means that one of the EncryptDataPacket/EncryptHttpRequest routines must be invoked before sending data to the backend service via this port, and DecryptDataPacket/DecryptHttpRequest routines must be invoked before using the data received from the backend service via this port.<li>If not, it means that communication with the backend service via this port may commence without privacy (encryption).</td>
+</tr>
+</tbody></table>
+
+<h3 id="access-port-structure">Access Port structure</h3>
+
+<p>Each access port structure consists of a <code class="prettyprint">type</code> member specifying the zero or more of the above attribute flags, and the actual TCP port number for the access port.</p>
+<pre class="highlight c"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="n">type</span><span class="p">;</span> <span class="cm">/* bitwise OR of e_rdna_port_type_t values */</span>
+  <span class="kt">int</span>  <span class="n">port</span><span class="p">;</span> <span class="cm">/* local port number for accessing service */</span>
+<span class="p">}</span> <span class="n">rdna_port_t</span><span class="p">;</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Port</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="kt">char</span> <span class="n">type</span><span class="o">;</span> <span class="cm">/* bitwise OR of e_rdna_port_type_t values */</span>
+    <span class="kd">final</span> <span class="kt">int</span>  <span class="n">port</span><span class="o">;</span> <span class="cm">/* local port number for accessing service */</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>type</td>
+<td>byte</td>
+<td>A bit-mask with zero or more of the above <i>Access Port Type</i> flags set</td>
+</tr>
+<tr>
+<td>port</td>
+<td>integer</td>
+<td>The TCP port number of the access port<li>In case of the <code class="prettyprint">proxyPort</code> member of the Service structure, this is the TCP port number of the proxy facade of the locally running DNA. Here, this just means that the backend service is accessible via this proxy facade<li>In case of the <code class="prettyprint">fwdedPort</code> member of the Service structure, this is the TCP port number of the forwarded TCP port facade corresponding to the backend service, on the locally running DNA.</td>
+</tr>
+</tbody></table>
+
+<h3 id="service-structure">Service structure</h3>
+
+<p>The service structure is unique for a given backend service, and specifies the unique logical name, target coordinates (hostname/IP and port number), a proxy facade access port and a forwarded TCP access port (any one or both may be specified).</p>
+<pre class="highlight c"><code><span class="k">typedef</span> <span class="k">struct</span> <span class="p">{</span>
+  <span class="kt">char</span><span class="o">*</span> <span class="n">serviceName</span><span class="p">;</span> <span class="cm">/* logical service name */</span>
+  <span class="kt">char</span><span class="o">*</span> <span class="n">targetHNIP</span><span class="p">;</span>  <span class="cm">/* backend hostname/IP  */</span>
+  <span class="kt">int</span>   <span class="n">targetPORT</span><span class="p">;</span>  <span class="cm">/* backend port number  */</span>
+  <span class="n">rdna_port_t</span> <span class="n">proxyPort</span><span class="p">;</span> <span class="cm">/* proxy port setting */</span>
+  <span class="n">rdna_port_t</span> <span class="n">fwdedPort</span><span class="p">;</span> <span class="cm">/* forwarded TCP port */</span>
+<span class="p">}</span> <span class="n">rdna_service_t</span><span class="p">;</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Service</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">String</span> <span class="n">serviceName</span><span class="o">;</span> <span class="cm">/* logical service name */</span>
+    <span class="kd">final</span> <span class="n">String</span> <span class="n">targetHNIP</span><span class="o">;</span>  <span class="cm">/* backend hostname/IP  */</span>
+    <span class="kd">final</span> <span class="kt">int</span>    <span class="n">targetPORT</span><span class="o">;</span>  <span class="cm">/* backend port number  */</span>
+    <span class="kd">final</span> <span class="n">Port</span>   <span class="n">proxyPort</span><span class="o">;</span>   <span class="cm">/* proxy port settings  */</span>
+    <span class="kd">final</span> <span class="n">Port</span>   <span class="n">fwdedPort</span><span class="o">;</span>   <span class="cm">/* forwarded TCP port   */</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Field Name</th>
+<th>Data Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>serviceName</td>
+<td>null-terminated string</td>
+<td>Unique logical name of the backend service (as configured in REL-ID configuration (using Gateway Manager)</td>
+</tr>
+<tr>
+<td>targetHNIP</td>
+<td>null-terminated string</td>
+<td>The notional hostname/IP-address of the TCP coordinate of the backend service</td>
+</tr>
+<tr>
+<td>targetPORT</td>
+<td>integer</td>
+<td>The notional port number of the TCP coordinate of the backend service</td>
+</tr>
+<tr>
+<td>proxyPort</td>
+<td>Port structure</td>
+<td>The access port structure corresponding to the proxy facade of the DNA</td>
+</tr>
+<tr>
+<td>fwdedPort</td>
+<td>Port structure</td>
+<td>The access port structure corresponding to the forwarded TCP port facade of the DNA</td>
+</tr>
+</tbody></table>
+
+<h1 id="basic-api">Basic API</h1>
+
+<h2 id="initialize-routine">Initialize Routine</h2>
+
+<p>This is the first routine that must be made to bootstrap the REL-ID API runtime up. The arguments to this routine are descibed in the below table.</p>
+
+<p>This routine starts up the API runtime (including a DNA instance), and in the process registers the API-client supplied callback routines with the API runtime context. This is a non-blocking routine, and when it returns, it will have initiated the process of creation of a REL-ID session in PRIMARY state - the progress of this operation is notified to the API-client application via the <code class="prettyprint">StatusUpdate</code> callback routine supplied by it.</p>
+
+<p>A reference to the context of the newly created API runtime is returned to the API-client.</p>
+<pre class="highlight c"><code><span class="n">rdna_err_t</span> <span class="n">rdnaInitialize</span> <span class="p">(</span>
+    <span class="kt">void</span><span class="o">**</span> <span class="n">ppvRdnaCtx</span><span class="p">,</span>             <span class="cm">/* out */</span>
+    <span class="n">rdna_callbacks_t</span><span class="o">*</span> <span class="n">pCallbacks</span><span class="p">,</span> <span class="cm">/* in  */</span>
+    <span class="kt">char</span><span class="o">*</span>  <span class="n">sAgentInfo</span><span class="p">,</span>            <span class="cm">/* in  */</span>
+    <span class="kt">char</span><span class="o">*</span>  <span class="n">sAuthGatewayHNIP</span><span class="p">,</span>      <span class="cm">/* in  */</span>
+    <span class="kt">int</span>    <span class="n">nAuthGatewayPORT</span><span class="p">,</span>      <span class="cm">/* in  */</span>
+    <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSpecs</span><span class="p">,</span>           <span class="cm">/* in  */</span>
+    <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSalt</span><span class="p">,</span>           <span class="cm">/* in  */</span>
+    <span class="kt">void</span><span class="o">*</span>  <span class="n">pvAppCtx</span><span class="p">,</span>              <span class="cm">/* in  */</span>
+    <span class="n">rdna_proxy_settings_t</span><span class="o">*</span>        <span class="cm">/* in  */</span>
+           <span class="n">pProxySettings</span> <span class="cm">/* = 0 */</span><span class="p">);</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">RDNA</span> <span class="n">Initialize</span> <span class="o">(</span>
+    <span class="n">IRDNACallbacks</span> <span class="n">callbacks</span><span class="o">,</span>        <span class="cm">/* in */</span>
+    <span class="n">String</span>         <span class="n">sLicBlob</span><span class="o">,</span>         <span class="cm">/* in */</span>
+    <span class="n">String</span>         <span class="n">sAuthGatewayHNIP</span><span class="o">,</span> <span class="cm">/* in */</span>
+    <span class="kt">int</span>            <span class="n">nAuthGatewayPORT</span><span class="o">,</span> <span class="cm">/* in */</span>
+    <span class="n">String</span>         <span class="n">sCipherSpecs</span><span class="o">,</span>     <span class="cm">/* in */</span>
+    <span class="n">String</span>         <span class="n">sCipherSalt</span><span class="o">,</span>      <span class="cm">/* in */</span>
+    <span class="n">Object</span>         <span class="n">appCtx</span><span class="o">,</span>           <span class="cm">/* in */</span>
+    <span class="n">ProxySettings</span>  <span class="n">proxySettings</span><span class="o">);</span>   <span class="cm">/* in */</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Argument&nbsp;[in/out]</th>
+<th>Language Binding</th>
+<th>Prototype/Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>DNA&nbsp;Context&nbsp;[out]</td>
+<td>ANSI C</td>
+<td><code class="prettyprint">void** ppvDnaCtx</code><br><li>Must be non-null<br><li><code class="prettyprint">(*ppvRdnaCtx)</code> is updated with opaque pointer to internal DNA context</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>Java</td>
+<td>An instance of <code class="prettyprint">RDNA</code> is returned by the routine</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><u>Description</u></td>
+<td><b>Newly created API runtime context is returned to API-client application</b></td>
+</tr>
+<tr>
+<td>Callbacks&nbsp;[in]</td>
+<td>ANSI C</td>
+<td><code class="prettyprint">rdna_callbacks_t* pCallbacks</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>Java</td>
+<td><code class="prettyprint">RDNA.Callbacks&amp;nbsp;callbacks</code><br>i.e. an implementation of the <code class="prettyprint">RDNA.Callbacks</code> interface</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><u>Description</u></td>
+<td><b>API-client application supplied callback routines to be invoked by the API-runtime</b></td>
+</tr>
+<tr>
+<td>Agent&nbsp;Info&nbsp;[in]</td>
+<td>ANSI C</td>
+<td><code class="prettyprint">char* sAgentInfo</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>Java</td>
+<td><code class="prettyprint">String sAgentInfo</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><u>Description</u></td>
+<td><b>Software identity information for the API-runtime to authenticate and establish primary session connectivity with the REL-ID platform backend</b></td>
+</tr>
+<tr>
+<td>Auth&nbsp;Gateway Coordinate&nbsp;[in]</td>
+<td>ANSI C</td>
+<td><code class="prettyprint">char* sAuthGatewayHNIP</code><br><code class="prettyprint">int nAuthGatewayPORT</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>Java</td>
+<td><code class="prettyprint">String sAuthGatewayHNIP</code><br><code class="prettyprint">int nAuthGatewayPORT</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><u>Description</u></td>
+<td><b>Hostname/IP-address of the REL-ID Authentication Gateway against which the API-runtime must establish mutual authenticated connectivity on behalf of the API-client application</b></td>
+</tr>
+<tr>
+<td>Session&nbsp;Scope&nbsp;Privacy&nbsp;Details[in]</td>
+<td>ANSI C</td>
+<td><code class="prettyprint">char* sCipherSpecs</code><br><code class="prettyprint">char* sCipherSalt</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>Java</td>
+<td><code class="prettyprint">String sCipherSpecs</code><br><code class="prettyprint">String sCipherSalt</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><u>Description</u></td>
+<td><b>The session-scope cipher specs (encryption algorithm, padding and cipher mode), and the salt/IV to use with the cipher</b></td>
+</tr>
+<tr>
+<td>Application Context&nbsp;[in]</td>
+<td>ANSI C</td>
+<td><code class="prettyprint">void* pvAppCtx</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>Java</td>
+<td><code class="prettyprint">Object appCtx</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><u>Description</u></td>
+<td><b>Opaque reference to API-client application context that is never interpreted/modified by the API-runtime. This reference is supplied with each callback invocation to the API-client</b></td>
+</tr>
+<tr>
+<td>Proxy Settings [in]</td>
+<td>ANSI C</td>
+<td><code class="prettyprint">rdna_proxy_settings_t pProxySettings</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td>Java</td>
+<td><code class="prettyprint">RDNA.ProxySettings proxySettings</code></td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><u>Description</u></td>
+<td><b>Hostname/IPaddress and port-number for proxy to use when connecting to the Auth Gateway server. This is an optional parameter that may be null if it is not applicable</b></td>
+</tr>
+</tbody></table>
+
+<aside class="notice"><b><u>Session-Scope Cipher Details</u></b> -
+<br>
+The way in which session-scope privacy works is as follows:
+<li>The API-client application invokes an &ldquo;`Encrypt&rdquo;` API routine with <i>Session</i> privacy scope and sends the encrypted data via an access port
+<li>The DNA receives the data and decrypts it, before sending the data across to the backend service
+<li>The DNA receives the response from the backend service, and encrypts it before sending it back to the API-client application
+<li>The API-client application receives the encrypted response, and subsequently invokes a &ldquo;`Decrypt&rdquo;` API routine  with <i>Session</i> privacy scope before processing the plaintext response.
+The cipher details supplied in the &ldquo;`Initialize&rdquo;` routine, sets the cipher specs and salt for use in the above interactions.
+<br>
+<b><i>Hence, when &ldquo;`Session&rdquo;` privacy scope is used with any of the &ldquo;`Encrypt&rdquo;`/&ldquo;`Decrypt&rdquo;` API routines, the cipher specs and salt supplied are ignored</i></b>
+</aside>
+
+<h2 id="access-routines">Access Routines</h2>
+
+<p>These routines enable the API-client applications to retrieve the access port(s) for the backend services it requires to interact with, and use that information to safely interact with them.
+ * The first 2 <code class="prettyprint">GetService...</code> routines help retrieve the access port information for the service - one of them looks it up using a logical unique name of the backend service and the other one looks it up using a notional logical target coordinate for the backend service.
+ * The second 2 <code class="prettyprint">ServiceAccess...</code> routines are used to start and stop the access to the backend services.</p>
+<pre class="highlight c"><code><span class="n">e_rdna_error_t</span>
+<span class="n">rdnaGetServiceByServiceName</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sServiceName</span><span class="p">,</span>
+ <span class="n">rdna_service_t</span><span class="o">**</span>
+        <span class="n">ppService</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaGetServiceByTargetCoordinate</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sTargetHNIP</span><span class="p">,</span>
+ <span class="kt">int</span>    <span class="n">nTargetPORT</span><span class="p">,</span>
+ <span class="n">rdna_service_t</span><span class="o">**</span>
+        <span class="n">ppService</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaServiceAccessStart</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="n">rdna_service_t</span><span class="o">*</span>
+        <span class="n">pService</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaStopService</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="n">rdna_service_t</span><span class="o">*</span>
+        <span class="n">pService</span><span class="p">);</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//</span>
+  <span class="c1">//...</span>
+  <span class="c1">//</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Service</span> <span class="n">GetServiceByServiceName</span>      <span class="o">(</span><span class="n">String</span> <span class="n">serviceName</span><span class="o">);</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">Service</span> <span class="n">GetServiceByTargetCoordinate</span> <span class="o">(</span><span class="n">String</span> <span class="n">HNIP</span><span class="o">,</span> <span class="kt">int</span> <span class="n">PORT</span><span class="o">);</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">boolean</span> <span class="n">ServiceAccessStart</span> <span class="o">(</span><span class="n">Service</span> <span class="n">svc</span><span class="o">);</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">boolean</span> <span class="n">ServiceAccessStop</span>  <span class="o">(</span><span class="n">Service</span> <span class="n">svc</span><span class="o">);</span>
+  <span class="c1">//</span>
+  <span class="c1">//...</span>
+  <span class="c1">//</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Routine&nbsp;Name</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><b>GetServiceByServiceName</b></td>
+<td>Retrieve the <code class="prettyprint">Service</code> structure by looking up the unique logical name of the backend service (as configured in the REL-ID Gateway Manager</td>
+</tr>
+<tr>
+<td><b>GetServiceByTargetCoordinate</b></td>
+<td>Retrieve the <code class="prettyprint">Service</code> structure by looking up the target coordinate (hostname/IP-address and port number) of the backend service (as configured in the REL-ID Gateway Manager)<br><br><i>Note that the target gcoordinate is a notional coordinate, that does not necessarily correspond with the actual backend service coordinate as connected to by the REL-ID Access Gateways. In fact, it is recommended that they be kept different, thus masking the actual coordinate altogether from the front-end - however, in case of backend services which are web applications, this means that the web applications should be written to be agnostic of the coordinate (using all relative URIs in the web app, for example)</i></td>
+</tr>
+<tr>
+<td><b>ServiceAccessStart</b></td>
+<td>Access to the backend service via the access port(s) for the <code class="prettyprint">Service</code> is(are) started<li>In case of <code class="prettyprint">proxyPort</code>, the proxy facade of the DNA running on that port will start <i>tunneling</i> requests/data to the corresponding backend service.<li>In case of <code class="prettyprint">fwdedPort</code>, the corresponding forwarded TCP port is started in the DNA and made ready to accept connections from which data will be transparently forwarded to the corresponding service.</td>
+</tr>
+<tr>
+<td><b>ServiceAccessStop</b></td>
+<td>Access to the backend service via the access port(s) for the <code class="prettyprint">Service</code> is(are) stopped<li>In case of <code class="prettyprint">proxyPort</code>, the proxy facade of the DNA running on that port will stop <i>tunneling</i> requests/data to the corresponding backend service - it will instead revert with an appropriate HTTP Proxy error code<li>In case of <code class="prettyprint">fwdedPort</code>, the corresponding forwarded TCP port is shutdown and closed in the DNA and connections to that port will no longer be accepted.</td>
+</tr>
+</tbody></table>
+
+<h2 id="data-privacy-routines">Data Privacy Routines</h2>
+
+<p>The data privacy provided to the API-client application, is delivered at different scopes - each scope sets how the privacy (encryption) keys are generated and used. Further, 3 types of encryption/decryption functionality is provided - across all supported privacy scopes -
+ # Raw Data Packets: Encryption and decryption of raw data packets
+ # HTTP Requests and Responses: Encryption of HTTP requests and decryption of HTTP responses
+ # Buffered Streams: An in-memory buffered stream abstraction for encryption and decryption</p>
+
+<h3 id="data-privacy-scopes">Data Privacy Scopes</h3>
+<pre class="highlight c"><code><span class="k">typedef</span> <span class="k">enum</span> <span class="p">{</span>
+  <span class="n">RDNA_PRIVACY_SCOPE_SESSION</span> <span class="o">=</span> <span class="mh">0x01</span><span class="p">,</span> <span class="cm">/* use session-specific keys */</span>
+  <span class="n">RDNA_PRIVACY_SCOPE_DEVICE</span>  <span class="o">=</span> <span class="mh">0x02</span><span class="p">,</span> <span class="cm">/* use device-specific keys  */</span>
+  <span class="n">RDNA_PRIVACY_SCOPE_USER</span>    <span class="o">=</span> <span class="mh">0x03</span><span class="p">,</span> <span class="cm">/* use user-specific keys    */</span>
+  <span class="n">RDNA_PRIVACY_SCOPE_AGENT</span>   <span class="o">=</span> <span class="mh">0x04</span><span class="p">,</span> <span class="cm">/* use agent-specific keys   */</span>
+<span class="p">}</span> <span class="n">e_rdna_privacy_scope_t</span><span class="p">;</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">enum</span> <span class="n">ePrivacyScope</span> <span class="o">{</span>
+    <span class="n">RDNA_PRIVACY_SCOPE_SESSION</span> <span class="o">(</span><span class="mi">1</span><span class="o">),</span> <span class="cm">/* use session-specific keys */</span>
+    <span class="n">RDNA_PRIVACY_SCOPE_DEVICE</span><span class="o">,</span>      <span class="cm">/* use device-specific keys  */</span>
+    <span class="n">RDNA_PRIVACY_SCOPE_USER</span><span class="o">,</span>        <span class="cm">/* use user-specific keys    */</span>
+    <span class="n">RDNA_PRIVACY_SCOPE_AGENT</span><span class="o">;</span>       <span class="cm">/* use agent-specific keys   */</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">value</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">ePrivateScope</span> <span class="o">(</span><span class="kt">int</span> <span class="n">valueIn</span><span class="o">)</span> <span class="o">{</span><span class="n">value</span> <span class="o">=</span> <span class="n">valueIn</span><span class="o">;}</span>
+  <span class="o">}</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Scope</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>RDNA_PRIVACY_SCOPE_SESSION</td>
+<td>Keys used are specific to the REL-ID session and valid for duration of the session.<br>Used to secure the privacy of data in transit between the API-client application and the REL-ID DNA, as well as between the API-client application and its backend services.<br>Cipher details for this scope is ALWAYS set during initialization (see <code class="prettyprint">Initialize</code> routine documentation above)</td>
+</tr>
+<tr>
+<td>RDNA_PRIVACY_SCOPE_DEVICE</td>
+<td>Keys used are specific to the end-point device.<br>Used by the API-client application to secure the privacy of persistent data that the API-client application would store on the device.</td>
+</tr>
+<tr>
+<td>RDNA_PRIVACY_SCOPE_USER</td>
+<td>Keys used are specific to the authenticated user-identity.<br>This is relevant ONLY when the Advanced API (User-Interaction) is used.</td>
+</tr>
+<tr>
+<td>RDNA_PRIVACY_SCOPE_AGENT</td>
+<td>Keys used are specific to the agent (i.e. the application using the API)</td>
+</tr>
+</tbody></table>
+
+<h3 id="raw-data-packets">Raw Data Packets</h3>
+<pre class="highlight c"><code><span class="n">e_rdna_error_t</span>
+<span class="n">rdnaEncryptDataPacket</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="n">e_rdna_privacy_scope_t</span>
+        <span class="n">ePrivScope</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSpecs</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSalt</span><span class="p">,</span>
+ <span class="kt">void</span><span class="o">*</span>  <span class="n">pvPacketPlainBuf</span><span class="p">,</span>
+ <span class="kt">int</span>    <span class="n">nPacketPlainSize</span><span class="p">,</span>
+ <span class="kt">void</span><span class="o">**</span> <span class="n">ppvPacketEncryptedBuf</span><span class="p">,</span>
+ <span class="kt">int</span><span class="o">*</span>   <span class="n">pnPacketEncryptedSize</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaDecryptDataPacket</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="n">e_rdna_privacy_scope_t</span>
+        <span class="n">ePrivScope</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSpecs</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSalt</span><span class="p">,</span>
+ <span class="kt">void</span><span class="o">*</span>  <span class="n">pvPacketEncryptedBuf</span><span class="p">,</span>
+ <span class="kt">int</span>    <span class="n">nPacketEncryptedSize</span><span class="p">,</span>
+ <span class="kt">void</span><span class="o">**</span> <span class="n">ppvPacketPlainBuf</span><span class="p">,</span>
+ <span class="kt">int</span><span class="o">*</span>   <span class="n">pnPacketPlainSize</span><span class="p">);</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">EncryptDataPacket</span> <span class="o">(</span>
+      <span class="n">ePrivacyScope</span> <span class="n">scope</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSpecs</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSalt</span><span class="o">,</span>
+      <span class="kt">byte</span><span class="o">[]</span> <span class="n">dataPacketPlain</span><span class="o">);</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">DecryptDataPacket</span> <span class="o">(</span>
+      <span class="n">ePrivacyScope</span> <span class="n">scope</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSpecs</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSalt</span><span class="o">,</span>
+      <span class="kt">byte</span><span class="o">[]</span> <span class="n">dataPacketEncrypted</span><span class="o">);</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Routine</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><b>EncryptDataPacket</b></td>
+<td><li>Raw plaintext (unencrypted) data is supplied as a buffer of bytes.<li>This data is encrypted using keys as per specified privacy scope, and returned to calling API-client application.</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><b><u><code class="prettyprint">rdnaEncryptDataPacket</code></u></b> (ANSI C) -<li>If the supplied <code class="prettyprint">ppvPacketEncryptedBuf</code> and <code class="prettyprint">pnPacketEncryptedSize</code> are non-null, they are used to store the encrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><b><u><code class="prettyprint">EncryptDataPacket</code></u></b> (Java) -<li>The output is always returned as a newly allocated <code class="prettyprint">byte[]</code> array/buffer</td>
+</tr>
+<tr>
+<td><b>DecryptDataPacket</b></td>
+<td><li>Encrypted data is supplied as a buffer of bytes.<li>This data is decrypted using keys as per specified privacy scope, and returned to calling API-client application.</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><b><u><code class="prettyprint">rdnaDecryptDataPacket</code></u></b> (ANSI C) -<li>If the supplied <code class="prettyprint">ppvPacketPlainBuf</code> and <code class="prettyprint">pnPacketPlainSize</code> are non-null, they are used to store the decrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)<li>Recommended method is to supply input encrypted buffer itself in these output parameters, since it will definitely be larger than or equal to what would be required to store the decrypted output. Moreover, if this is not done, the routine will not reuse the input encrypted buffer by itself</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><b><u><code class="prettyprint">DecryptDataPacket</code></u></b> (Java) -<li>The output is always returned as a newly allocated <code class="prettyprint">byte[]</code> array/buffer</td>
+</tr>
+</tbody></table>
+
+<aside class="notice"><b><u>Session Scope</u></b> -
+<br>When used with session scope, these routines ignore the supplied cipher details (specs and salt). This is because for the session scope the cipher details are specified while initializing the API runtime (remember?)
+</aside>
+
+<h3 id="http-requests-and-responses">HTTP Requests and Responses</h3>
+<pre class="highlight c"><code><span class="n">e_rdna_error_t</span>
+<span class="n">rdnaEncryptHttpRequest</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="n">e_rdna_privacy_scope_t</span>
+        <span class="n">ePrivScope</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSpecs</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSalt</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sHttpRequestPlainBuf</span><span class="p">,</span>
+ <span class="kt">int</span>    <span class="n">nHttpRequestPlainSize</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">**</span> <span class="n">psHttpRequestEncryptedBuf</span><span class="p">,</span>
+ <span class="kt">int</span><span class="o">*</span>   <span class="n">pnHttpRequestEncryptedSize</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaDecryptHttpResponse</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="n">e_rdna_privacy_scope_t</span>
+        <span class="n">ePrivScope</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSpecs</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSalt</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sHttpResponseEncryptedBuf</span><span class="p">,</span>
+ <span class="kt">int</span>    <span class="n">nHttpResponseEncryptedSize</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">**</span> <span class="n">psHttpResponsePlainBuf</span><span class="p">,</span>
+ <span class="kt">int</span><span class="o">*</span>   <span class="n">pnHttpResponsePlainSize</span><span class="p">);</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">EncryptHttpRequest</span> <span class="o">(</span>
+      <span class="n">ePrivacyScope</span> <span class="n">scope</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSpecs</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSalt</span><span class="o">,</span>
+      <span class="kt">byte</span><span class="o">[]</span> <span class="n">httpRequestPlain</span><span class="o">);</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">DecryptHttpResponse</span> <span class="o">(</span>
+      <span class="n">ePrivacyScope</span> <span class="n">scope</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSpecs</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSalt</span><span class="o">,</span>
+      <span class="kt">byte</span><span class="o">[]</span> <span class="n">httpResponseEncrypted</span><span class="o">);</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Routine</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><b>EncryptHttpRequest</b></td>
+<td><li>HTTP request in plaintext (unencrypted) form is supplied as a buffer of bytes.<li>This request is encrypted using keys as per specified privacy scope, encoded appropriately, wrapped around in an HTTP request envelope and returned back to calling API-client application as another HTTP request.</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><b><u><code class="prettyprint">rdnaEncryptHttpRequest</code></u></b> (ANSI C) -<li>If the supplied <code class="prettyprint">psHttpRequestEncryptedBuf</code> and <code class="prettyprint">pnHttpRequestEncryptedSize</code> are non-null, they are used to store the encrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><b><u><code class="prettyprint">EncryptHttpRequest</code></u></b> (Java) -<li>The output is always returned as a newly allocated <code class="prettyprint">byte[]</code> array/buffer</td>
+</tr>
+<tr>
+<td><b>DecryptHttpResponse</b></td>
+<td><li>HTTP response in encrypted form is supplied as a buffer of bytes.<li>This response is parsed, the embedded encrypted HTTP response is decoded, decrypted using keys as per specified scope, and returned back to calling API-client application as the original plaintext HTTP response.</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><b><u><code class="prettyprint">rdnaDecryptHttpResponse</code></u></b> (ANSI C) -<li>If the supplied <code class="prettyprint">psHttpResponsePlainBuf</code> and <code class="prettyprint">pnHttpResponsePlainSize</code> are non-null, they are used to store the decrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)<li>Recommended method is to supply input encrypted buffer itself in these output parameters, since it will definitely be larger than or equal to what would be required to store the decrypted output. Moreover, if this is not done, the routine will not reuse the input encrypted buffer by itself</td>
+</tr>
+<tr>
+<td>&nbsp;</td>
+<td><b><u><code class="prettyprint">DecryptHttpResponse</code></u></b> (Java) -<li>The output is always returned as a newly allocated <code class="prettyprint">byte[]</code> array/buffer</td>
+</tr>
+</tbody></table>
+
+<aside class="notice"><b><u>Session Scope</u></b> -
+<br>When used with session scope, these routines ignore the supplied cipher details (specs and salt). This is because for the session scope the cipher details are specified while initializing the API runtime (remember?)
+</aside>
+
+<h3 id="buffered-streams">Buffered Streams</h3>
+<pre class="highlight c"><code><span class="k">typedef</span> <span class="k">enum</span> <span class="p">{</span>
+  <span class="n">RDNA_STREAM_TYPE_ENCRYPT</span> <span class="o">=</span> <span class="mh">0x00</span><span class="p">,</span> <span class="cm">/* a stream for encrypting */</span>
+  <span class="n">RDNA_STREAM_TYPE_DECRYPT</span> <span class="o">=</span> <span class="mh">0x01</span><span class="p">,</span> <span class="cm">/* a stream for decrypting */</span>
+<span class="p">}</span> <span class="n">e_rdna_stream_type_t</span><span class="p">;</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaCreatePrivacyStream</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="n">e_rdna_privacy_scope_t</span>
+        <span class="n">ePrivScope</span><span class="p">,</span>
+ <span class="n">e_rdna_stream_type_t</span>
+        <span class="n">eStreamType</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSpecs</span><span class="p">,</span>
+ <span class="kt">char</span><span class="o">*</span>  <span class="n">sCipherSalt</span><span class="p">,</span>
+ <span class="kt">void</span><span class="o">**</span> <span class="n">pvStream</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaStreamGetPrivacyScope</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvStream</span><span class="p">,</span>
+ <span class="n">e_rdna_privacy_scope_t</span><span class="o">*</span>
+        <span class="n">pePrivScope</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaStreamGetStreamType</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvStream</span><span class="p">,</span>
+ <span class="n">e_rdna_stream_type_t</span><span class="o">*</span>
+        <span class="n">peStreamType</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaStreamWriteData</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvStream</span><span class="p">,</span>
+ <span class="kt">void</span><span class="o">*</span>  <span class="n">pDataBuf</span><span class="p">,</span>
+ <span class="kt">int</span>    <span class="n">nDataLen</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaStreamReadData</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvStream</span><span class="p">,</span>
+ <span class="kt">void</span><span class="o">*</span>  <span class="n">pDataBuf</span><span class="p">,</span>
+ <span class="kt">int</span>    <span class="n">nDataLen</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaStreamDataLength</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvStream</span><span class="p">,</span>
+ <span class="kt">int</span><span class="o">*</span>   <span class="n">nInputDataLen</span><span class="p">,</span>
+ <span class="kt">int</span><span class="o">*</span>   <span class="n">nOutputDataLen</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaStreamPadAndDigest</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvStream</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaStreamDestroy</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvStream</span><span class="p">);</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">enum</span> <span class="n">eStreamType</span> <span class="o">{</span>
+    <span class="n">RDNA_STREAM_TYPE_ENCRYPT</span> <span class="o">(</span><span class="mi">0</span><span class="o">),</span> <span class="cm">/* a stream for encrypting */</span>
+    <span class="n">RDNA_STREAM_TYPE_DECRYPT</span> <span class="o">(</span><span class="mi">1</span><span class="o">);</span> <span class="cm">/* a stream for decrypting */</span>
+    <span class="kd">public</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">value</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="n">eStreamType</span> <span class="o">(</span><span class="kt">int</span> <span class="n">valueIn</span><span class="o">)</span> <span class="o">{</span><span class="n">value</span> <span class="o">=</span> <span class="n">valueIn</span><span class="o">;}</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">interface</span> <span class="nc">PrivacyStream</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">ePrivacyScope</span> <span class="n">getPrivacyScope</span> <span class="o">();</span>
+    <span class="kd">public</span> <span class="n">eStreamType</span>   <span class="n">getStreamType</span> <span class="o">();</span>
+    <span class="kd">public</span> <span class="kt">void</span>  <span class="n">WriteData</span> <span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kt">void</span>  <span class="n">ReadData</span>  <span class="o">(</span><span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kt">int</span><span class="o">[]</span> <span class="n">DataLength</span> <span class="o">();</span> <span class="c1">// 0 - input, 1 - output</span>
+    <span class="kd">public</span> <span class="kt">void</span>  <span class="n">PadAndDigest</span> <span class="o">();</span>
+    <span class="kd">public</span> <span class="kt">void</span>  <span class="n">Destroy</span> <span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="n">PrivacyStream</span> <span class="n">CreatePrivacyStream</span> <span class="o">(</span>
+      <span class="n">ePrivacyScope</span> <span class="n">scope</span><span class="o">,</span>
+      <span class="n">eStreamType</span>   <span class="n">type</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSpecs</span><span class="o">,</span>
+      <span class="n">String</span> <span class="n">cipherSalt</span><span class="o">);</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<h2 id="pause-resume-routines">Pause/Resume Routines</h2>
+
+<p>The pause and resume routines make it possible to persist the <i>in-session</i> state of the API runtime and restore the runtime from the previously persisted state.</p>
+
+<p>This is useful in case of limited configuration devices and platforms - such as smartphone device platforms like Android, iOS and WindowsPhone. In these platforms, a running application could be swapped out of memory due to &#39;crowding&rsquo; by other running applications, only to be swapped back in when the user chooses to access that application again. </p>
+<pre class="highlight c"><code><span class="n">e_rdna_error_t</span>
+<span class="n">rdnaPauseRuntime</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">,</span>
+ <span class="kt">void</span><span class="o">**</span> <span class="n">ppvState</span><span class="p">,</span>
+ <span class="kt">int</span><span class="o">*</span>   <span class="n">pnStateSize</span><span class="p">);</span>
+
+<span class="n">e_rdna_error_t</span>
+<span class="n">rdnaResumeRuntime</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">**</span> <span class="n">ppvRdnaCtx</span><span class="p">,</span>
+ <span class="kt">void</span><span class="o">*</span>  <span class="n">pvState</span><span class="p">,</span>
+ <span class="kt">int</span>    <span class="n">nStateSize</span><span class="p">,</span>
+ <span class="n">rdna_callbacks_t</span><span class="o">*</span>
+        <span class="n">pCallbacks</span><span class="p">);</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">byte</span><span class="o">[]</span> <span class="n">PauseRuntime</span> <span class="o">();</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">RDNA</span> <span class="n">ResumeRuntime</span> <span class="o">(</span>
+      <span class="kt">byte</span><span class="o">[]</span> <span class="n">savedState</span><span class="o">,</span>
+      <span class="n">Callbacks</span> <span class="n">callbacks</span><span class="o">);</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Routine</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><b>PauseRuntime</b></td>
+<td><li>State of API runtime is serialized and returned in output buffer.<li>Information in this buffer is encrypted and must be supplied <i>AS IS</i> back with the <code class="prettyprint">ResumeRuntme</code> routine call.<li><b>Initiates termination/cleanup of the API-runtime before returning</b> - no <code class="prettyprint">StatusUpdate</code> callback invocations are made for this API routine.</td>
+</tr>
+<tr>
+<td><b>ResumeRuntime</b></td>
+<td><li>The supplied buffer containing a previously saved runtime state is used to re-initialize the runtime to that saved state. <li>The callback routines from the API-client must again be supplied herewith - these are not serialized by <code class="prettyprint">PauseRuntime</code> since they are references to code blocks in memory and may not be valid across process re-invocations.<li><code class="prettyprint">StatusUpdate</code> callback is invoked to signal completion of the re-initialization - the method ID specified is that of the <code class="prettyprint">Initialize</code> API routine.</td>
+</tr>
+</tbody></table>
+
+<h2 id="terminate-routine">Terminate Routine</h2>
+<pre class="highlight c"><code><span class="n">e_dna_error_t</span>
+<span class="n">rdnaTerminate</span>
+<span class="p">(</span><span class="kt">void</span><span class="o">*</span>  <span class="n">pvRdnaCtx</span><span class="p">);</span>
+</code></pre>
+<pre class="highlight java"><code><span class="kn">package</span> <span class="n">com</span><span class="o">.</span><span class="na">uniken</span><span class="o">.</span><span class="na">rdna</span><span class="o">;</span>
+<span class="kd">class</span> <span class="nc">RDNA</span> <span class="o">{</span>
+  <span class="c1">//...</span>
+  <span class="kd">public</span> <span class="kd">abstract</span> <span class="kt">void</span> <span class="n">Terminate</span> <span class="o">();</span>
+  <span class="c1">//...</span>
+<span class="o">}</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Routine</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><b>Terminate</b></td>
+<td><li>API runtime shutdown is initiated - including freeing up memory and other resources, and stopping of the DNA.<li>No <code class="prettyprint">StatusUpdate</code> callback invocations are made for this API routine</td>
+</tr>
+</tbody></table>
+
+<h1 id="advanced-api">Advanced API</h1>
+
+<h2 id="checkuser">CheckUser</h2>
+
+<h2 id="checkcredentials">CheckCredentials</h2>
+
+<h2 id="activateuser">ActivateUser</h2>
+
+<h2 id="updatecredentials">UpdateCredentials</h2>
+
+<h2 id="updatedevicebinding">UpdateDeviceBinding</h2>
+
+<h2 id="generateotp">GenerateOTP</h2>
+
+<h2 id="updatenotification">UpdateNotification</h2>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="c">ANSI C</a>
+                <a href="#" data-language-name="java">Java</a>
+                <a href="#" data-language-name="objective_c">Objective C</a>
+                <a href="#" data-language-name="cpp">C++</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
