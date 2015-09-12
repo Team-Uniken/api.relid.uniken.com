@@ -25,6 +25,7 @@ Gemfile.lock
 Rakefile
 *.DS_STORE
 .cache
+script.sh
 # YARD artifacts
 .yardoc
 _yardoc
