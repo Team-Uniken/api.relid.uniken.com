@@ -3,6 +3,9 @@
 .bundle
 .config
 coverage
+source
+!source/index.md
+build
 InstalledFiles
 lib/bundler/man
 pkg
@@ -11,9 +14,17 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
+*.yml
+CHANGELOG.md
+config.rb
+CONTRIBUTING.md
+Dockerfile
+font-selection.js
+Gemfile
+Gemfile.lock
+Rakefile
 *.DS_STORE
 .cache
-
 # YARD artifacts
 .yardoc
 _yardoc
