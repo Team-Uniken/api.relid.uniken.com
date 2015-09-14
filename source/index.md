@@ -1,5 +1,5 @@
 ---
-title: REL-ID SDK Modified Again
+title: REL-ID SDK Modified by Eashwar-Uniken
 
 language_tabs:
   - c: ANSI C
@@ -19,7 +19,7 @@ search: true
 
 # Introduction
 
-Welcome to the REL-ID API Modified Again!
+Welcome to the REL-ID API Modified by Eashwar-Uniken!
 
 REL-ID is a digital trust platform that connects things, securely. It creates a closed, private, massively scalable, networked application ecosystem to protect enterprise applications and data from unauthorized and fraudulent access and tampering.
 
