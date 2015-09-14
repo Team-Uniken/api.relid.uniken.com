@@ -20,6 +20,7 @@ search: true
 # Introduction
 
 Welcome to the REL-ID API Modified by Eashwar-Uniken!
+I have been removed!
 
 REL-ID is a digital trust platform that connects things, securely. It creates a closed, private, massively scalable, networked application ecosystem to protect enterprise applications and data from unauthorized and fraudulent access and tampering.
 
