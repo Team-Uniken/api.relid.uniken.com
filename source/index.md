@@ -1,5 +1,5 @@
 ---
-title: REL-ID SDK Modified by Eashwar-Uniken
+title: REL-ID SDK
 
 language_tabs:
   - c: ANSI C
@@ -10,7 +10,6 @@ language_tabs:
 toc_footers:
   - <a href='http://www.uniken.com'>Uniken Website</a>
 
-
 <!--includes:
   - errors-->
 
@@ -19,22 +18,23 @@ search: true
 
 # Introduction
 
-Welcome to the REL-ID API Modified by Eashwar-Uniken!
-I have been removed!
+Welcome to the REL-ID API!
 
-REL-ID is a digital trust platform that connects things, securely. It creates a closed, private, massively scalable, networked application ecosystem to protect enterprise applications and data from unauthorized and fraudulent access and tampering.
+REL-ID is a digital trust platform that connects things - people, networks, devices, applications - securely. It creates a closed, private, massively scalable, app-to-app networking ecosystem to protect enterprise applications and data from unauthorized and fraudulent access, and tampering.
 
 The REL-ID API enables applications to be written to leverage the path-breaking security REL-ID provides. The API SDK is shipped with client-side API libraries, reference implementations and documentation, as well as the server-side REL-ID platform.
 
 The core API is implemented in ANSI C, and has wrappers/bindings for Java (Android), Objective-C (iOS) and C++ (Windows Phone).
 
+<aside class="notice">JavaScript bindings for hybrid application frameworks will be made available in future</aside>
+
 At a high level, the REL-ID API provides the following features that enable applications to leapfrog ahead in terms of securing themselves - mutual identity and authentication, device fingerprinting and binding, privacy of data, and the digital network adapter (aka DNA). An additional feature of capability to pause and resume the API runtime, on demand, has been provided particularly keeping mobile smartphone device platforms in mind.
 
 ## Mutual identity and authentication
 
-<u>Relative Identity</u> (or <u>REL-ID</u> for short) is a mutual identity that encapsulates/represents uniquely the relationship between 2 parties/entities. This mutual identity is mathematically split and distributed securely to the communicating parties. The identity of each end-point party/entity is thus relative to the identity of the other end-point party/entity. REL-ID can be used to represent the relationship between user and app, user and user, or app and other app, thus providing a holistic digital identity model
+<u>Relative Identity</u> (or <u>REL-ID</u> for short) is a mutual identity that encapsulates/represents uniquely, the relationship between 2 parties/entities. This mutual identity is mathematically split in two, and one part each is distributed securely to the communicating parties. The identity of each end-point party/entity is thus relative to the identity of the other end-point party/entity. REL-ID can be used to represent the relationship between user and app, user and user, or app and other app, thus providing a holistic digital identity model
 
-The protocol handshake that authenticates a REL-ID between 2 parties/entities is RMAK – which is short form for ‘<u><b>R</b>EL-ID <b>M</b>utual <b>A</b>uthentication and <b>K</b>ey-exchange</u>’. It is a unique and patented protocol handshake that provides MITM-resistant true mutual authentication to the authenticating parties. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.
+The protocol handshake that authenticates the REL-ID between 2 parties/entities is RMAK – which is short form for ‘<b><u>R</u>EL-ID <u>M</u>utual <u>A</u>uthentication and <u>K</u>ey-exchange</b>’. It is a unique and patented protocol handshake that enables MITM-resistant, true mutual authentication. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.
 
 <aside class="notice"><i><b><u>Agent REL-ID</u></b> and <b><u>User REL-ID</u></b></i> -
 <li>An <u><b>Agent REL-ID</b></u> is used to represent the relationship between software applicaition and the REL-ID platform backend.
@@ -60,35 +60,37 @@ Device | The keys used are specific to the end-point device. These keys are prim
 User | The keys used are specific to the user.
 Agent | The keys used are specific to the agent (i.e. the application using the API)
 
-## Digital Network Adapter (DNA)
+## REL-ID Digital Network Adapter (RDNA)
 
-After successful mutual authentication between the REL-ID API layer and the REL-ID platform backend (the REL-ID Authentication Gateway), the REL-Id Digital Network Adapter (or DNA) is setup inside the API layer for enabling secure communications of the API-client application with its own enterprise backend services. These services are hidden behind the REL-ID Access Gateway(s) and are accessible ONLY via the REL-ID DNA, which possesses the capability to tunnel/patch through application traffic between the client app and its backend services via the gateway.
+After successful mutual authentication between REL-ID API client-side and REL-ID platform backend (the REL-ID <b>Authentication Gateway</b>), the <b>REL-ID Digital Network Adapter</b> (or <b>RDNA</b> for short) is setup inside the API runtime for enabling secure communications of the API-client application with its enterprise backend services. These services are hidden behind the REL-ID <b>Access Gateway(s)</b> and are accessible ONLY via the RDNA, which possesses the capability to tunnel/relay/patch through application traffic between the client app and its backend services via an Access Gateway.
 
-The backend coordinates of the enterprise services that are accessible for a given software agent REL-ID or user REL-ID are configured into the REL-ID platform on the REL-ID Gateway Manager console. During this configuration, these coordinates are supplied in the form that they are reachable from the REL-ID Access Gateway(s), i.e. using the internal IP addresses.
+The backend coordinates of the enterprise services that are accessible for a given software agent REL-ID or user REL-ID are configured into the REL-ID platform on the REL-ID <b>Gateway Manager</b> console. During this configuration, these coordinates are supplied in the form that they are reachable from the REL-ID Access Gateway(s), i.e. using the internally accessible coordinates (IP addresses and port numbers).
 
-The DNA provides multiple mechanisms to enable this tunneling of traffic - an HTTP proxy facade, a SOCKS proxy facade and any number of forwarded TCP ports corresponding to backend enterprise service TCP coordinates.
+The RDNA provides multiple mechanisms to enable this tunneling of traffic - a HTTP proxy facade, and any number of forwarded TCP ports corresponding to backend enterprise service TCP coordinates.
 
 ### HTTP Proxy facade
 
 The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on the loopback adapter (127.0.0.1/::1)
 
+<!--
 ### SOCKS Proxy facade
 
 The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified SOCKS proxy running on the loopback adapter (127.0.0.1/::1)
 
+-->
 ### Forwarded port facade
 
 The API client connects directly to a locally present port which represents the backend enterprise service coordinate
 
 Facade | Description
 ------ | -----------
-HTTP-Proxy | The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on the loopback adapter (127.0.0.1/::1)
-SOCKS-Proxy | The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified SOCKS proxy running on the loopback adapter (127.0.0.1/::1)
+HTTP-Proxy | The API-client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on local loopback adapter (127.0.0.1/::1)
+<!--SOCKS-Proxy | The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified SOCKS proxy running on the loopback adapter (127.0.0.1/::1)-->
 Forwarded-Port | The API client connects directly to a locally present port which represents the backend enterprise service coordinate
 
 ## Pause-resume of API runtime
 
-Applications written for mobile platforms like Android, iOS and WindowsPhone today are typically almost always handle the 'OS is pausing your application' and the 'OS is resuming your application' events (the successful applications almost always implement this handling).
+Applications written for mobile platforms like Android, iOS and WindowsPhone always handle the 'OS is pausing your application' and the 'OS is resuming your application' events (the successful applications almost always implement this handling).
 
 The REL-ID API includes ```PauseRuntime``` and ```ResumeRuntime``` routines that terminate-and-save the runtime state and restore-and-reinitialize the runtime state respectively:
 
@@ -233,11 +235,22 @@ public class RDNA {
 }
 ```
 
+```objective_c
+@protocol rdna_callbacks_t
+@required
+- (int) StatusUpdate:(rdna_status_t *)status;
+@optional
+- (id) GetDeviceContext;
+- (NSString*)UnpackEndUserRelId:(NSString*)euRelId;
+@end
+```
+
 Callback Routine | Basic/Advanced | Description
 ---------------- | ---------------| -----------
 <b>StatusUpdate</b> | Basic API | Invoked by the API runtime in order to update the API-client application of the progress of a previously invoked API routine, or state changes and exceptions encountered in general during the course of its execution
 <b>GetDeviceFingerprint</b> | Basic API (core/ANSI-C) | Invoked by the API runtime during initialization (session creation) in order to retrieve the fingerprint identity of the end-point device
 <b>GetDeviceContext</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device
+<b>GetAppFingerprint</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the application fingerprint, supplied by the API-client application to include in the device details.<br>The intent of this routine is to provide the application with an opportunity to checksum itself so that the backend can check integrity of the application.
 <b>UnpackEndUserRelId</b> | Advanced API | Invoked by the API runtime after successful user credential authentication, in order to unpack the <i>locked</i> user Rel-ID as received from the REL-ID platform backend.
 
 <aside class="notice"><i><b><u>GetDeviceFingerprint</u></b> and <b><u>GetDeviceContext</u></b> callback routines</i> -
@@ -275,6 +288,15 @@ public class RDNA {
   }
   //...
 }
+```
+
+```objective_c
+@interface ProxySettings : NSObject
+@property(nonatomic,copy) NSString *proxyHNIP;
+@property(nonatomic)      int       proxyPORT;
+@property(nonatomic,copy) NSString *username;
+@property(nonatomic,copy) NSString *password;
+@end
 ```
 
 Field | Description
@@ -321,6 +343,16 @@ public class RDNA {
   }
   //...
 }
+```
+
+```objective_c
+@interface rdna_status_t : NSObject
+@property void* pvRdnaCtx;
+@property void* pvAppCtx;
+@property e_rdna_error_t eErrId;
+@property e_dna_method_t eMethId;
+@property id pvtArg; // TODO: Porting of union pending, so taken [id] as of now
+@end
 ```
 
 Field | Description
@@ -379,6 +411,26 @@ public class RDNA {
 }
 ```
 
+```objective_c
+typedef NS_ENUM(NSInteger, e_rdna_error_t) {
+  RDNA_ERR_NONE = 0,        /* No Error */
+  RDNA_ERR_NULLCONTEXTPTR,  /* Null context ptr passed in */
+  RDNA_ERR_NULLCALLBACKS,   /* Null callback/ptr passed in */
+  RDNA_ERR_NULLEMPTYHNIP,   /* Null or empty hostname/IP */
+  RDNA_ERR_INVALIDPORTNUM,  /* Invalid port number */
+  RDNA_ERR_NOMEMORY,        /* Memory allocation failed */
+  RDNA_ERR_EVENTLOOPINIT,   /* Failed to start event loop */
+  RDNA_ERR_MUTEXINITFAILED, /* Failed to initialize mutex */
+  RDNA_ERR_EVENTINITFAILED, /* Failed to initialize event */
+  RDNA_ERR_THRDSTARTFAILED, /* Failed to start thread */
+  RDNA_ERR_BADDNACONFIG,    /* Bad DNA configuration (tunnelconfig) */
+  RDNA_ERR_DNANOTRUNNING,   /* DNA is not running */
+  RDNA_ERR_ACCESSPORTISUP,  /* Access port has been started */
+  RDNA_ERR_ACCESSPORTISDOWN,/* Access port has been stopped */
+  RDNA_ERR_CORRUPTSTATEBUF, /* State buffer passed into ResumeRuntime is corrupt */
+};
+```
+
 Error Code | Meaning
 ---------- | -------
 RDNA_ERR_NONE (0) | No Error
@@ -425,6 +477,15 @@ public class RDNA {
 }
 ```
 
+```objective_c
+typedef NS_ENUM(NSInteger, e_dna_method_t) {
+  RDNA_METH_NONE = 0,       /* Not a method ID - invalid value */
+  RDNA_METH_INITIALIZE,     /* The Initialize() API routine */
+  RDNA_METH_SVC_AXS_START,  /* The ServiceAccessStart() API routine */
+  RDNA_METH_SVC_AXS_STOP,   /* The ServiceAccessStop() API routine */
+};
+```
+
 Method ID | Meaning
 --------- | -------
 RDNA_METH_NONE (0) | Not a method ID - invalid value
@@ -468,6 +529,14 @@ class RDNA {
 }
 ```
 
+```objective_c
+typedef NS_ENUM(NSInteger, e_rdna_port_type_t) {
+  RDNA_PORT_TYPE_ALLXS = 0x01, /* bound to all interfaces on device */
+  RDNA_PORT_TYPE_AUTOS = 0x02, /* automatically started and running */
+  RDNA_PORT_TYPE_PRIVY = 0x04, /* only accepts session-private data */
+};
+```
+
 Flag Name | Description
 --------- | -----------
 RDNA_PORT_TYPE_ALLXS (0x01) | <li>When set, it means that he access port is bound to all network interfaces on the end-point device.<li>If not, the access port is bound only to the loopback adapter on the end-point device
@@ -493,6 +562,13 @@ class RDNA {
     final int  port; /* local port number for accessing service */
   }
 }
+```
+
+```objective_c
+@interface rdna_port_t : NSObject
+@property id type;
+@property id port;
+@end
 ```
 
 Field Name | Data Type | Description
@@ -525,6 +601,16 @@ class RDNA {
     final Port   fwdedPort;   /* forwarded TCP port   */
   }
 }
+```
+
+```objective_c
+@interface rdna_service_t : NSObject
+@property (nonatomic,copy) NSString    *serviceName; /* logical service name */
+@property (nonatomic,copy) NSString    *targetHNIP;  /* backend hostname/IP  */
+@property (nonatomic)      int          targetPORT;  /* backend port number  */
+@property                  rdna_port_t *proxyPort;   /* proxy port setting   */
+@property                  rdna_port_t *fwdedPort;   /* forwarded TCP port   */
+@end
 ```
 
 Field Name | Data Type | Description
@@ -575,6 +661,20 @@ class RDNA {
     ProxySettings  proxySettings);   /* in */
   //...
 }
+```
+
+```objective_c
+@interface RDNA_ObjC : NSObject
+-(e_rdna_error_t)rdnaInitialize:(void*)ppvRdnaCtx
+                  andSagentInfo:(NSString*)sAgentInfo
+            andrdna_callbacks_t:(id<rdna_callbacks_t>)pCallbacks
+            andsAuthGatewayHNIP:(NSString*)sAuthGatewayHNIP
+                        andPort:(int)nAuthGatewayPORT
+                andsCipherSpecs:(NSString*)sCipherSpecs
+                 andsCipherSalt:(NSString*)sCipherSalt
+                      andAppCtx:(id)pvAppCtx
+               andProxySettings:(ProxySettings*)pProxySettings;
+@end
 ```
 
 Argument&nbsp;[in/out] | Language Binding | Prototype/Description
@@ -664,6 +764,25 @@ class RDNA {
 }
 ```
 
+```objective_c
+@interface RDNA_ObjC : NSObject
+-(e_rdna_error_t)rdnaGetServiceByServiceName:(void*)pvRdnaCtx
+                              andServiceName:(NSString*)sServiceName
+                           andrdna_service_t:(rdna_service_t**)ppService;
+
+-(e_rdna_error_t)rdnaGetServiceByTargetCoordinate:(void*)pvRdnaCtx
+                                   andsTargetHNIP:(NSString*)sTargetHNIP
+                                   andnTargetPORT:(NSString*)nTargetPORT
+                                andrdna_service_t:(rdna_service_t**)ppService;
+
+-(e_rdna_error_t)rdnaServiceAccessStart:(void*)pvRdnaCtx
+                      andrdna_service_t:(rdna_service_t*)pService;
+
+-(e_rdna_error_t)rdnaStopService:(void*)pvRdnaCtx
+               andrdna_service_t:(rdna_service_t*)pService;
+@end
+```
+
 Routine&nbsp;Name | Description
 ----------------- | -----------
 <b>GetServiceByServiceName</b> | Retrieve the ```Service``` structure by looking up the unique logical name of the backend service (as configured in the REL-ID Gateway Manager
@@ -703,6 +822,17 @@ class RDNA {
   }
   //...
 }
+```
+
+```objective_c
+@interface RDNA_ObjC : NSObject
+typedef NS_ENUM(NSInteger, e_rdna_privacy_scope_t) {
+  RDNA_PRIVACY_SCOPE_SESSION = 0x01, /* use session-specific keys */
+  RDNA_PRIVACY_SCOPE_DEVICE  = 0x02, /* use device-specific keys  */
+  RDNA_PRIVACY_SCOPE_USER    = 0x03, /* use user-specific keys    */
+  RDNA_PRIVACY_SCOPE_AGENT   = 0x04, /* use agent-specific keys   */
+};
+@end
 ```
 
 Scope | Description
@@ -756,6 +886,28 @@ class RDNA {
       byte[] dataPacketEncrypted);
   //...
 }
+```
+
+```objective_c
+@interface RDNA_ObjC : NSObject
+-(e_rdna_error_t)rdnaEncryptDataPacket:(void*)pvRdnaCtx
+             ande_rdna_privacy_scope_t:(e_rdna_privacy_scope_t)ePrivScope
+                       andsCipherSpecs:(NSString*)sCipherSpecs
+                        andsCipherSalt:(NSString*)sCipherSalt
+                   andpvPacketPlainBuf:(void*)pvPacketPlainBuf
+                   andnPacketPlainSize:(int)nPacketPlainSize
+              andppvPacketEncryptedBuf:(void**)ppvPacketEncryptedBuf
+              andpnPacketEncryptedSize:(int*)pnPacketEncryptedSize;
+
+-(e_rdna_error_t)rdnaDecryptDataPacket:(void*)pvRdnaCtx
+             ande_rdna_privacy_scope_t:(e_rdna_privacy_scope_t)ePrivScope
+                       andsCipherSpecs:(NSString*)sCipherSpecs
+                        andsCipherSalt:(NSString*)sCipherSalt
+               andpvPacketEncryptedBuf:(void*)pvPacketEncryptedBuf
+               andnPacketEncryptedSize:(int)nPacketEncryptedSize
+                  andppvPacketPlainBuf:(void**)ppvPacketPlainBuf
+                  andpnPacketPlainSize:(int*)pnPacketPlainSize;
+@end
 ```
 
 Routine | Description
@@ -815,6 +967,28 @@ class RDNA {
       byte[] httpResponseEncrypted);
   //...
 }
+```
+
+```objective_c
+@interface RDNA_ObjC : NSObject
+-(e_rdna_error_t)rdnaEncryptHttpRequest:(void*)pvRdnaCtx
+              ande_rdna_privacy_scope_t:(e_rdna_privacy_scope_t)ePrivScope
+                        andsCipherSpecs:(NSString*)sCipherSpecs
+                         andsCipherSalt:(NSString*)sCipherSalt
+                andsHttpRequestPlainBuf:(NSString*)sHttpRequestPlainBuf
+               andnHttpRequestPlainSize:(int)nHttpRequestPlainSize
+           andpsHttpRequestEncryptedBuf:(NSString**)psHttpRequestEncryptedBuf
+          andpnHttpRequestEncryptedSize:(int*)pnHttpRequestEncryptedSize;
+
+-(e_rdna_error_t)rdnaDecryptHttpResponse:(void*)pvRdnaCtx
+               ande_rdna_privacy_scope_t:(e_rdna_privacy_scope_t)ePrivScope
+                         andsCipherSpecs:(NSString*)sCipherSpecs
+                          andsCipherSalt:(NSString*)sCipherSalt
+            andsHttpResponseEncryptedBuf:(NSString*)sHttpResponseEncryptedBuf
+           andnHttpResponseEncryptedSize:(int)nHttpResponseEncryptedSize
+               andpsHttpResponsePlainBuf:(NSString**)psHttpResponsePlainBuf
+              andpnHttpResponsePlainSize:(int*)pnHttpResponsePlainSize;
+@end
 ```
 
 Routine | Description
@@ -919,6 +1093,31 @@ class RDNA {
 }
 ```
 
+```objective_c
+@interface RDNA_ObjC : NSObject
+-(e_rdna_error_t)rdnaCreatePrivacyStream:(void*)pvRdnaCtx
+                         andsCipherSpecs:(NSString*)sCipherSpecs
+                          andsCipherSalt:(NSString*)sCipherSalt
+               ande_rdna_privacy_scope_t:(e_rdna_privacy_scope_t)ePrivScope
+                 ande_rdna_stream_type_t:(e_rdna_stream_type_t)eStreamType
+                             andpvStream:(void**)pvStream;
+-(e_rdna_error_t)rdnaStreamGetPrivacyScope:(void*)pvStream
+                 ande_rdna_privacy_scope_t:(e_rdna_privacy_scope_t)pePrivScope;
+-(e_rdna_error_t)rdnaStreamGetStreamType:(void*)pvStream
+                 ande_rdna_stream_type_t:(e_rdna_stream_type_t)peStreamType;
+-(e_rdna_error_t)rdnaStreamWriteData:(void*)pvStream
+                         andpDataBuf:(void*)pDataBuf andnDataLen:(int)nDataLen;
+-(e_rdna_error_t)rdnaStreamReadData:(void*)pvStream
+                        andpDataBuf:(void*)pDataBuf
+                        andnDataLen:(int)nDataLen;
+-(e_rdna_error_t)rdnaStreamDataLength:(void*)pvStream
+                     andnInputDataLen:(int*)nInputDataLen
+                    andnOutputDataLen:(int*)nOutputDataLen;
+-(e_rdna_error_t)rdnaStreamPadAndDigest:(void*)pvStream;
+-(e_rdna_error_t)rdnaStreamDestroy:(void*)pvStream;
+@end
+```
+
 ## Pause/Resume Routines
 
 The pause and resume routines make it possible to persist the <i>in-session</i> state of the API runtime and restore the runtime from the previously persisted state.
@@ -954,6 +1153,18 @@ class RDNA {
 }
 ```
 
+```objective_c
+@interface RDNA_ObjC : NSObject
+-(e_rdna_error_t)rdnaPauseRuntime:(void*)pvRdnaCtx
+                      andppvState:(void**)ppvState
+                   andpnStateSize:(int*)pnStateSize;
+-(e_rdna_error_t)rdnaResumeRuntime:(void**)ppvRdnaCtx
+                        andpvState:(void*)pvState
+                     andnStateSize:(int)nStateSize
+               andrdna_callbacks_t:(id<rdna_callbacks_t>)pCallbacks;
+@end
+```
+
 Routine | Description
 ------- | -----------
 <b>PauseRuntime</b> | <li>State of API runtime is serialized and returned in output buffer.<li>Information in this buffer is encrypted and must be supplied <i>AS IS</i> back with the ```ResumeRuntme``` routine call.<li><b>Initiates termination/cleanup of the API-runtime before returning</b> - no ```StatusUpdate``` callback invocations are made for this API routine.
@@ -974,6 +1185,12 @@ class RDNA {
   public abstract void Terminate ();
   //...
 }
+```
+
+```objective_c
+@interface RDNA_ObjC : NSObject
+-(e_rdna_error_t)rdnaTerminate;
+@end
 ```
 
 Routine | Description
