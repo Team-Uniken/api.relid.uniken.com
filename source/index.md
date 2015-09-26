@@ -1,5 +1,5 @@
 ---
-title: REL-ID SDK
+title: REL-ID SDK (work-in-progress)
 
 language_tabs:
   - c: ANSI C
@@ -16,13 +16,16 @@ toc_footers:
 search: true
 ---
 
-<aside class="notice">This REL-ID API specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i></aside>
+<aside class="notice">
+This REL-ID API specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.<br>
+Last updated on Saturday, 26 September 2015, at 1830 IST
+</aside>
 
 # Introduction
 
 Welcome to the REL-ID API!
 
-REL-ID is a digital trust platform that connects things - people, networks, devices, applications - securely. It creates a closed, private, massively scalable, app-to-app networking ecosystem to protect enterprise applications and data from unauthorized and fraudulent access, and tampering.
+REL-ID is a distributed digital trust platform that connects things - people, networks, devices, applications - securely. It creates a closed, private, massively scalable, app-to-app networking ecosystem to protect enterprise applications and data from unauthorized and fraudulent access, and tampering.
 
 The REL-ID API enables applications to be written to leverage the path-breaking security REL-ID provides. The API SDK is shipped with client-side API libraries, reference implementations and documentation, as well as the server-side REL-ID platform.
 
@@ -74,12 +77,6 @@ The RDNA provides multiple mechanisms to enable this tunneling of traffic - a HT
 
 The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on the loopback adapter (127.0.0.1/::1)
 
-<!--
-### SOCKS Proxy facade
-
-The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified SOCKS proxy running on the loopback adapter (127.0.0.1/::1)
-
--->
 ### Forwarded port facade
 
 The API client connects directly to a locally present port which represents the backend enterprise service coordinate
@@ -87,7 +84,6 @@ The API client connects directly to a locally present port which represents the 
 Facade | Description
 ------ | -----------
 HTTP-Proxy | The API-client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on local loopback adapter (127.0.0.1/::1)
-<!--SOCKS-Proxy | The API client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified SOCKS proxy running on the loopback adapter (127.0.0.1/::1)-->
 Forwarded-Port | The API client connects directly to a locally present port which represents the backend enterprise service coordinate
 
 ## Pause-resume of API runtime
