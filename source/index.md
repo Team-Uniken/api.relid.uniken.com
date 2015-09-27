@@ -115,10 +115,10 @@ The following table lists and briefly describes the different interactions with 
 Interaction | Description
 ----------- | -----------
 <u>Initialization</u> | Initialize the API runtime by establishing a REL-ID session and setting up the API runtime, including a DNA instance
-<u>User-Identity</u> | Take the REL-ID session established during <u>Initialization</u> and take it through a bunch of states via this bunch of API routines, to the final SECONDARY (user REL-ID authenticated) state.
+<u>User&nbsp;Identity</u> | Take the REL-ID session established during <u>Initialization</u> and take it through a bunch of states via this bunch of API routines, to the final SECONDARY (user REL-ID authenticated) state.
 <u>Access</u> | Provide the API-client application with connectivity to its backend enterprise services via the DNA in the API runtime - to those backend services the REL-ID session has access to.
-<u>Data Privacy</u> | Provide the API-client application with routines to encrypt and decrypt data, with keys at different scopes, without worrying about key-management.
-<u>Pause-Resume</u> | Save API runtime state and shutdown runtime - subsequently restore runtime state and re-initialize the runtime
+<u>Data&nbsp;Privacy</u> | Provide the API-client application with routines to encrypt and decrypt data, with keys at different scopes, without worrying about key-management.
+<u>Pause&nbsp;Resume</u> | Save API runtime state and shutdown runtime - subsequently restore runtime state and re-initialize the runtime
 <u>Terminate</u> | Clean shutdown of the API runtime
 
 <aside class="notice"><i>The <b><u>User-Identity</u></b> interaction</i> -
