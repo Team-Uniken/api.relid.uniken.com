@@ -74,8 +74,8 @@ The API client connects directly to a locally present port which represents the 
 
 Facade | Description
 ------ | -----------
-HTTP-Proxy | The API-client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on local loopback adapter (127.0.0.1/::1)
-Forwarded-Port | The API client connects directly to a locally present port which represents the backend enterprise service coordinate
+HTTP&nbsp;Proxy | The API-client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on local loopback adapter (127.0.0.1/::1)
+Forwarded&nbsp;Port | The API client connects directly to a locally present port which represents the backend enterprise service coordinate
 
 ## Privacy of Data
 
