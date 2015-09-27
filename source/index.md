@@ -16,9 +16,11 @@ toc_footers:
 search: true
 ---
 
-<aside class="notice">
-This REL-ID API specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.<br>
-Last updated on Saturday, 26 September 2015, at 1830 IST
+<aside class="notice"><b><u>Disclaimer</u></b> -
+<br>
+This REL-ID API specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.
+<br>
+Last updated on Sunday, 27 September 2015, at 11:00 IST
 </aside>
 
 # Introduction
@@ -54,18 +56,7 @@ Every end-point computing device has a number of unique identities associated wi
 
 The REL-ID platform’s multi-factor authentication (MFA) is implemented by binding the device’s fingerprint/identity with the REL-ID of the user/app – thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
 
-## Privacy of Data
-
-One of the important functionalities the API SDK provides is to encrypt and decrypt application data, on demand. The following scopes of privacy are provided - session-scope, device-scope, user-scope and agent-scope. In all cases, the API-client application can additionally specify cipher-specs for the encryption algorithm and mode to use, as well as specify its own salting vector (or IV).
-
-Privacy Scope | Description
-------------- | -----------
-Session | The keys used are specific to the REL-ID session and valid for the duration of the session. These keys are primarily used to secure the privacy of data in transit between the API-client application and the REL-ID DNA, as well as between the API-client application and its backend services.
-Device | The keys used are specific to the end-point device. These keys are primarily used by the API-client application to secure the privacy of data that the API-client application might want to persist on the device.
-User | The keys used are specific to the user.
-Agent | The keys used are specific to the agent (i.e. the application using the API)
-
-## REL-ID Digital Network Adapter (RDNA)
+## Access to backend enterprise services
 
 After successful mutual authentication between REL-ID API client-side and REL-ID platform backend (the REL-ID <b>Authentication Gateway</b>), the <b>REL-ID Digital Network Adapter</b> (or <b>RDNA</b> for short) is setup inside the API runtime for enabling secure communications of the API-client application with its enterprise backend services. These services are hidden behind the REL-ID <b>Access Gateway(s)</b> and are accessible ONLY via the RDNA, which possesses the capability to tunnel/relay/patch through application traffic between the client app and its backend services via an Access Gateway.
 
@@ -85,6 +76,17 @@ Facade | Description
 ------ | -----------
 HTTP-Proxy | The API-client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on local loopback adapter (127.0.0.1/::1)
 Forwarded-Port | The API client connects directly to a locally present port which represents the backend enterprise service coordinate
+
+## Privacy of Data
+
+One of the important functionalities the API SDK provides is to encrypt and decrypt application data, on demand. The following scopes of privacy are provided - session-scope, device-scope, user-scope and agent-scope. In all cases, the API-client application can additionally specify cipher-specs for the encryption algorithm and mode to use, as well as specify its own salting vector (or IV).
+
+Privacy Scope | Description
+------------- | -----------
+Session | The keys used are specific to the REL-ID session and valid for the duration of the session. These keys are primarily used to secure the privacy of data in transit between the API-client application and the REL-ID DNA, as well as between the API-client application and its backend services.
+Device | The keys used are specific to the end-point device. These keys are primarily used by the API-client application to secure the privacy of data that the API-client application might want to persist on the device.
+User | The keys used are specific to the user.
+Agent | The keys used are specific to the agent (i.e. the application using the API)
 
 ## Pause-resume of API runtime
 
@@ -115,6 +117,7 @@ Interaction | Description
 <u>Initialization</u> | Initialize the API runtime by establishing a REL-ID session and setting up the API runtime, including a DNA instance
 <u>User-Identity</u> | Take the REL-ID session established during <u>Initialization</u> and take it through a bunch of states via this bunch of API routines, to the final SECONDARY (user REL-ID authenticated) state.
 <u>Access</u> | Provide the API-client application with connectivity to its backend enterprise services via the DNA in the API runtime - to those backend services the REL-ID session has access to.
+<u>Data Privacy</u> | Provide the API-client application with routines to encrypt and decrypt data, with keys at different scopes, without worrying about key-management.
 <u>Pause-Resume</u> | Save API runtime state and shutdown runtime - subsequently restore runtime state and re-initialize the runtime
 <u>Terminate</u> | Clean shutdown of the API runtime
 
