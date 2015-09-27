@@ -171,6 +171,10 @@ At this point the application access backend enterprise services in the context 
 
 The ports for the different DNA access facades, for different backend services, are returned in the status callback, when it reports the completion of successful initialization. Any changes in those facades (particularly the forwarded ports) are reported via the status callback upon successful user authentication via the User-Identity routine interactions.
 
+## Data Privacy
+
+One of the important results of successful initialization of the API-runtime, is the distribution of privacy keys at different scopes/levels (User, Device, Agent, Session). These keys are not directly shared with the API-client application, but are available for use with encryption and decryption of application data, via a set of privacy routines.
+
 ## Pause-Resume
 
 ### Pause
