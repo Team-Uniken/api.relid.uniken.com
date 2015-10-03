@@ -20,7 +20,7 @@ search: true
 <br>
 This REL-ID API specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.
 <br>
-Last updated on Sunday, 27 September 2015, at 11:00 IST
+Last updated on Sunday, 03 October 2015, at 15:00 Hong Kong time
 </aside>
 
 # Introduction
@@ -169,16 +169,22 @@ At this point the application access backend enterprise services in the context 
 
 ## Access
 
-The ports for the different DNA access facades, for different backend services, are returned in the status callback, when it reports the completion of successful initialization. Any changes in those facades (particularly the forwarded ports) are reported via the status callback upon successful user authentication via the User-Identity routine interactions.
+Upon successful initialization/authentication, the ports and facades for the access to different backend enterprise services are provided to the API-runtime to setup the DNA for API-client. This information is returned to the API-runtime everytime it creates a REL-ID session - which is adter successful initialization (PRIMARY session) and after successful end-user authentication (SECONDARY session). 
+
+When the access configuration for a given session changes at the backend, the session is immediately invalidated. This triggers the API-runtime to either renew/recreate its session, causing it to update/refresh the access configuration.
 
 ## Data Privacy
 
-One of the important results of successful initialization of the API-runtime, is the distribution of privacy keys at different scopes/levels (User, Device, Agent, Session). These keys are not directly shared with the API-client application, but are available for use with encryption and decryption of application data, via a set of privacy routines.
+One of the important results of successful initialization of the API-runtime, is the distribution of privacy keys at different scopes/levels (Device, Agent, Session). User-level keys are shared with the API-runtime, upon successful end-user authentication. 
+
+These keys are not directly shared with the API-client application, but are available for use with encryption and decryption of application data, via a set of privacy routines.
+
+This functionality is not directly related to the exact method of communication between the API-client application, and its backend enterprise services. For example, an API-client application could potentially use these privacy API to encrypt data, and send the cipher-text via SMS/EMAIL/other method to its backend services, whereupon the backend service could interact with REL-ID backend systems (Integration Gateway, in particular), to decrypt and obtain the plain-text data for processing.
 
 ## Pause-Resume
 
 ### Pause
-On mobile platforms, due to limited resource availability, the OS very often puts your application to sleep, giving the application a chance to save its state so that it may resume later when it is brought back to the foreground.
+On mobile platforms, due to limited resource availability, the OS very often puts your application to sleep. When doing this, the OS gives the application a chance to save its state so that it may resume later when it is brought back to the foreground.
 
 The pause API routine requires to be called in such an eventuality, so that the API runtime gets a opportunity to save its state and pass that state back to the API client application for saving to persistent storage on the device.
 
@@ -206,35 +212,46 @@ This structure is supplied to the Initialize routing containing API-client appli
 There are 3 primary callback routines that are provided - 2 of them are part of the Basic API and 1 of them is part of the Advanced API.
 
 ```c
-/* Update/Notify API-client of state changes, exceptions and notifications */
-typedef int (*fn_status_update_t) (rdna_status_t* pStatus);
+/* Callback invoked by core API runtime to update API-client of state changes, exceptions and notifications */
+typedef
+int 
+(*fn_status_update_t)
+(core_status_t* pStatus);
 
-/* Retrieve device fingerprint identity information */
-typedef int (*fn_get_device_fingerprint_t) (char **psDeviceFingerprint);
+/* Callback invoked by core API runtime to retrieve device fingerprint identity information */
+typedef
+int
+(*fn_get_device_fingerprint_t)
+(char **psDeviceFingerprint, void* pvAppCtx);
 
-/* Unpack 'locked' user RelID received post successful user authentication */
-typedef int (*fn_unpack_enduser_relid_t) (char* euRelId, char** uRelId);
+/* Callback invoked by core API runtime to unpack the 'locked' end-user RelID received post successful end-user authentication */
+typedef
+int
+(*fn_unpack_enduser_relid_t)
+(char* euRelId,
+ char** uRelId);
 
 /* struct of callback pointers */
 typedef struct {
   fn_status_update_t          pfnStatusUpdate;
   fn_get_device_fingerprint_t pfnGetDeviceFingerprint;
-  fn_unpack_enduser_relid     pfnUnpackEndUserRelId;
-} rdna_callbacks_t;
+  fn_unpack_enduser_relid_t   pfnUnpackEndUserRelId;
+} core_callbacks_t;
 ```
 
 ```java
 public class RDNA {
   //...
-  public interface Callbacks {
-    /* Update/Notify API-client of state changes, exceptions and notifications */
-    void   StatusUpdate       (Status status);
-
-    /* Retrieve device context reference so that fingerprint may be determined */
-    Object GetDeviceContext   ();
-
-    /* Unpack 'locked' user RelID received post successful user authentication */
-    String UnpackEndUserRelId (String euRelId);
+  public interface RDNACallbacks {
+    public int onInitializeCompleted(RDNAStatus status);
+    public String unpackEndUserRelID (String euRelId);
+    public Object getDeviceContext();
+    public String getApplicationFingerprint();
+    public void onStartService(List<RDNAService> serviceList);
+    public void onStopeService(List<RDNAService> serviceList);
+    public void onTerminated(RDNAStatus status);
+    public void onPauseRuntime(RDNAStatus status);
+    public void onResumeRuntime(RDNAStatus status);
   }
   //...
 }
