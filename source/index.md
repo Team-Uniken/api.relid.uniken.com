@@ -20,7 +20,9 @@ search: true
 <br>
 This REL-ID API specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.
 <br>
-Last updated on Sunday, 27 September 2015, at 11:00 IST
+Lots of TODOs in the specifications - to be filled in / updated by engineering team - will be uploaded/updated here as and when received.
+<br>
+Last updated on Monday, 12 October 2015, at 1945 HK Time
 </aside>
 
 # Introduction
