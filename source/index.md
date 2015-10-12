@@ -20,7 +20,7 @@ search: true
 <br>
 This REL-ID API specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.
 <br>
-Last updated on Sunday, 03 October 2015, at 15:00 Hong Kong time
+Last updated on Sunday, 27 September 2015, at 11:00 IST
 </aside>
 
 # Introduction
@@ -90,7 +90,7 @@ Agent | The keys used are specific to the agent (i.e. the application using the 
 
 ## Pause-resume of API runtime
 
-Applications written for mobile platforms like Android, iOS and WindowsPhone always handle the 'OS is pausing your application' and the 'OS is resuming your application' events (the successful applications almost always implement this handling).
+Applications written for mobile platforms like Android, iOS and WindowsPhone generally require to handle the 'OS is pausing your application' and the 'OS is resuming your application' events.
 
 The REL-ID API includes ```PauseRuntime``` and ```ResumeRuntime``` routines that terminate-and-save the runtime state and restore-and-reinitialize the runtime state respectively:
 
@@ -123,9 +123,7 @@ Interaction | Description
 
 <aside class="notice"><i>The <b><u>User-Identity</u></b> interaction</i> -
 <br>
-is applicable only when an API-client application uses the REL-ID API for the purpose of its user identity as well. This part of the API is called the REL-ID Advanced API. The rest of the interactions are applicable regardless (ie part of the Basic API).
-<br>
-In other words, the Advanced API is nothing but the Basic API + User-Identity interaction.
+is applicable only when an API-client application uses the REL-ID API for the purpose of its user identity as well. This part of the API is called the REL-ID Advanced API. The rest of the interactions are applicable regardless (ie part of the Basic API). In other words, the Advanced API is nothing but the Basic API + User-Identity interaction.
 </aside>
 
 ## Initialization
@@ -240,6 +238,7 @@ typedef struct {
 ```
 
 ```java
+/* TODO: */
 public class RDNA {
   //...
   public interface RDNACallbacks {
@@ -258,13 +257,11 @@ public class RDNA {
 ```
 
 ```objective_c
-@protocol rdna_callbacks_t
-@required
-- (int) StatusUpdate:(rdna_status_t *)status;
-@optional
-- (id) GetDeviceContext;
-- (NSString*)UnpackEndUserRelId:(NSString*)euRelId;
-@end
+/* TODO: */
+```
+
+```cpp
+/* TODO: */
 ```
 
 Callback Routine | Basic/Advanced | Description
@@ -274,6 +271,8 @@ Callback Routine | Basic/Advanced | Description
 <b>GetDeviceContext</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device
 <b>GetAppFingerprint</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the application fingerprint, supplied by the API-client application to include in the device details.<br>The intent of this routine is to provide the application with an opportunity to checksum itself so that the backend can check integrity of the application.
 <b>UnpackEndUserRelId</b> | Advanced API | Invoked by the API runtime after successful user credential authentication, in order to unpack the <i>locked</i> user Rel-ID as received from the REL-ID platform backend.
+
+Apart from the above callback routines, specific events have been called out as onThisHappened() and onThatHappened() callbacks, in the wrapper APIs. This is to make it simpler and clearer for the API-client to react to these events.
 
 <aside class="notice"><i><b><u>GetDeviceFingerprint</u></b> and <b><u>GetDeviceContext</u></b> callback routines</i> -
 <br>
@@ -321,6 +320,10 @@ public class RDNA {
 @end
 ```
 
+```cpp
+/* TODO: */
+```
+
 Field | Description
 ----- | -----------
 <b>ProxyHNIP</b> | <b>H</b>ost<b>N</b>ame or <b>IP</b> address of the proxy server
@@ -338,43 +341,32 @@ At an abstract level, the pieces of information supplied by this data structure 
 typedef struct {
   union {
     struct {
-      rdna_port_t httpProxy;
+      core_service_t** pServices;
+      int              nServices;
     } initialize;
     char errorDesc[1024];
   } u;
-} rdna_args_t;
+} core_args_t;
 
 typedef struct {
-  void* pvRdnaCtx; /* context of API runtime */
-  void* pvAppCtx;  /* context of API-client  */
-  e_rdna_method_t eMethId; /* update for method */
-  e_rdna_error_t  eErrId;  /* error code return */
-  rdna_args_t* pArgs;      /* status details    */
-} rdna_status_t;
+  void* pvCoreCtx;    /* context of API runtime */
+  void* pvAppCtx;     /* context of API-client  */
+  e_core_method_t eMethId; /* update for method */
+  int  errId;              /* error code return */
+  core_args_t* pArgs;      /* status details    */
+} core_status_t;
 ```
 
 ```java
-public class RDNA {
-  //...
-  public static class Status {
-    RDNA    rdna;    /* context of API runtime */
-    Object  appCtx;  /* context of API-client  */
-    eMethod eMethId; /* update for method */
-    eError  eErrId;  /* error code return */
-    Object  args;    /* status details    */
-  }
-  //...
-}
+/* TODO: */
 ```
 
 ```objective_c
-@interface rdna_status_t : NSObject
-@property void* pvRdnaCtx;
-@property void* pvAppCtx;
-@property e_rdna_error_t eErrId;
-@property e_dna_method_t eMethId;
-@property id pvtArg; // TODO: Porting of union pending, so taken [id] as of now
-@end
+/* TODO: */
+```
+
+```cpp
+/* TODO: */
 ```
 
 Field | Description
@@ -382,345 +374,370 @@ Field | Description
 <b>RDNAContext</b> | A reference to the DNA context returned upon successful ```Initialize``` routine invocation. Note that there can technically be multiple such contexts active in the same API-client application - it depends on the application and its purpose.
 <b>APIClientContext</b> | An opaque reference to the API-client supplied context. This is supplied by the API-client to the ```Initialize``` routine, and is associated with the REL-ID DNA context throughout its lifetime. Note that this context is never read/interpreted or modified by the API runtime.
 <b>MethodIdentifier</b> | An identifier that specifies which method was invoked by the API-client application.
-<b>ErrorIdentifier</b> | An identifier that specifies the nature of the error that is being reported in the status update. This can be the special ```NONE``` identifier that indicates no error.
+<b>ErrorIdentifier</b> | An identifier that specifies the nature of the error that is being reported in the status update.
 <b>StatusArguments</b> | This is a polymorphic reference to status information - the actual reference to use depends on the method and error identifiers. For example in ANSI C, this points to a ```union```-based structure, and in Java this points to an ```Object``` reference that must be typecast accordingly.
 
 ## Error codes (enum)
 
+<aside class="warning"><i><b><u>TODO: This table as well as the code-blocks need to be updated</u></b></i></aside>
+
 ```c
+/* TODO: */
 typedef enum {
-  RDNA_ERR_NONE = 0,        /* No Error */
-  RDNA_ERR_NULLCONTEXTPTR,  /* Null context ptr passed in */
-  RDNA_ERR_NULLCALLBACKS,   /* Null callback/ptr passed in */
-  RDNA_ERR_NULLEMPTYHNIP,   /* Null or empty hostname/IP */
-  RDNA_ERR_INVALIDPORTNUM,  /* Invalid port number */
-  RDNA_ERR_NOMEMORY,        /* Memory allocation failed */
-  RDNA_ERR_EVENTLOOPINIT,   /* Failed to start event loop */
-  RDNA_ERR_MUTEXINITFAILED, /* Failed to initialize mutex */
-  RDNA_ERR_EVENTINITFAILED, /* Failed to initialize event */
-  RDNA_ERR_THRDSTARTFAILED, /* Failed to start thread */
-  RDNA_ERR_BADDNACONFIG,    /* Bad DNA configuration (tunnelconfig) */
-  RDNA_ERR_DNANOTRUNNING,   /* DNA is not running */
-  RDNA_ERR_ACCESSPORTISUP,  /* Access port has been started */
-  RDNA_ERR_ACCESSPORTISDOWN,/* Access port has been stopped */
-  RDNA_ERR_CORRUPTSTATEBUF, /* State buffer passed into ResumeRuntime is corrupt */
-} e_rdna_error_t;
+  //Common error codes
+  CORE_ERR_NONE = 0,          /* No Error */
+  CORE_ERR_NULLCONTEXTPTR,    /* Null context ptr passed in */
+  CORE_ERR_INVALIDPARAMETERS, /* Invalid Parameter passed in */
+  CORE_ERR_NOMEMORY,          /* Memory allocation failed */
+
+  CORE_ERR_NULLCALLBACKS,   /* Null callback/ptr passed in */
+  CORE_ERR_NULLEMPTYHNIP,   /* Null or empty hostname/IP */
+  CORE_ERR_INVALIDPORTNUM,  /* Invalid port number */
+  CORE_ERR_EVENTLOOPINIT,   /* Failed to start event loop */
+  CORE_ERR_MUTEXINITFAILED, /* Failed to initialize mutex */
+  CORE_ERR_EVENTINITFAILED, /* Failed to initialize event */
+  CORE_ERR_THRDSTARTFAILED, /* Failed to start thread */
+  CORE_ERR_BADDNACONFIG,    /* Bad DNA configuration (tunnelconfig) */
+  CORE_ERR_DNANOTRUNNING,   /* DNA is not running */
+  CORE_ERR_ACCESSPORTISUP,  /* Access port has been started */
+  CORE_ERR_ACCESSPORTISDOWN,/* Access port has been stopped */
+  CORE_ERR_CORRUPTSTATEBUF, /* State buffer passed into ResumeRuntime is corrupt */
+  CORE_ERR_INVALIDJSON,
+
+  //Core Crypto error codes
+  CORE_ERR_INVALIDCIPHERSPECS = 101, /* Invalid cipher-specifications */
+  CORE_ERR_INVALIDCIPHERKEY,
+  CORE_ERR_INVALIDPRIVACYSCOPE,
+  CORE_ERR_CIPHERREGISTERFAILED,
+  CORE_ERR_CIPHEROPERATIONFAILED,
+  CORE_ERR_CIPHERKEYSALTINGFAILED,
+  CORE_ERR_DIGESTREGISTERFAILED,
+  CORE_ERR_DIGESTOPERATIONFAILED,
+  CORE_ERR_CIPHERTEXTNOTMULTIPLEOFBLOCKSIZE,
+  CORE_ERR_DATAINTEGRITYCHECKFAILED,
+  CORE_ERR_INVALIDDATAPACKETLENGTH,
+  CORE_ERR_INVALIDSTREAMTYPE,
+  CORE_ERR_INVALIDBLOCKSIZE,
+  CORE_ERR_INVALIDREADYREADSIZE,
+
+  //Encoding decoding failure
+  CORE_ERR_DATAENCODINGFAILED,
+  CORE_ERR_DATADECODINGFAILED,
+
+  //Http parser formatter failure
+  CORE_ERR_HTTPPARSERINITFAILED,
+  CORE_ERR_HTTPPARSEROPERARTIONFAILED,
+  CORE_ERR_HTTPFORMATTERINITFAILED,
+  CORE_ERR_HTTPFORMATTEROPERARTIONFAILED,
+
+  CORE_ERR_AGENTRELIDNOTFOUND,
+  CORE_ERR_TUNNELLEDLISTEMPTY,
+  CORE_ERR_INVALIDTUNNELLCONFIG,
+  CORE_ERR_INVALIDAGENTINFO,
+  CORE_ERR_INVALIDARGS,                        /* Invalid arguments specified for the routine */
+  CORE_ERR_FAILEDTOINTIALIZE,
+
+  //Get Service Error Codes
+  CORE_ERR_SERVICECONTAINERISNULL,
+  CORE_ERR_SERVICECONTAINERISEMPTY,
+  CORE_ERR_SERVICENOTFOUND,
+  CORE_ERR_SERVICE_ALREADY_STARTED,
+  CORE_ERR_FAILED_TO_START_SERVICE,
+
+  CORE_ERR_PAUSESERIALIZEFAILED,
+
+  //Parse Session Ticket Error Codes
+  CORE_ERR_SESSIONTICKETJSONISINVALID,
+
+  //Get Session Blob Error Codes
+  CORE_ERR_ACCESSSESSIONBLOBARRAYISNULL,
+  CORE_ERR_ACCESSSESSIONBLOBARRAYISEMPTY,
+  CORE_ERR_ACCESSSESSIONBLOBGATEWAYNAMEISNULL,
+  CORE_ERR_ACCESSSESSIONBLOBISNULL,
+  CORE_ERR_ACCESSHNIPPORTNOTFOUND,
+
+  //Non tunnel audit log failure
+  CORE_ERR_NONTUNNELAUDITLOGISNULL,
+  CORE_ERR_NONTUNNELAUDITLOGISEMPTY,
+
+  //Start stop service error codes
+  CORE_ERR_SERVICECOORDINATEISNULL,
+  CORE_ERR_FAILEDTOSTOPCOORDINATE,
+
+} e_core_error_t;
 ```
 
 ```java
-public class RDNA {
-  //...
-  public static enum eError {
-    RDNA_ERR_NONE (0),        /* No Error */
-    RDNA_ERR_NULLCONTEXTPTR,  /* Null context ptr passed in */
-    RDNA_ERR_NULLCALLBACKS,   /* Null callback/ptr passed in */
-    RDNA_ERR_NULLEMPTYHNIP,   /* Null or empty hostname/IP */
-    RDNA_ERR_INVALIDPORTNUM,  /* Invalid port number */
-    RDNA_ERR_NOMEMORY,        /* Memory allocation failed */
-    RDNA_ERR_EVENTLOOPINIT,   /* Failed to start event loop */
-    RDNA_ERR_MUTEXINITFAILED, /* Failed to initialize mutex */
-    RDNA_ERR_EVENTINITFAILED, /* Failed to initialize event */
-    RDNA_ERR_THRDSTARTFAILED, /* Failed to start thread */
-    RDNA_ERR_BADDNACONFIG,    /* Bad DNA configuration (tunnelconfig) */
-    RDNA_ERR_DNANOTRUNNING,   /* DNA is not running */
-    RDNA_ERR_ACCESSPORTISUP,  /* Access port has been started */
-    RDNA_ERR_ACCESSPORTISDOWN,/* Access port has been stopped */
-    RDNA_ERR_CORRUPTSTATEBUF; /* State buffer passed into ResumeRuntime is corrupt */
-    public final int value;
-    eError (int valueIn) {value = valueIn;}
-  }
-  //...
-}
+/* TODO: */
 ```
 
 ```objective_c
-typedef NS_ENUM(NSInteger, e_rdna_error_t) {
-  RDNA_ERR_NONE = 0,        /* No Error */
-  RDNA_ERR_NULLCONTEXTPTR,  /* Null context ptr passed in */
-  RDNA_ERR_NULLCALLBACKS,   /* Null callback/ptr passed in */
-  RDNA_ERR_NULLEMPTYHNIP,   /* Null or empty hostname/IP */
-  RDNA_ERR_INVALIDPORTNUM,  /* Invalid port number */
-  RDNA_ERR_NOMEMORY,        /* Memory allocation failed */
-  RDNA_ERR_EVENTLOOPINIT,   /* Failed to start event loop */
-  RDNA_ERR_MUTEXINITFAILED, /* Failed to initialize mutex */
-  RDNA_ERR_EVENTINITFAILED, /* Failed to initialize event */
-  RDNA_ERR_THRDSTARTFAILED, /* Failed to start thread */
-  RDNA_ERR_BADDNACONFIG,    /* Bad DNA configuration (tunnelconfig) */
-  RDNA_ERR_DNANOTRUNNING,   /* DNA is not running */
-  RDNA_ERR_ACCESSPORTISUP,  /* Access port has been started */
-  RDNA_ERR_ACCESSPORTISDOWN,/* Access port has been stopped */
-  RDNA_ERR_CORRUPTSTATEBUF, /* State buffer passed into ResumeRuntime is corrupt */
-};
+/* TODO: */
+```
+
+```cpp
+/* TODO: */
 ```
 
 Error Code | Meaning
 ---------- | -------
-RDNA_ERR_NONE (0) | No Error
-RDNA_ERR_NULLCONTEXTPTR | Null context ptr passed in
-RDNA_ERR_NULLCALLBACKS | Null callback/ptr passed in
-RDNA_ERR_NULLEMPTYHNIP | Null or empty hostname/IP
-RDNA_ERR_INVALIDPORTNUM | Invalid port number
-RDNA_ERR_NOMEMORY | Memory allocation failed
-RDNA_ERR_EVENTLOOPINIT | Failed to start event loop
-RDNA_ERR_MUTEXINITFAILED | Failed to initialize mutex
-RDNA_ERR_EVENTINITFAILED | Failed to initialize event
-RDNA_ERR_THRDSTARTFAILED | Failed to start thread
-RDNA_ERR_BADDNACONFIG | Bad DNA configuration (tunnelconfig)
-RDNA_ERR_DNANOTRUNNING | DNA is not running
-RDNA_ERR_ACCESSPORTISUP | Access port has been started
-RDNA_ERR_ACCESSPORTISDOWN | port has been stopped
-RDNA_ERR_CORRUPTSTATEBUF | State buffer passed into ResumeRuntime is corrupt
+CORE_ERR_NONE (0) | No Error
+CORE_ERR_NULLCONTEXTPTR | Null context ptr passed in
+CORE_ERR_NULLCALLBACKS | Null callback/ptr passed in
+CORE_ERR_NULLEMPTYHNIP | Null or empty hostname/IP
+CORE_ERR_INVALIDPORTNUM | Invalid port number
+CORE_ERR_NOMEMORY | Memory allocation failed
+CORE_ERR_EVENTLOOPINIT | Failed to start event loop
+CORE_ERR_MUTEXINITFAILED | Failed to initialize mutex
+CORE_ERR_EVENTINITFAILED | Failed to initialize event
+CORE_ERR_THRDSTARTFAILED | Failed to start thread
+CORE_ERR_BADDNACONFIG | Bad DNA configuration (tunnelconfig)
+CORE_ERR_DNANOTRUNNING | DNA is not running
+CORE_ERR_ACCESSPORTISUP | Access port has been started
+CORE_ERR_ACCESSPORTISDOWN | port has been stopped
+CORE_ERR_CORRUPTSTATEBUF | State buffer passed into ResumeRuntime is corrupt
 
 ## Method identifiers (enum)
+
+<aside class="warning"><i><b><u>TODO: This table as well as the code-blocks need to be updated</u></b></i></aside>
 
 These identifiers are used to identify the routine when the ```StatusUpdate``` callback routine is invoked.
 
 ```c
 typedef enum {
-  RDNA_METH_NONE = 0,       /* Not a method ID - invalid value */
-  RDNA_METH_INITIALIZE,     /* The Initialize() API routine */
-  RDNA_METH_SVC_AXS_START,  /* The ServiceAccessStart() API routine */
-  RDNA_METH_SVC_AXS_STOP,   /* The ServiceAccessStop() API routine */
-} e_rdna_method_t;
+  CORE_METH_NONE = 0,       /* Not a method ID - invalid value */
+  CORE_METH_INITIALIZE,     /* The Initialize() API routine */
+  CORE_METH_SVC_AXS_START,  /* The ServiceAccessStart() API routine */
+  CORE_METH_SVC_AXS_STOP,   /* The ServiceAccessStop() API routine */
+  CORE_METH_TERMINATE,      /* Terminate runtime */
+  CORE_METH_RESUME,         /* Resume runtime */
+  CORE_METH_PAUSE,          /* Pause runtime */
+} e_core_method_t;
 ```
 
 ```java
-public class RDNA {
-  //...
-  public static enum eMethod {
-    RDNA_METH_NONE (0),       /* Not a method ID - invalid value */
-    RDNA_METH_INITIALIZE;     /* The Initialize() API routine */
-    RDNA_METH_SVC_AXS_START,  /* The ServiceAccessStart() API routine */
-    RDNA_METH_SVC_AXS_STOP;   /* The ServiceAccessStop() API routine */
-    public final int value;
-    eMethod (int valueIn) {value = valueIn;}
-  }
-  //...
-}
+/* TODO: */
 ```
 
 ```objective_c
-typedef NS_ENUM(NSInteger, e_dna_method_t) {
-  RDNA_METH_NONE = 0,       /* Not a method ID - invalid value */
-  RDNA_METH_INITIALIZE,     /* The Initialize() API routine */
-  RDNA_METH_SVC_AXS_START,  /* The ServiceAccessStart() API routine */
-  RDNA_METH_SVC_AXS_STOP,   /* The ServiceAccessStop() API routine */
-};
+/* TODO: */
 ```
+
+```cpp
+/* TODO: */
+```
+
+<aside class="warning"><i><b><u>TODO: This table as well as the code-blocks need to be updated</u></b></i></aside>
 
 Method ID | Meaning
 --------- | -------
-RDNA_METH_NONE (0) | Not a method ID - invalid value
-RDNA_METH_INITIALIZE | The ```Initialize``` API routine
-RDNA_METH_SVC_AXS_START | The ```ServiceAccessStart``` API routine
-RDNA_METH_SVC_AXS_STOP | The ```ServiceAccessStop``` API routine
+CORE_METH_NONE (0) | Not a method ID - invalid value
+CORE_METH_INITIALIZE | The ```Initialize``` API routine
+CORE_METH_SVC_AXS_START | The ```ServiceAccessStart``` API routine
+CORE_METH_SVC_AXS_STOP | The ```ServiceAccessStop``` API routine
 
 ## Backend services access
 
 These structures are used with the backend service access routines. They serve to encapsulate the backend services that are accessed by the API-client application. At a high level, the following lines/bullets describe these structures -
 
- * Each backend service is representated as a single structure with fields identifying its unique logical name, its target backend coordinate (hostname/IP-address and port number) and its local access ports
- * Each backend service is accessible via one or both of the following <i><u>Access Ports</u></i>:
-   * the locally running proxy facade of the DNA and/or
-   * a dedicated local forwarded port for the service
- * There are flags associated with each of these access ports which specifies:
-   * whether the local port is bound to all device network interfaces,
-   * whether it is available automatically, and
-   * whether it only accepts encrypted infornation (using the *InSession data privacy API routines).
+ * Each backend service is representated as a single structure with fields identifying the following information about it -
+   * its unique logical name,
+   * its target backend coordinate (hostname/IP-address and port number),
+   * the access-gateway to connect via, and
+   * its locally available access ports
+ * An opaque 'coordinate' pointer is also part of this structure, which needs to be supplied in order to stop the service access via API.
+ * The access port structure in turn specifies further details such as -
+   * whether the service is started or not,
+   * whether the local port is bound to all device network interfaces or not,
+   * whether it must be started automatically on initialization or not,
+   * whether it requires local privacy (between API-client and the REL-ID DNA) or not, and finally,
+   * whether it is accessible locally via a forwarded port or via the proxy facade on the DNA.
 
 ### Access Port Type flags
 
 These flags specify attributes of the returned access port for the backend service. The meanings of each flag are as follows -
 
 ```c
+/* TODO: Change source code to reflect below enum names */
 typedef enum {
-  RDNA_PORT_TYPE_ALLXS = 0x01, /* bound to all interfaces on device */
-  RDNA_PORT_TYPE_AUTOS = 0x02, /* automatically started and running */
-  RDNA_PORT_TYPE_PRIVY = 0x04, /* only accepts session-private data */
-} e_rdna_port_type_t;
+  CORE_PORT_PORTFWD_TYPE = 0,
+  CORE_PORT_PROXY_TYPE = 1,
+}e_port_type_t;
 ```
 
 ```java
-package com.uniken.rdna;
-class RDNA {
-  public static enum ePortType {
-    RDNA_PORT_TYPE_ALLXS = 0x01, /* bound to all interfaces on device */
-    RDNA_PORT_TYPE_AUTOS = 0x02, /* automatically started and running */
-    RDNA_PORT_TYPE_PRIVY = 0x04, /* only accepts session-private data */
-  }
-}
+/* TODO: */
 ```
 
 ```objective_c
-typedef NS_ENUM(NSInteger, e_rdna_port_type_t) {
-  RDNA_PORT_TYPE_ALLXS = 0x01, /* bound to all interfaces on device */
-  RDNA_PORT_TYPE_AUTOS = 0x02, /* automatically started and running */
-  RDNA_PORT_TYPE_PRIVY = 0x04, /* only accepts session-private data */
-};
+/* TODO: */
 ```
+
+```cpp
+/* TODO: */
+```
+
+Either one of the below flags is set in the access port structure for a service.
 
 Flag Name | Description
 --------- | -----------
-RDNA_PORT_TYPE_ALLXS (0x01) | <li>When set, it means that he access port is bound to all network interfaces on the end-point device.<li>If not, the access port is bound only to the loopback adapter on the end-point device
-RDNA_PORT_TYPE_AUTOS (0x02) | This flag specifies the availability of access to the related backend service via this access port.<li>When set, the access via this port is immediately available (automatically started).<li>If not, it means that the access via this port must be started using the ```ServiceAccessStart``` and ```ServiceAccessStop``` API routines.
-RDNA_PORT_TYPE_PRIVY (0x04) | This flag specifies the whether privacy (encryption) is mandatory when communicating via this port.<li>When set, it means that one of the EncryptDataPacket/EncryptHttpRequest routines must be invoked before sending data to the backend service via this port, and DecryptDataPacket/DecryptHttpRequest routines must be invoked before using the data received from the backend service via this port.<li>If not, it means that communication with the backend service via this port may commence without privacy (encryption).
+CORE_PORT_PORTFWD_TYPE (0) | When set, it specifies that the access port is a locally available forwarded TCP port, representing transparent connectivity to the corresponding backend enterprise service coordinate. In this case, the API-client application would require to connect directly to this port, as if it is connecting to the backend enterprise service.
+CORE_PORT_PROXY_TYPE (1) | When set, it specifies that the access port is that of the locally running proxy facade of the REL-ID DNA, which will transparently tunnel requests and connections to the corresponding backend enterprise service coordinate. In this case, the API-client applicatioj would require to assume it is accessing the backend enterprise service via a proxy server on the specified port number.
 
 ### Access Port structure
 
-Each access port structure consists of a ```type``` member specifying the zero or more of the above attribute flags, and the actual TCP port number for the access port.
+Each access port structure consists of a bit-field corresponding to a bunch of boolean flags, and the actual TCP port number for the access port.
 
 ```c
-typedef struct {
-  char type; /* bitwise OR of e_rdna_port_type_t values */
-  int  port; /* local port number for accessing service */
-} rdna_port_t;
+typedef struct
+{
+  /* TODO: change isStarted to is_started, in code */
+  /* TODO: change port to port_number, in code */
+  unsigned int is_started      : 1; /* access is presently enabled/running */
+  unsigned int localhost_only  : 1; /* access is via only the loopback interface */
+  unsigned int auto_start      : 1; /* access was started automatically on initialization */
+  unsigned int privacy_enabled : 1; /* local privacy between API-client and DNA is mandatory(?) */
+  unsigned int port_type       : 1; /* CORE_PORT_FORWARDING_TYPE | CORE_PORT_PROXY_TYPE */
+  int port_number;                  /* local port number for accessing service */
+} core_port_t;
 ```
 
 ```java
-package com.uniken.rdna;
-class RDNA {
-  public static class Port {
-    final char type; /* bitwise OR of e_rdna_port_type_t values */
-    final int  port; /* local port number for accessing service */
-  }
-}
+/* TODO: */
 ```
 
 ```objective_c
-@interface rdna_port_t : NSObject
-@property id type;
-@property id port;
-@end
+/* TODO: */
+```
+
+```cpp
+/* TODO: */
 ```
 
 Field Name | Data Type | Description
 ---------- | --------- | -----------
-type | byte | A bit-mask with zero or more of the above <i>Access Port Type</i> flags set
-port | integer | The TCP port number of the access port<li>In case of the ```proxyPort``` member of the Service structure, this is the TCP port number of the proxy facade of the locally running DNA. Here, this just means that the backend service is accessible via this proxy facade<li>In case of the ```fwdedPort``` member of the Service structure, this is the TCP port number of the forwarded TCP port facade corresponding to the backend service, on the locally running DNA.
+is_started | bit&nbsp;(boolean) | Specifies whether the service access is enabled. In case of a PROXY_TYPE port, this implies the requests and connections to the corresponding backend enterprise service is enabled. In case of a PORTFWD_TYPE port, this implies that the locally forwarded port is up and accepting connections on behalf of the backend enterprise service.
+localhost_only | bit&nbsp;(boolean) | Specifies whether the port is bound just on the local loopback interfaces. If not, it is bound on all network interfaces on the device (this is not recommended for enterprise applications)
+auto_start | bit&nbsp;(boolean) | Specifies whether the service access was enabled as part of the API-runtime initialization.
+privacy_enabled | bit&nbsp;(boolean) | Specifies whether use of the REL-ID Privacy API routines is mandated, for the data in transit between the API-client application and the REL-ID DNA
+port_type | bit&nbsp;(boolean) | Specifies whether the port is of PROXY_TYPE (1) or PORTFWD_TYPE (0)
+port_number | bit&nbsp;(boolean) | Specifies the actual TCP port number for this service access (could be PROXY or Forwarded Port)
 
 ### Service structure
 
-The service structure is unique for a given backend service, and specifies the unique logical name, target coordinates (hostname/IP and port number), a proxy facade access port and a forwarded TCP access port (any one or both may be specified).
+The service structure is unique for a given backend service, and specifies the unique logical name, target coordinates (hostname/IP and port number), access gateway details through which to access the service and access port details. It also specifies an opaque coordinate structure to be used when operating on the service using the ServiceAccess* API routines.
 
 ```c
-typedef struct {
-  char* serviceName; /* logical service name */
-  char* targetHNIP;  /* backend hostname/IP  */
-  int   targetPORT;  /* backend port number  */
-  rdna_port_t proxyPort; /* proxy port setting */
-  rdna_port_t fwdedPort; /* forwarded TCP port */
-} rdna_service_t;
+typedef struct
+{
+  char* serviceName;       /* logical service name         */
+  char* targetHNIP;        /* backend hostname/IP          */
+  int   targetPORT;        /* backend port number          */
+  char* accessServer;      /* access server name           */
+  void* serviceCoord;      /* Service coordinate structure */
+  core_port_t portInfo;    /* proxy port setting           */
+} core_service_t;
+/* TODO: Change accessServer to access_gateway */
+/* TODO: Change serviceCoord to service_ctx(?) */
+/* TODO: Rename all parameters using an abc_xyz_tuv naming convension, as appropriate for C variables? */
 ```
 
 ```java
-package com.uniken.rdna;
-class RDNA {
-  public static class Service {
-    final String serviceName; /* logical service name */
-    final String targetHNIP;  /* backend hostname/IP  */
-    final int    targetPORT;  /* backend port number  */
-    final Port   proxyPort;   /* proxy port settings  */
-    final Port   fwdedPort;   /* forwarded TCP port   */
-  }
-}
+/* TODO: */
 ```
 
 ```objective_c
-@interface rdna_service_t : NSObject
-@property (nonatomic,copy) NSString    *serviceName; /* logical service name */
-@property (nonatomic,copy) NSString    *targetHNIP;  /* backend hostname/IP  */
-@property (nonatomic)      int          targetPORT;  /* backend port number  */
-@property                  rdna_port_t *proxyPort;   /* proxy port setting   */
-@property                  rdna_port_t *fwdedPort;   /* forwarded TCP port   */
-@end
+/* TODO: */
+```
+
+```cpp
+/* TODO: */
 ```
 
 Field Name | Data Type | Description
 ---------- | --------- | -----------
-serviceName | null-terminated string | Unique logical name of the backend service (as configured in REL-ID configuration (using Gateway Manager)
-targetHNIP | null-terminated string | The notional hostname/IP-address of the TCP coordinate of the backend service
-targetPORT | integer | The notional port number of the TCP coordinate of the backend service
-proxyPort | Port structure | The access port structure corresponding to the proxy facade of the DNA
-fwdedPort | Port structure | The access port structure corresponding to the forwarded TCP port facade of the DNA
-
+service_name | null-terminated string | Unique logical name of the backend service (as configured in REL-ID configuration (using Gateway Manager)
+target_hnip | null-terminated string | The notional hostname/IP-address of the TCP coordinate of the backend service
+target_port | integer | The notional port number of the TCP coordinate of the backend service
+access_gateway | null-terminated string | Unique logical name of the Access Gateway through which this service is accessible
+service_ctx | opaque-reference | Opaque context reference to be used when starting/stoping the ServiceAccess via the API routines
+port_info | access port structure | The access port structure corresponding to the proxy facade of the DNA
 
 # Basic API
 
 ## Initialize Routine
 
-This is the first routine that must be made to bootstrap the REL-ID API runtime up. The arguments to this routine are descibed in the below table.
+This is the first routine that must be called to bootstrap the REL-ID API runtime up. The arguments to this routine are descibed in the below table.
 
-This routine starts up the API runtime (including a DNA instance), and in the process registers the API-client supplied callback routines with the API runtime context. This is a non-blocking routine, and when it returns, it will have initiated the process of creation of a REL-ID session in PRIMARY state - the progress of this operation is notified to the API-client application via the ```StatusUpdate``` callback routine supplied by it.
+This routine starts up the API runtime (including a DNA - <i>Digital Network Adapter</i> - instance), and in the process registers the API-client supplied callback routines with the API runtime context. This is a non-blocking routine, and when it returns, it will have initiated the process of creation of a REL-ID session in PRIMARY state, using the supplied <i>agent information</i> - the progress of this operation is notified to the API-client application via the status update (core API), and event notification (wrapper API), callback routines supplied.
 
 A reference to the context of the newly created API runtime is returned to the API-client.
 
 ```c
-rdna_err_t rdnaInitialize (
-    void** ppvRdnaCtx,             /* out */
-    rdna_callbacks_t* pCallbacks, /* in  */
-    char*  sAgentInfo,            /* in  */
-    char*  sAuthGatewayHNIP,      /* in  */
-    int    nAuthGatewayPORT,      /* in  */
-    char*  sCipherSpecs,           /* in  */
-    char*  sCipherSalt,           /* in  */
-    void*  pvAppCtx,              /* in  */
-    rdna_proxy_settings_t*        /* in  */
-           pProxySettings /* = 0 */);
+int
+coreInitialize
+(void** ppvCoreCtx,
+ char*  sAgentInfo,
+ core_callbacks_t*
+        pCallbacks,
+ char*  sAuthGatewayHNIP,
+ int    nAuthGatewayPORT,
+ char*  sCipherSpecs,
+ char*  sCipherSalt,
+ void*  pvAppCtx,
+ proxy_settings_t*
+        pProxySettings);
 ```
 
 ```java
-package com.uniken.rdna;
-class RDNA {
-  //...
-  public static RDNA Initialize (
-    IRDNACallbacks callbacks,        /* in */
-    String         sLicBlob,         /* in */
-    String         sAuthGatewayHNIP, /* in */
-    int            nAuthGatewayPORT, /* in */
-    String         sCipherSpecs,     /* in */
-    String         sCipherSalt,      /* in */
-    Object         appCtx,           /* in */
-    ProxySettings  proxySettings);   /* in */
-  //...
-}
+/* TODO */
 ```
 
 ```objective_c
-@interface RDNA_ObjC : NSObject
--(e_rdna_error_t)rdnaInitialize:(void*)ppvRdnaCtx
-                  andSagentInfo:(NSString*)sAgentInfo
-            andrdna_callbacks_t:(id<rdna_callbacks_t>)pCallbacks
-            andsAuthGatewayHNIP:(NSString*)sAuthGatewayHNIP
-                        andPort:(int)nAuthGatewayPORT
-                andsCipherSpecs:(NSString*)sCipherSpecs
-                 andsCipherSalt:(NSString*)sCipherSalt
-                      andAppCtx:(id)pvAppCtx
-               andProxySettings:(ProxySettings*)pProxySettings;
-@end
+/* TODO */
 ```
+
+```cpp
+/* TODO */
+```
+<aside class="warning"> TODO If this entire table needs to be changed, please do so </aside>
 
 Argument&nbsp;[in/out] | Language Binding | Prototype/Description
 ----------------- | ----------------- | ---------
-DNA&nbsp;Context&nbsp;[out] | ANSI C | ```void** ppvDnaCtx```<br><li>Must be non-null<br><li>```(*ppvRdnaCtx)``` is updated with opaque pointer to internal DNA context
+API&nbsp;Context&nbsp;[out] | ANSI C | ```void** ppvCoreCtx```<br><li>Must be non-null<br><li>```(*ppvCoreCtx)``` is updated with opaque pointer to internal API runtime context
 &nbsp; | Java | An instance of ```RDNA``` is returned by the routine
+&nbsp; | Objective C | TODO - what is returned
+&nbsp; | C++ | TODO - what is returned
 &nbsp; | <u>Description</u> | <b>Newly created API runtime context is returned to API-client application</b>
-Callbacks&nbsp;[in] | ANSI C | ```rdna_callbacks_t* pCallbacks```
-&nbsp; | Java | ```RDNA.Callbacks&nbsp;callbacks```<br>i.e. an implementation of the ```RDNA.Callbacks``` interface
-&nbsp; | <u>Description</u> | <b>API-client application supplied callback routines to be invoked by the API-runtime</b>
 Agent&nbsp;Info&nbsp;[in] | ANSI C | ```char* sAgentInfo```
 &nbsp; | Java | ```String sAgentInfo```
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
 &nbsp; | <u>Description</u> | <b>Software identity information for the API-runtime to authenticate and establish primary session connectivity with the REL-ID platform backend</b>
+Callbacks&nbsp;[in] | ANSI C | ```core_callbacks_t* pCallbacks```
+&nbsp; | Java | ```RDNA.Callbacks&nbsp;callbacks```<br>i.e. an implementation of the ```RDNA.Callbacks``` interface
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
+&nbsp; | <u>Description</u> | <b>API-client application supplied callback routines to be invoked by the API-runtime</b>
 Auth&nbsp;Gateway Coordinate&nbsp;[in] | ANSI C | ```char* sAuthGatewayHNIP```<br>```int nAuthGatewayPORT```
 &nbsp; | Java | ```String sAuthGatewayHNIP```<br>```int nAuthGatewayPORT```
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
 &nbsp; | <u>Description</u> | <b>Hostname/IP-address of the REL-ID Authentication Gateway against which the API-runtime must establish mutual authenticated connectivity on behalf of the API-client application</b>
 Session&nbsp;Scope&nbsp;Privacy&nbsp;Details[in] | ANSI C | ```char* sCipherSpecs```<br>```char* sCipherSalt```
 &nbsp; | Java | ```String sCipherSpecs```<br>```String sCipherSalt```
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
 &nbsp; | <u>Description</u> | <b>The session-scope cipher specs (encryption algorithm, padding and cipher mode), and the salt/IV to use with the cipher</b>
 Application Context&nbsp;[in] | ANSI C | ```void* pvAppCtx```
 &nbsp; | Java | ```Object appCtx```
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
 &nbsp; | <u>Description</u> | <b>Opaque reference to API-client application context that is never interpreted/modified by the API-runtime. This reference is supplied with each callback invocation to the API-client</b>
-Proxy Settings [in] | ANSI C | ```rdna_proxy_settings_t pProxySettings```
+Proxy Settings [in] | ANSI C | ```core_proxy_settings_t pProxySettings```
 &nbsp; | Java | ```RDNA.ProxySettings proxySettings```
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
 &nbsp; | <u>Description</u> | <b>Hostname/IPaddress and port-number for proxy to use when connecting to the Auth Gateway server. This is an optional parameter that may be null if it is not applicable</b>
 
 <aside class="notice"><b><u>Session-Scope Cipher Details</u></b> -
@@ -737,49 +754,49 @@ The cipher details supplied in the ```Initialize``` routine, sets the cipher spe
 
 ## Access Routines
 
-These routines enable the API-client applications to retrieve the access port(s) for the backend services it requires to interact with, and use that information to safely interact with them.
- * The first 2 ```GetService...``` routines help retrieve the access port information for the service - one of them looks it up using a logical unique name of the backend service and the other one looks it up using a notional logical target coordinate for the backend service.
- * The second 2 ```ServiceAccess...``` routines are used to start and stop the access to the backend services.
+These routines enable the API-client applications to retrieve the service structure for the backend enterprise service it requires to interact with, and use that information to safely interact with them.
+ * The first 2 ```GetService...``` routines help retrieve the service information for the service - one of them looks it up using a logical unique name of the backend service and the other retrieves all available services for the current context
+ * The second 2 ```ServiceAccess...``` routines are used to start/enable and stop/disable the access to the backend services.
 
 ```c
-e_rdna_error_t
-rdnaGetServiceByServiceName
-(void*  pvRdnaCtx,
+/* TODO */
+e_core_error_t
+coreGetServiceByServiceName
+(void*  pvCoreCtx,
  char*  sServiceName,
- rdna_service_t**
+ core_service_t**
         ppService);
 
-e_rdna_error_t
-rdnaGetServiceByTargetCoordinate
-(void*  pvRdnaCtx,
- char*  sTargetHNIP,
- int    nTargetPORT,
- rdna_service_t**
-        ppService);
+e_core_error_t
+coreGetAllServices
+(void*  pvCoreCtx,
+ core_service_t**
+        ppServices);
 
-e_rdna_error_t
-rdnaServiceAccessStart
-(void*  pvRdnaCtx,
- rdna_service_t*
+e_core_error_t
+coreServiceAccessStart
+(void*  pvCoreCtx,
+ core_service_t*
         pService);
 
-e_rdna_error_t
-rdnaStopService
-(void*  pvRdnaCtx,
- rdna_service_t*
+e_core_error_t
+coreServiceAccessStop
+(void*  pvCoreCtx,
+ core_service_t*
         pService);
 ```
 
 ```java
+/* TODO */
 package com.uniken.rdna;
 class RDNA {
   //
   //...
   //
-  public abstract Service GetServiceByServiceName      (String serviceName);
-  public abstract Service GetServiceByTargetCoordinate (String HNIP, int PORT);
-  public abstract boolean ServiceAccessStart (Service svc);
-  public abstract boolean ServiceAccessStop  (Service svc);
+  public abstract Service   GetServiceByServiceName (String serviceName);
+  public abstract Service[] GetAllServices          ();
+  public abstract boolean   ServiceAccessStart (Service svc);
+  public abstract boolean   ServiceAccessStop  (Service svc);
   //
   //...
   //
@@ -787,30 +804,19 @@ class RDNA {
 ```
 
 ```objective_c
-@interface RDNA_ObjC : NSObject
--(e_rdna_error_t)rdnaGetServiceByServiceName:(void*)pvRdnaCtx
-                              andServiceName:(NSString*)sServiceName
-                           andrdna_service_t:(rdna_service_t**)ppService;
+/* TODO */
+```
 
--(e_rdna_error_t)rdnaGetServiceByTargetCoordinate:(void*)pvRdnaCtx
-                                   andsTargetHNIP:(NSString*)sTargetHNIP
-                                   andnTargetPORT:(NSString*)nTargetPORT
-                                andrdna_service_t:(rdna_service_t**)ppService;
-
--(e_rdna_error_t)rdnaServiceAccessStart:(void*)pvRdnaCtx
-                      andrdna_service_t:(rdna_service_t*)pService;
-
--(e_rdna_error_t)rdnaStopService:(void*)pvRdnaCtx
-               andrdna_service_t:(rdna_service_t*)pService;
-@end
+```cpp
+/* TODO */
 ```
 
 Routine&nbsp;Name | Description
 ----------------- | -----------
 <b>GetServiceByServiceName</b> | Retrieve the ```Service``` structure by looking up the unique logical name of the backend service (as configured in the REL-ID Gateway Manager
-<b>GetServiceByTargetCoordinate</b> | Retrieve the ```Service``` structure by looking up the target coordinate (hostname/IP-address and port number) of the backend service (as configured in the REL-ID Gateway Manager)<br><br><i>Note that the target gcoordinate is a notional coordinate, that does not necessarily correspond with the actual backend service coordinate as connected to by the REL-ID Access Gateways. In fact, it is recommended that they be kept different, thus masking the actual coordinate altogether from the front-end - however, in case of backend services which are web applications, this means that the web applications should be written to be agnostic of the coordinate (using all relative URIs in the web app, for example)</i>
-<b>ServiceAccessStart</b> | Access to the backend service via the access port(s) for the ```Service``` is(are) started<li>In case of ```proxyPort```, the proxy facade of the DNA running on that port will start <i>tunneling</i> requests/data to the corresponding backend service.<li>In case of ```fwdedPort```, the corresponding forwarded TCP port is started in the DNA and made ready to accept connections from which data will be transparently forwarded to the corresponding service.
-<b>ServiceAccessStop</b> | Access to the backend service via the access port(s) for the ```Service``` is(are) stopped<li>In case of ```proxyPort```, the proxy facade of the DNA running on that port will stop <i>tunneling</i> requests/data to the corresponding backend service - it will instead revert with an appropriate HTTP Proxy error code<li>In case of ```fwdedPort```, the corresponding forwarded TCP port is shutdown and closed in the DNA and connections to that port will no longer be accepted.
+<b>GetAllServices</b> | Retrieve the ```Service``` structures for all available services that are accessible via the current API-runtime context and the session within.
+<b>ServiceAccessStart</b> | Access to the service (i.e. the corresponding backend enterprise service) via the access port for the ```Service``` is started<li>In case of ```PROXY_TYPE``` port, the proxy facade of the DNA in the API-runtime listening on that port will start <i>tunneling</i> requests/data to the corresponding backend service.<li>In case of ```PORTFWD_TYPE``` port, the corresponding forwarded TCP port is started in the DNA in the API-runtime, and made ready to accept connections from which data will be transparently forwarded to the corresponding backend service.
+<b>ServiceAccessStop</b> | Access to the service (i.e. the corresponding backend enterprise service) via the access port for the ```Service``` is stopped<li>In case of ```PROXY_TYPE``` port, the proxy facade of the DNA in the API-runtime listening on that port will stop <i>tunneling</i> requests/data to the corresponding backend service - it will instead revert with an appropriate HTTP Proxy error code<li>In case of ```PORTFWD_TYPE``` port, the corresponding forwarded TCP port is shutdown and closed in the DNA in the API-runtime, and connections to that port will no longer be accepted.
 
 ## Data Privacy Routines
 
@@ -1026,119 +1032,39 @@ Routine | Description
 <br>When used with session scope, these routines ignore the supplied cipher details (specs and salt). This is because for the session scope the cipher details are specified while initializing the API runtime (remember?)
 </aside>
 
-
 ### Buffered Streams
 
 ```c
-typedef enum {
-  RDNA_STREAM_TYPE_ENCRYPT = 0x00, /* a stream for encrypting */
-  RDNA_STREAM_TYPE_DECRYPT = 0x01, /* a stream for decrypting */
-} e_rdna_stream_type_t;
-
-e_rdna_error_t
-rdnaCreatePrivacyStream
-(void*  pvRdnaCtx,
- e_rdna_privacy_scope_t
-        ePrivScope,
- e_rdna_stream_type_t
-        eStreamType,
- char*  sCipherSpecs,
- char*  sCipherSalt,
- void** pvStream);
-
-e_rdna_error_t
-rdnaStreamGetPrivacyScope
-(void*  pvStream,
- e_rdna_privacy_scope_t*
-        pePrivScope);
-
-e_rdna_error_t
-rdnaStreamGetStreamType
-(void*  pvStream,
- e_rdna_stream_type_t*
-        peStreamType);
-
-e_rdna_error_t
-rdnaStreamWriteData
-(void*  pvStream,
- void*  pDataBuf,
- int    nDataLen);
-
-e_rdna_error_t
-rdnaStreamReadData
-(void*  pvStream,
- void*  pDataBuf,
- int    nDataLen);
-
-e_rdna_error_t
-rdnaStreamDataLength
-(void*  pvStream,
- int*   nInputDataLen,
- int*   nOutputDataLen);
-
-e_rdna_error_t
-rdnaStreamPadAndDigest
-(void*  pvStream);
-
-e_rdna_error_t
-rdnaStreamDestroy
-(void*  pvStream);
+/* TODO */
 ```
 
 ```java
-package com.uniken.rdna;
-class RDNA {
-  //...
-  public static enum eStreamType {
-    RDNA_STREAM_TYPE_ENCRYPT (0), /* a stream for encrypting */
-    RDNA_STREAM_TYPE_DECRYPT (1); /* a stream for decrypting */
-    public final int value;
-    public eStreamType (int valueIn) {value = valueIn;}
-  }
-
-  public static interface PrivacyStream {
-    public ePrivacyScope getPrivacyScope ();
-    public eStreamType   getStreamType ();
-    public void  WriteData (byte[] data);
-    public void  ReadData  (byte[] data);
-    public int[] DataLength (); // 0 - input, 1 - output
-    public void  PadAndDigest ();
-    public void  Destroy ();
-  }
-
-  public abstract PrivacyStream CreatePrivacyStream (
-      ePrivacyScope scope,
-      eStreamType   type,
-      String cipherSpecs,
-      String cipherSalt);
-  //...
-}
+/* TODO */
 ```
 
 ```objective_c
-@interface RDNA_ObjC : NSObject
--(e_rdna_error_t)rdnaCreatePrivacyStream:(void*)pvRdnaCtx
-                         andsCipherSpecs:(NSString*)sCipherSpecs
-                          andsCipherSalt:(NSString*)sCipherSalt
-               ande_rdna_privacy_scope_t:(e_rdna_privacy_scope_t)ePrivScope
-                 ande_rdna_stream_type_t:(e_rdna_stream_type_t)eStreamType
-                             andpvStream:(void**)pvStream;
--(e_rdna_error_t)rdnaStreamGetPrivacyScope:(void*)pvStream
-                 ande_rdna_privacy_scope_t:(e_rdna_privacy_scope_t)pePrivScope;
--(e_rdna_error_t)rdnaStreamGetStreamType:(void*)pvStream
-                 ande_rdna_stream_type_t:(e_rdna_stream_type_t)peStreamType;
--(e_rdna_error_t)rdnaStreamWriteData:(void*)pvStream
-                         andpDataBuf:(void*)pDataBuf andnDataLen:(int)nDataLen;
--(e_rdna_error_t)rdnaStreamReadData:(void*)pvStream
-                        andpDataBuf:(void*)pDataBuf
-                        andnDataLen:(int)nDataLen;
--(e_rdna_error_t)rdnaStreamDataLength:(void*)pvStream
-                     andnInputDataLen:(int*)nInputDataLen
-                    andnOutputDataLen:(int*)nOutputDataLen;
--(e_rdna_error_t)rdnaStreamPadAndDigest:(void*)pvStream;
--(e_rdna_error_t)rdnaStreamDestroy:(void*)pvStream;
-@end
+/* TODO */
 ```
+
+```cpp
+/* TODO */
+```
+
+Routine | Description
+------- | -----------
+<b>```fn_block_ready_t```</b> | This is a callback routine supplied by the API-client. This routine is invoked from within the ```StreamWriteInto``` routine, when the requisite number of blocks are ready for consumption by the API-client (i.e. when that many blocks have been encrypted/decrypted, depending on the type of the privacy stream
+<b>CreatePrivacyStream</b> | <li>Creates a privacy stream using the supplied input - privacy scope, stream type (encryption/decryption), cipher specifications and salt, block ready callback routine and its opaque context reference, number of blocks on which to fire the block ready callback.<li><b>Privacy scope</b> - this determines which key will be used for the encryption/decryption of data written to the stream<li><b>Stream type</b> - whether the data written into the stream should be encrypted/decrypted<li><b>Cipher specs</b> - specifications of the block encryption algorithm and associated parameters to use for encrypting/decrypting data written to the stream<li><b>Cipher salt</b> - additional salt vector to be used when creating the encryption/decryption cipher<li><b>Block ready callback</b> and <b>opaque context reference</b> - callback routine to invoke when specified number blocks are read (encrypted/decrypted), along with an opaque context reference to pass when invoking it<li><b>Block ready threshold</b> - the number of ready blocks on which to invoke the block ready callback routine<li><b>[OUT] Stream reference</b> - out parameter in which the reference to the newly created privacy stream should be updated
+<b>StreamGetPrivacyScope</b> | Routine to query and determine the privacy scope (app/device/user/session) of a previously created privacy stream reference
+<b>StreamGetStreamType</b> | Routine to query and determine the stream type (encrypt/decrypt) of a previously created privacy stream reference
+<b>StreamWriteDataInto</b> | Routine to write chunks of data into a privacy stream.<br>This routines invocation could result in the invocation of the block-ready callback routine supplied during the creation of the stream.
+<b>StreamEnd</b> | Routine to terminate/end the stream - whatever unencrypted/undecrypted data is present in the stream buffers are padded and finally encrypted/decrypted.<br>This routines invocation always results in the invocation of the block-ready callback routine supplied during the creation of the stream.
+<b>StreamDestroy</b> | Routine to free up the resources used for this privacy stream.
+
+
+<aside class="notice"><b><u>Session Scope</u></b> -
+<br>When used with session scope, these routines ignore the supplied cipher details (specs and salt). This is because for the session scope the cipher details are specified while initializing the API runtime (remember?)
+</aside>
+
 
 ## Pause/Resume Routines
 
@@ -1147,22 +1073,24 @@ The pause and resume routines make it possible to persist the <i>in-session</i> 
 This is useful in case of limited configuration devices and platforms - such as smartphone device platforms like Android, iOS and WindowsPhone. In these platforms, a running application could be swapped out of memory due to 'crowding' by other running applications, only to be swapped back in when the user chooses to access that application again. 
 
 ```c
-e_rdna_error_t
-rdnaPauseRuntime
-(void*  pvRdnaCtx,
+/* TODO */
+e_core_error_t
+corePauseRuntime
+(void*  pvCoreCtx,
  void** ppvState,
  int*   pnStateSize);
 
-e_rdna_error_t
-rdnaResumeRuntime
-(void** ppvRdnaCtx,
+e_core_error_t
+coreResumeRuntime
+(void** ppvCoreCtx,
  void*  pvState,
  int    nStateSize,
- rdna_callbacks_t*
+ core_callbacks_t*
         pCallbacks);
 ```
 
 ```java
+/* TODO */
 package com.uniken.rdna;
 class RDNA {
   //...
@@ -1176,6 +1104,7 @@ class RDNA {
 ```
 
 ```objective_c
+/* TODO */
 @interface RDNA_ObjC : NSObject
 -(e_rdna_error_t)rdnaPauseRuntime:(void*)pvRdnaCtx
                       andppvState:(void**)ppvState
@@ -1187,17 +1116,23 @@ class RDNA {
 @end
 ```
 
+```cpp
+/* TODO */
+```
+
 Routine | Description
 ------- | -----------
 <b>PauseRuntime</b> | <li>State of API runtime is serialized and returned in output buffer.<li>Information in this buffer is encrypted and must be supplied <i>AS IS</i> back with the ```ResumeRuntme``` routine call.<li><b>Initiates termination/cleanup of the API-runtime before returning</b> - no ```StatusUpdate``` callback invocations are made for this API routine.
 <b>ResumeRuntime</b> | <li>The supplied buffer containing a previously saved runtime state is used to re-initialize the runtime to that saved state. <li>The callback routines from the API-client must again be supplied herewith - these are not serialized by ```PauseRuntime``` since they are references to code blocks in memory and may not be valid across process re-invocations.<li>```StatusUpdate``` callback is invoked to signal completion of the re-initialization - the method ID specified is that of the ```Initialize``` API routine.
 
+<aside class="notice"><b>It is recommended that the API-client application further encrypt this information before storing it for later retrieval and restoration into the API-runtime</b></aside>
+
 ## Terminate Routine
 
 ```c
 e_dna_error_t
-rdnaTerminate
-(void*  pvRdnaCtx);
+coreTerminate
+(void*  pvCoreCtx);
 ```
 
 ```java
@@ -1210,9 +1145,11 @@ class RDNA {
 ```
 
 ```objective_c
-@interface RDNA_ObjC : NSObject
--(e_rdna_error_t)rdnaTerminate;
-@end
+/* TODO */
+```
+
+```cpp
+/* TODO */
 ```
 
 Routine | Description
@@ -1221,17 +1158,143 @@ Routine | Description
 
 # Advanced API
 
-## CheckUser
+The REL-ID Basic API bootstraps the REL-ID DNA with information for providing access to backend enterprise services, via the HTTP proxy and/or the forwarded TCP port facades. The REL-ID Session created during this phase is in <b>'PRIMARY'</b> state. This state represents the fact that the device has been fingerprinted and associated with a session against an application identity (Agent REL-ID).
+
+The Advanced API, builds on top of this session, accomplishes end-user authentication, and further associates a mutually authenticated end-user to the session (which is already associated with application and device identities). At this point, the REL-ID Session is in <b>'SECONDARY'</b> state.
+
+<aside class="notice">Note that all of the Advanced API routines may only be invoked once the Basic Initialization is successfully completed. This is because the primary function of the Advanced API is to perform end-user authentication on a previously established, valid 'PRIMARY' session</aside>
+
+<aside class="notice">This API is designed to allow complete flexibility to the API-client application to be able to specify/conduct its own method of user-authentication. <i><u>While the built-in behaviour for these API routines in the REL-ID API and backend is specific albeit configurable, this behaviour can be customized to the needs of the enterprise application</u></i>.</aside>
+
+The following routines constitute the REL-ID Advanced API -
+
+Routine | Description
+------- | -----------
+<b>CheckUserStatus</b> | This routine submits the user identity (username/userId) to the REL-ID backend, to check its status - whether this user requires authentication on this device, what authentication to perform for this user, whether the user is blocked (on this device and/or app, or otherwise).<br>The result is one of the following - <li><b>FAILURE, &lt;reason&gt;</b><li><b>CHALLENGE, &lt;challenge&gt;</b><li><b>SUCCESS, &lt;eurelid&gt;</b><br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+<b>CheckCredentials</b> | This routine can only be invoked if a successful ```CheckUserStatus``` was performed earlier, and if that invocation reverted with a status that indicated the requirement of authentication.<br>This routine submits the user credentials (passwords, responses to challenges etc) to the REL-ID backend, to authenticate the end-user.<br>Multiple successful invocations of this routine may be needed before receiving a <b>SUCCESS, &lt;eurelid&gt;</b> result from this routine, with the same challenge (retries) and/or different challenges (additional authentication).<br>The result is one of the following - <li><b>FAILURE, &lt;reason></b><li><b>CHALLENGE, &lt;challenge&gt;</b><li><b>SUCCESS, &lt;eurelid&gt;</b><br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+<b>UpdateCredentials</b> | This routine can only be invoked if <li>a previously invoked ```CheckUserStatus``` or ```CheckCredentials``` resulted in a <b>SUCCESS, &lt;eurelid&gt;</b>,<li>which was subsequently successfully unpacked by a call to the ```UnpackEndUserRelId```,<li>after which a 'SECONDARY' session was successfully created using the unpacked UserRelId.<br><br>Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine.<br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+
+## CheckUserStatus
+
+The purpose of this routine is to check the status of the supplied end-user identity, relative to the existing agent-device binding (the 'PRIMARY' session). It could result in error (the user is blocked, the user is blocked in this agent and/or device, the user has a previous
+
+```c
+int
+advCheckUserStatus
+(void** ppvCoreCtx,
+ char*  sUserId);
+```
+
+```java
+/* TODO */
+```
+
+```objective_c
+/* TODO */
+```
+
+```cpp
+/* TODO */
+```
+Argument&nbsp;[in/out] | Language Binding | Prototype/Description
+---------------------- | ---------------- | ---------------------
+<b>API&nbsp;Context&nbsp;[in]</b> | ANSI C | ```void* pvCoreCtx```<br>Must be non-null, valid API runtime context reference
+&nbsp; | Java | ```RDNA rdna```<br>Must be non-null, valid API runtime context reference
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
+&nbsp; | <u>Description</u> | <b>Previously created and valid API runtime context reference</b>
+<b>User&nbsp;Identity&nbsp;[in]</b> | ANSI C | ```char* sUserId```<br>Must be non-null, non-empty user identification
+&nbsp; | Java | ```String sUserId```<br>Must be non-null, non-empty user identification
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
+&nbsp; | <u>Description</u> | <b>End-user identity information supplied as a single opaque ASCII-encoded blob (base64/...)</b><br>The API-client application can take in user identity information, via one or more fields of input used to form a structured/unstructured end-user identity - for example, [<corporate-id>.]<user-id> (internet banking), or <sol-id>.<user-id> (Finacle CBS), or <user-id>@<fqdn> / <domain>\<user-id (corporate intranet Windows domain user), etc
+
+The following table explains the results of this API routine, which is notified to the API-client via the status update (core) / event notification (wrapper) callback routine.
+
+Result | Description
+------ | -----------
+<b>FAILURE,&nbsp;&lt;reason&gt;</b> | <b>&lt;reason&gt;</b> refers an exception to be reported to the API-client.<br>For example, the system is down, disk is full, the user/dev/agent is blocked/invalid, some policy check failed etc etc etc
+<b>CHALLENGE,&nbsp;&lt;challenge&gt;</b> | <b>&lt;challenge&gt;</b> is a blob containing information that the API-client application knows to process -<br><li>by displaying an appropriate challenge to the end-user operating the API-client app, with an appropriate CAPTCHA probably,<li>by accepting credential(s) in response to the challenge, and<li>by packaging the accepted credential(s) into another single opaque ASCII blob to be sent back to the AuG in a CheckCredentials API routine invocation
+<b>SUCCESS,&nbsp;&lt;eurelid&gt;</b> | <b>&lt;eurelid&gt;</b> is a blob containing the '<u>encrypted UserRelId</u>' for the end-user.<li>Upon receiving this, the API-runtime invokes the ```UnpackEndUserRelId``` callback routine to allow the API-client app to decrypt and return the plaintext UserRelId to the API-runtime.<li>At this point the API-runtime will perform a full RMAK with the REL-ID backend authentication gateway using this UserRelId and attempt recreation of its session. During this session-creation request, the PRIMARY session information (ticket) as well as variant device info is submitted, for the gateway to process and revert with a 'SECONDARY' session ticket.
 
 ## CheckCredentials
 
-## ActivateUser
+The purpose of this routine is to authenticate the response (credentials) received from the end-user, after having shown him/her the challenges received from the previous ```CheckUserStatus``` or ```CheckCredentials``` routine invocation. The results from this API routine are identical in form to those of ```CheckUserStatus```
+
+```c
+int
+advCheckCredentials
+(void** ppvCoreCtx,
+ char*  sCreds);
+```
+
+```java
+/* TODO */
+```
+
+```objective_c
+/* TODO */
+```
+
+```cpp
+/* TODO */
+```
+Argument&nbsp;[in/out] | Language Binding | Prototype/Description
+---------------------- | ---------------- | ---------------------
+<b>API&nbsp;Context&nbsp;[in]</b> | ANSI C | ```void* pvCoreCtx```<br>Must be non-null, valid API runtime context reference
+&nbsp; | Java | ```RDNA rdna```<br>Must be non-null, valid API runtime context reference
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
+&nbsp; | <u>Description</u> | <b>Previously created and valid API runtime context reference</b>
+<b>Credentials&nbsp;[in]</b> | ANSI C | ```char* sCreds```<br>Must be non-null, non-empty user identification
+&nbsp; | Java | ```String sCreds```<br>Must be non-null, non-empty user identification
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
+&nbsp; | <u>Description</u> | <b>User-supplied credentials in the form of a single opaque ASCII-encoded blob (base64/...)</b><li>Upon receiving a <b>CHALLENGE</b> result from the ```CheckUserStatus``` API routine, the API-client application performs the actions as detailed in ```CheckUserStatus```-response(<b>CHALLENGE</b>) above.<li>The API-client displays an appropriate challenge to the end-user, with an appropriate CAPTCHA probably, accepts credential(s) in response to the challenge, packages the accepted credential(s) into a another single opaque ASCII-encoded blob and invokes this API routine.
+
+The description of the results of this API routine is identical to those of ```CheckUserStatus``` above.
 
 ## UpdateCredentials
 
-## UpdateDeviceBinding
+The purpose of this routine is to update one or more credentials of the end-user.
 
-## GenerateOTP
+Hence, this routine can only be invoked if -
 
-## UpdateNotification
+ * a previously invoked ```CheckUserStatus``` or ```CheckCredentials``` resulted in a <b>SUCCESS, &lt;eurelid&gt;</b>,
+ * which was subsequently successfully unpacked by a call to the ```UnpackEndUserRelId```,
+ * after which, a 'SECONDARY' session was successfully created by the API-runtime using the unpacked UserRelId.
+
+```c
+int
+advUpdateCredentials
+(void** ppvCoreCtx,
+ char*  sCreds);
+```
+
+```java
+/* TODO */
+```
+
+```objective_c
+/* TODO */
+```
+
+```cpp
+/* TODO */
+```
+Argument&nbsp;[in/out] | Language Binding | Prototype/Description
+---------------------- | ---------------- | ---------------------
+<b>API&nbsp;Context&nbsp;[in]</b> | ANSI C | ```void* pvCoreCtx```<br>Must be non-null, valid API runtime context reference
+&nbsp; | Java | ```RDNA rdna```<br>Must be non-null, valid API runtime context reference
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
+&nbsp; | <u>Description</u> | <b>Previously created and valid API runtime context reference</b>
+<b>Credentials&nbsp;[in]</b> | ANSI C | ```char* sCreds```<br>Must be non-null, non-empty user identification
+&nbsp; | Java | ```String sCreds```<br>Must be non-null, non-empty user identification
+&nbsp; | Objective C | TODO
+&nbsp; | C++ | TODO
+&nbsp; | <u>Description</u> | <b>User-supplied credentials in the form of a single opaque ASCII-encoded blob (base64/...)</b><li>Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine.
+
+The results of this API routine is just a plain <b>SUCCESS</b> or <b>FAILURE, &lt;reason&gt;</b>.
+
 
