@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.
 <br>
-Last updated on <u>Friday, 16 October 2015, at 1510 IST</u>
+Last updated on <u>Monday, 19 October 2015, at 1130 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -1075,7 +1075,7 @@ public:
 
 Argument&nbsp;[in/out] | Description
 ---------------------- | -----------
-API&nbsp;Context&nbsp;[out] | The newly created API runtime context.<br>In Java, an instance of ```RDNA``` is returned in an ```RDNAStatus<RDNA>``` object.<br>In Core, Objective-C and C++, and out parameter is populated.
+API&nbsp;Context&nbsp;[out] | The newly created API runtime context.<br>In Java, an instance of ```RDNA``` is returned in an ```RDNAStatus<RDNA>``` object.<br>In Core, Objective-C and C++, an out parameter is populated.
 Agent&nbsp;Info&nbsp;[in] | Software identity information for the API-runtime to authenticate and establish primary session connectivity with the REL-ID platform backend
 Callbacks&nbsp;[in] | Callback routines supplied by the API-client application. These are invoked by the API-runtime.
 Auth&nbsp;Gateway&nbsp;HNIP&nbsp;[in] | <b>H</b>ost<b>N</b>ame/<b>IP</b>-address of the REL-ID Authentication Gateway against which the API-runtime must establish mutual authenticated connectivity (on behalf of the API-client application)
@@ -1258,8 +1258,8 @@ coreServiceAccessStopAll
 ```java
 public abstract class RDNA {
   //..
-  public abstract int serviceStart (RDNAService service);
-  public abstract int serviceStop  (RDNAService service);
+  public abstract int serviceAccessStart (RDNAService service);
+  public abstract int serviceAccessStop  (RDNAService service);
   public abstract int serviceAccessStartAll();
   public abstract int serviceAccessStopAll();
   //..
@@ -1268,8 +1268,8 @@ public abstract class RDNA {
 
 ```objective_c
 @interface RDNA : NSObject
-  - (int)serviceStart:(const RDNAService *)service;
-  - (int)serviceStop:(const RDNAService *)service;
+  - (int)serviceAccessStart:(const RDNAService *)service;
+  - (int)serviceAccessStop:(const RDNAService *)service;
   - (int)serviceAccessStartAll;
   - (int)serviceAccessStopAll;
 @end
@@ -1279,10 +1279,10 @@ public abstract class RDNA {
 class RDNA
 {
 public:
-  int serviceStart(const RDNAService svc);
-  int serviceStop(const RDNAService svc);
-  int serviceStartAll();
-  int serviceStopAll();
+  int serviceAccessStart(const RDNAService svc);
+  int serviceAccessStop(const RDNAService svc);
+  int serviceAccessStartAll();
+  int serviceAccessStopAll();
 }
 ```
 
@@ -1354,20 +1354,6 @@ The cipher specification details contain the cipher algorithm to be used for enc
 The format for cipher specification is [CIPHER_ALGO_SPECS]:[DIGEST_ALGO_SPECS]. 
 For example: AES/256/CBC/PKCS7Padding:SHA-1, where "AES/256/CBC/PKCS7Padding" is the cipher algorithm specification and "SHA-1" is the HMAC digest specification (optional). 
 
-List of supported cipher algorithm -
-
-Cipher algo | Key length | Mode | Padding
------------ | ---------- | ---- | -------
-<li>AES | <li>128<li>192<li>256 | <li>ECB<li>CBC<li>PCBC<li>CFB<li>OFB<li>CTR | <li>NoPadding<li>PKCS7Padding<li>ISO10126Padding
-
-
-List of supported digest algorithm -
- * MD5
- * SHA-1
- * SHA-256
- * SHA-384
- * SHA-512
-
 The API Client can also choose to use default Cipher Spec ("AES/256/CFB/PKCS7Padding:SHA-256") available in the API-SDK. The API Client can get and also change the default Cipher Spec to be used inside the API-SDK.
 
 ```c
@@ -1417,6 +1403,22 @@ GetDefaultCipherSpec | Get the default cipher spec used in the RDNA context
 SetDefaultCipherSpec | Set the default cipher spec to be used in the RDNA context
 
 
+List of supported cipher algorithm -
+
+  Cipher algo  | Key length |   Mode   |  Padding
+-------------- | ---------- | -------- | ---------
+<li>AES | <li>128<li>192<li>256 | <li>ECB<li>CBC<li>PCBC<li>CFB<li>OFB<li>CTR | <li>NoPadding<li>PKCS7Padding<li>ISO10126Padding
+
+
+List of supported digest algorithm -
+
+ * MD5
+ * SHA-1
+ * SHA-256
+ * SHA-384
+ * SHA-512
+
+
 ## Raw Data (in packets)
 
 ```c
@@ -1427,10 +1429,10 @@ coreEncryptDataPacket
         ePrivScope,
  char*  sCipherSpecs,
  char*  sCipherSalt,
- void*  pvPacketPlainBuf,
- int    nPacketPlainSize,
- void** ppvPacketEncryptedBuf,
- int*   pnPacketEncryptedSize);
+ void*  plainText,
+ int    plainTextLen,
+ void** cipherText,
+ int*   cipherTextLen);
 
 int
 coreDecryptDataPacket
@@ -1439,37 +1441,49 @@ coreDecryptDataPacket
         ePrivScope,
  char*  sCipherSpecs,
  char*  sCipherSalt,
- void*  pvPacketEncryptedBuf,
- int    nPacketEncryptedSize,
- void** ppvPacketPlainBuf,
- int*   pnPacketPlainSize);
+ void*  cipherText,
+ int    cipherTextLen,
+ void** plainText,
+ int*   plainTextLen);
 ```
 
 ```java
 public abstract class RDNA {
   //..
-  public abstract RDNAStatus<byte[]> encryptDataPacket(byte[] plainText,
-      RDNAPrivacyScope privacyScope, String cipherSpec, byte[] cipherSalt);
+  public abstract
+    RDNAStatus<byte[]>
+    encryptDataPacket(
+      RDNAPrivacyScope
+             privacyScope,
+      String cipherSpec,
+      byte[] cipherSalt,
+      byte[] plainText);
 
-  public abstract RDNAStatus<byte[]> decryptDataPacket(byte[] cipherText,
-      RDNAPrivacyScope privacyScope, String cipherSpec, byte[] cipherSalt);
+  public abstract
+    RDNAStatus<byte[]>
+    decryptDataPacket(
+      RDNAPrivacyScope
+             privacyScope,
+      String cipherSpec,
+      byte[] cipherSalt,
+      byte[] cipherText);
   //..
 }
 ```
 
 ```objective_c
 @interface RDNA : NSObject
-  - (int)encryptDataPacket:(NSData *)plainText
-              PrivacyScope:(RDNAPrivacyScope)privacyScope
+  - (int)encryptDataPacket:(RDNAPrivacyScope)privacyScope
                 CipherSpec:(NSString *)cipherSpec
                 CipherSalt:(NSString *)cipherSalt
+                      From:(NSData *)plainText 
                       Into:(NSMutableData **)cipherText;
 
-  - (int)decryptDataPacket:(NSData *)cipherText
-              PrivacyScope:(RDNAPrivacyScope)privacyScope
+  - (int)decryptDataPacket:(RDNAPrivacyScope)privacyScope
                 CipherSpec:(NSString *)cipherSpec
                 CipherSalt:(NSString *)cipherSalt
-                      Into:(NSMutableString **)plainText;
+                      From:(NSData *)cipherText
+                      Into:(NSMutableData **)plainText;
 @end
 ```
 
@@ -1477,32 +1491,38 @@ public abstract class RDNA {
 class RDNA
 {
 public:
-  int encryptDataPacket(void*            plainText,
-                        int              plainTextLen,
-                        RDNAPrivacyScope privacyScope,
-                        std::string      cipherSpec,
-                        std::string      cipherSalt,
-                        void**           cipherText,
-                        int*             cipherTextLen);
+  int
+  encryptDataPacket
+  (RDNAPrivacyScope
+               privacyScope,
+   std::string cipherSpec,
+   std::string cipherSalt,
+   void*       plainText,
+   int         plainTextLen,
+   void**      cipherText,
+   int*        cipherTextLen);
 
-  int decryptDataPacket(void*            cipherText,
-                        int              cipherTextLen,
-                        RDNAPrivacyScope privacyScope,
-                        std::string      cipherSpec,
-                        std::string      cipherSalt,
-                        void**           plainText,
-                        int*             plainTextLen);
+  int
+  decryptDataPacket
+  (RDNAPrivacyScope
+               privacyScope,
+   std::string cipherSpec,
+   std::string cipherSalt,
+   void*       cipherText,
+   int         cipherTextLen,
+   void**      plainText,
+   int*        plainTextLen);
 }
 ```
 
 Routine | Description
 ------- | -----------
 <b>EncryptDataPacket</b> | <li>Raw plaintext (unencrypted) data is supplied as a buffer of bytes.<li>This data is encrypted using keys as per specified privacy scope, and returned to calling API-client application.
-&nbsp; | <b><u>```rdnaEncryptDataPacket```</u></b> (ANSI C) -<li>If the supplied ```ppvPacketEncryptedBuf``` and ```pnPacketEncryptedSize``` are non-null, they are used to store the encrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)
-&nbsp; | <b><u>```EncryptDataPacket```</u></b> (Java) -<li>The output is always returned as a newly allocated ```byte[]``` array/buffer
+&nbsp; | ANSI C, C++ -<li>If the supplied ```cipherText``` and ```cipherTextLen``` are non-null, they are used to store the encrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)
+&nbsp; | Java, Objective C -<li>The output is always returned as a newly allocated array/buffer (```byte[]``` in Java, ```NSMutableData **``` in Objective C)
 <b>DecryptDataPacket</b> | <li>Encrypted data is supplied as a buffer of bytes.<li>This data is decrypted using keys as per specified privacy scope, and returned to calling API-client application.
-&nbsp; | <b><u>```rdnaDecryptDataPacket```</u></b> (ANSI C) -<li>If the supplied ```ppvPacketPlainBuf``` and ```pnPacketPlainSize``` are non-null, they are used to store the decrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)<li>Recommended method is to supply input encrypted buffer itself in these output parameters, since it will definitely be larger than or equal to what would be required to store the decrypted output. Moreover, if this is not done, the routine will not reuse the input encrypted buffer by itself
-&nbsp; | <b><u>```DecryptDataPacket```</u></b> (Java) -<li>The output is always returned as a newly allocated ```byte[]``` array/buffer
+&nbsp; | ANSI C, C++ -<li>If the supplied ```plainText``` and ```plainTextLen``` are non-null, they are used to store the decrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)<li>Recommended method is to supply input encrypted buffer itself in these output parameters, since it will definitely be larger than or equal to what would be required to store the decrypted output. Moreover, if this is not done, the routine will not reuse the input encrypted buffer by itself
+&nbsp; | Java, Objective C -<li>The output is always returned as a newly allocated array/buffer (```byte[]``` in Java, ```NSMutableData **``` in Objective C)
 
 <aside class="notice"><b><u>Session Scope</u></b> -
 <br>When used with session scope, these routines ignore the supplied cipher details (specs and salt). This is because for the session scope the cipher details are specified while initializing the API runtime (remember?)
@@ -1518,10 +1538,10 @@ coreEncryptHttpRequest
         ePrivScope,
  char*  sCipherSpecs,
  char*  sCipherSalt,
- char*  sHttpRequestPlainBuf,
- int    nHttpRequestPlainSize,
- char** psHttpRequestEncryptedBuf,
- int*   pnHttpRequestEncryptedSize);
+ char*  request,
+ int    requestLen,
+ char** transformedRequest,
+ int*   transformedRequestLen);
 
 int
 coreDecryptHttpResponse
@@ -1530,37 +1550,48 @@ coreDecryptHttpResponse
         ePrivScope,
  char*  sCipherSpecs,
  char*  sCipherSalt,
- char*  sHttpResponseEncryptedBuf,
- int    nHttpResponseEncryptedSize,
- char** psHttpResponsePlainBuf,
- int*   pnHttpResponsePlainSize);
+ char*  transformedResponse,
+ int    transformedResponseLen,
+ char** response,
+ int*   responseLen);
 ```
 
 ```java
 public abstract class RDNA {
   //..
-  public abstract RDNAStatus<String> encryptHttpRequest(String request,
-      RDNAPrivacyScope privacyScope, String cipherSpec, byte[] cipherSalt);
+  public abstract
+    RDNAStatus<String>
+    encryptHttpRequest(
+      RDNAPrivacyScope
+             privacyScope,
+      String cipherSpec,
+      byte[] cipherSalt,
+      String request);
 
-  public abstract RDNAStatus<String> decryptHttpResponse(
-      String transformedResponse, RDNAPrivacyScope privacyScope,
-      String cipherSpec, byte[] cipherSalt);
+  public abstract
+    RDNAStatus<String>
+    decryptHttpResponse(
+      RDNAPrivacyScope
+             privacyScope,
+      String cipherSpec,
+      byte[] cipherSalt,
+      String transformedResponse);
   //..
 }
 ```
 
 ```objective_c
 @interface RDNA : NSObject
-  - (int)encryptHttpRequest:(NSString *)request
-               PrivacyScope:(RDNAPrivacyScope)privacyScope
+  - (int)encryptHttpRequest:(RDNAPrivacyScope)privacyScope
                  CipherSpec:(NSString *)cipherSpec
                  CipherSalt:(NSString *)cipherSalt
+                       From:(NSString *)request
                        Into:(NSMutableString **)transformedRequest;
 
-  - (int)decryptHttpResponse:(NSString *)transformedResponse
-                PrivacyScope:(RDNAPrivacyScope)privacyScope
+  - (int)decryptHttpResponse:(RDNAPrivacyScope)privacyScope
                   CipherSpec:(NSString *)cipherSpec
                   CipherSalt:(NSString *)cipherSalt
+                        From:(NSString *)transformedResponse
                         Into:(NSMutableString **)response;
 @end
 ```
@@ -1569,32 +1600,38 @@ public abstract class RDNA {
 class RDNA
 {
 public:
-  int encryptHttpRequest(char*            request,
-                         int              requestLen,
-                         RDNAPrivacyScope privacyScope,
-                         std::string      cipherSpec,
-                         std::string      cipherSalt,
-                         char**           transformedRequest,
-                         int*             transformedRequestLen);
+  int
+  encryptHttpRequest
+  (RDNAPrivacyScope
+               privacyScope,
+   std::string cipherSpec,
+   std::string cipherSalt,
+   char*       request,
+   int         requestLen,
+   char**      transformedRequest,
+   int*        transformedRequestLen);
 
-  int decryptHttpResponse(char*            transformedResponse,
-                          int              transformedResponseLen,
-                          RDNAPrivacyScope privacyScope,
-                          std::string      cipherSpec,
-                          std::string      cipherSalt,
-                          char**           response,
-                          int*             responseLen);
+  int
+  decryptHttpResponse
+  (RDNAPrivacyScope
+               privacyScope,
+   std::string cipherSpec,
+   std::string cipherSalt,
+   char*       transformedResponse,
+   int         transformedResponseLen,
+   char**      response,
+   int*        responseLen);
 }
 ```
 
 Routine | Description
 ------- | -----------
 <b>EncryptHttpRequest</b> | <li>HTTP request in plaintext (unencrypted) form is supplied as a buffer of bytes.<li>This request is encrypted using keys as per specified privacy scope, encoded appropriately, wrapped around in an HTTP request envelope and returned back to calling API-client application as another HTTP request.
-&nbsp; | <b><u>```rdnaEncryptHttpRequest```</u></b> (ANSI C) -<li>If the supplied ```psHttpRequestEncryptedBuf``` and ```pnHttpRequestEncryptedSize``` are non-null, they are used to store the encrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)
-&nbsp; | <b><u>```EncryptHttpRequest```</u></b> (Java) -<li>The output is always returned as a newly allocated ```byte[]``` array/buffer
+&nbsp; | ANSI C, C++ -<li>If the supplied ```transformedRequest``` and ```transformedRequestLen``` are non-null, they are used to store the encrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)
+&nbsp; | Java, Objective C -<li>The output is always returned as a newly allocated String (```String``` in Java, ```NSMutableString **``` in Objective C)
 <b>DecryptHttpResponse</b> | <li>HTTP response in encrypted form is supplied as a buffer of bytes.<li>This response is parsed, the embedded encrypted HTTP response is decoded, decrypted using keys as per specified scope, and returned back to calling API-client application as the original plaintext HTTP response.
-&nbsp; | <b><u>```rdnaDecryptHttpResponse```</u></b> (ANSI C) -<li>If the supplied ```psHttpResponsePlainBuf``` and ```pnHttpResponsePlainSize``` are non-null, they are used to store the decrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)<li>Recommended method is to supply input encrypted buffer itself in these output parameters, since it will definitely be larger than or equal to what would be required to store the decrypted output. Moreover, if this is not done, the routine will not reuse the input encrypted buffer by itself
-&nbsp; | <b><u>```DecryptHttpResponse```</u></b> (Java) -<li>The output is always returned as a newly allocated ```byte[]``` array/buffer
+&nbsp; | ANSI C, C++ -<li>If the supplied ```response``` and ```responseLen``` are non-null, they are used to store the decrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)<li>Recommended method is to supply input encrypted buffer itself in these output parameters, since it will definitely be larger than or equal to what would be required to store the decrypted output. Moreover, if this is not done, the routine will not reuse the input encrypted buffer by itself
+&nbsp; | Java, Objective C -<li>The output is always returned as a newly allocated String (```String``` in Java, ```NSMutableString **``` in Objective C)
 
 <aside class="notice"><b><u>Session Scope</u></b> -
 <br>When used with session scope, these routines ignore the supplied cipher details (specs and salt). This is because for the session scope the cipher details are specified while initializing the API runtime (remember?)
@@ -1603,6 +1640,12 @@ Routine | Description
 ## Privacy Streams
 
 ```c
+/* TODO: stream type enums in wrappers */
+typedef enum {
+  RDNA_STREAM_TYPE_ENCRYPT = 0x01, /* Encrypts input data */
+  RDNA_STREAM_TYPE_DECRYPT = 0x02, /* Decrypts input data */
+} e_core_stream_type_t;
+
 typedef int
 (*fn_block_ready_t)
 (void*  pvStream,
@@ -1619,9 +1662,9 @@ coreCreatePrivacyStream
         eStreamType,
  char*  sCipherSpecs,
  char*  sCipherSalt,
+ int    nBlockReadyThreshold,
  fn_block_ready_t cbfnBlockReady,
  void*  pvBlockReadyCtx,
- int blockReadySize,
  void** pvStream);
 
 int
@@ -1654,30 +1697,46 @@ coreStreamDestroy
 ```java
 public abstract class RDNA {
   //..
-  public static interface RDNAPrivacyStreamCallBacks {
-    int onBlockReady(Object appCtx, RDNAPrivacyStream rdnaPrivStream,
-        byte[] pvBlockBuf, int nBlockSize);
+  public static interface
+  RDNAPrivacyStreamCallBacks {
+    int
+    onBlockReady
+    (Object appCtx,
+     RDNAPrivacyStream
+            rdnaPrivStream,
+     byte[] pvBlockBuf,
+     int    nBlockSize);
   };
 
   public static interface RDNAPrivacyStream {
     public RDNAStatus<RDNAPrivacyScope> getPrivacyScope();
-    public RDNAStatus<RDNAStreamActivityType> getStreamActivityType();
-    public int writeDataIntoStream(byte[] data);
+    public RDNAStatus<RDNAStreamType> getStreamType();
+    public int writeDataInto (byte[] data);
     public int endStream();
     public int destroy();
   }
 
-  public abstract RDNAStatus<RDNAPrivacyStream> createPrivacyStream(
-      RDNAStreamActivityType type, RDNAPrivacyScope scope, String cipherSpecs,
-      String cipherSalt, int blockReadySize,
-      RDNAPrivacyStreamCallBacks callbacks, Object appCtx);
+  public abstract
+    RDNAStatus<RDNAPrivacyStream>
+    createPrivacyStream
+    (RDNAPrivacyScope
+            privacyScope,
+     RDNAStreamType
+            streamType,
+     String cipherSpecs,
+     String cipherSalt,
+     int    blockReadyThreshold,
+     RDNAPrivacyStreamCallBacks
+            callbacks,
+     Object appCtx);
   //..
 }
 ```
 
 ```objective_c
 typedef struct {
-  __unsafe_unretained RDNAPrivacyStream* privyStream;
+  __unsafe_unretained RDNAPrivacyStream*
+        privyStream;
   void* appCtx;
 }RDNAPrivacyStreamContext;
 
@@ -1696,7 +1755,7 @@ typedef struct {
     void *corePrivyStream;
 }
   - (int)getPrivacyScope:(RDNAPrivacyScope *)privacyScope;
-  - (int)getStreamActivityType:(RDNAStreamActivityType *)streamActivityType;
+  - (int)getStreamType:(RDNAStreamType *)streamType;
   - (int)writeDataIntoStream:(NSData *)data;
   - (int)endStream;
   - (int)destroy;
@@ -1704,11 +1763,11 @@ typedef struct {
 
 @interface RDNA : NSObject
   //..
-  - (int)createPrivacyStreamFor:(RDNAStreamActivityType)activity
-                   PrivacyScope:(RDNAPrivacyScope)privacyScope
+  - (int)createPrivacyStreamFor:(RDNAPrivacyScope)privacyScope
+                     StreamType:(RDNAStreamType)streamType
                      CipherSpec:(NSString *)cipherSpec
                      CipherSalt:(NSString *)cipherSalt
-                      blockSize:(int)blockSize
+                      blockSize:(int)blockReadyThreshold
      RDNAPrivacyStreamCallBacks:(id<RDNAPrivacyStreamCallBacks>)cbs
                      AppContext:(id)appCtx
               RDNAPrivacyStream:(RDNAPrivacyStream **)privStream;
@@ -1718,23 +1777,30 @@ typedef struct {
 
 ```cpp
 typedef struct {
-  RDNAPrivacyStream* privyStream;
-  void*              appCtx;
-}RDNAPrivacyStreamContext;
+  RDNAPrivacyStream*
+          privyStream;
+  void*   appCtx;
+} RDNAPrivacyStreamContext;
 
 class RDNAPrivacyStreamCallBacks
 {
 public:
-  virtual int onBlockReady(RDNAPrivacyStreamContext* rdnaPrivStream, unsigned char*  pvBlockBuf,
-                           int nBlockSize) = 0;
+  virtual
+  int
+  onBlockReady
+  (RDNAPrivacyStreamContext*
+          rdnaPrivStream,
+   unsigned char*
+          pvBlockBuf,
+   int    nBlockSize) = 0;
 };
 
 class RDNAPrivacyStream
 {
 public:
   int getPrivacyScope(RDNAPrivacyScope& privacyScope);
-  int getStreamActivityType(RDNAStreamActivityType& streamActivityType);
-  int writeDataIntoStream(unsigned char* data, int dataLen);
+  int getStreamType(RDNAStreamType& streamType);
+  int writeDataInto(unsigned char* data, int dataLen);
   int endStream();
   int destroy();
 };
@@ -1742,21 +1808,27 @@ public:
 class RDNA
 {
 public:
-  int createPrivacyStream(RDNAStreamActivityType      activity,
-                          RDNAPrivacyScope            privacyScope,
-                          std::string                 cipherSpec,
-                          std::string                 cipherSalt,
-                          int                         blockReadySize,
-                          RDNAPrivacyStreamCallBacks* cbs,
-                          void*                       appContext,
-                          RDNAPrivacyStream**         privStream);
+  int
+  createPrivacyStream
+  (RDNAPrivacyScope
+               privacyScope,
+   RDNAStreamType
+               activity,
+   std::string cipherSpec,
+   std::string cipherSalt,
+   int         blockReadyThreshold,
+   RDNAPrivacyStreamCallBacks*
+               callbacks,
+   void*       appContext,
+   RDNAPrivacyStream**
+               privStream);
 }
 ```
 
 Routine | Description
 ------- | -----------
 <b>BlockReady Callback</b> | <li>This is a callback routine supplied by the API-client. This routine is invoked from within the ```WriteDataIntoStream``` routine, when the requisite number of blocks are ready for consumption by the API-client (i.e. when that many blocks have been encrypted/decrypted, depending on the type of the privacy stream<li>In Ansi C, this refers to ```fn_block_ready_t``` and in other languages, this refers to ```RDNAPrivacyStreamCallBacks``` which needs to be implemented by API-Client
-<b>CreatePrivacyStream</b> | <li>Creates a privacy stream using the supplied input - privacy scope, stream type (encryption/decryption), cipher specifications and salt, block ready callback routine and its opaque context reference, number of blocks on which to fire the block ready callback.<li><b>Privacy scope</b> - this determines which key will be used for the encryption/decryption of data written to the stream<li><b>Stream type</b> - whether the data written into the stream should be encrypted/decrypted<li><b>Cipher specs</b> - specifications of the block encryption algorithm and associated parameters to use for encrypting/decrypting data written to the stream<li><b>Cipher salt</b> - additional salt vector to be used when creating the encryption/decryption cipher<li><b>Block ready callback</b> and <b>opaque context reference</b> - callback routine to invoke when specified number blocks are read (encrypted/decrypted), along with an opaque context reference to pass when invoking it<li><b>Block ready threshold</b> - the number of ready blocks on which to invoke the block ready callback routine. It takes a minimum of 1 and maximum of 64 blocks(default). Pass 0 to choose the default value.<li><b>[OUT] Stream reference</b> - out parameter in which the reference to the newly created privacy stream should be updated
+<b>CreatePrivacyStream</b> | <li>Creates a privacy stream using the supplied input - privacy scope, stream type (encryption/decryption), cipher specifications and salt, block ready callback routine and its opaque context reference, number of blocks on which to fire the block ready callback.<li><b>Privacy scope</b> - this determines which key will be used for the encryption/decryption of data written to the stream<li><b>Stream type</b> - whether the data written into the stream should be encrypted/decrypted<li><b>Cipher specs</b> - specifications of the block encryption algorithm and associated parameters to use for encrypting/decrypting data written to the stream<li><b>Cipher salt</b> - additional salt vector to be used when creating the encryption/decryption cipher<li><b>Block ready callback</b> and <b>opaque context reference</b> - callback routine to invoke when specified number blocks are read (encrypted/decrypted), along with an opaque context reference to pass when invoking it<li><b>Block ready threshold size</b> - the number of ready blocks on which to invoke the block ready callback routine. It takes a minimum of 1 and maximum of 64 blocks(default). Pass 0 to choose the default value.<li><b>[OUT] Stream reference</b> - out parameter in which the reference to the newly created privacy stream should be updated
 <b>GetPrivacyScope</b> | Routine to query and determine the privacy scope (app/device/user/session) of a previously created privacy stream reference
 <b>GetStreamType</b> | Routine to query and determine the stream type (encrypt/decrypt) of a previously created privacy stream reference
 <b>WriteDataIntoStream</b> | Routine to write chunks of data into a privacy stream.<br>This routines invocation could result in the invocation of the block-ready callback routine supplied during the creation of the stream.
@@ -1798,8 +1870,9 @@ public abstract class RDNA {
   //..
   public abstract RDNAStatus<byte[]> pauseRuntime();
 
-  public abstract RDNAStatus<RDNA> resumeRuntime(byte[] state,
-      RDNACallbacks callbacks, RDNAProxySettings proxySettings, Object appCtx);
+  public abstract RDNAStatus<RDNA> resumeRuntime(
+         byte[] state, RDNACallbacks callbacks,
+         RDNAProxySettings proxySettings, Object appCtx);
   //..
 }
 ```
@@ -1822,12 +1895,18 @@ class RDNA
 {
 public:
   //..
-  int pauseRuntime(std::string& context);
+  int
+  pauseRuntime
+  (std::string& context);
 
-  int resumeRuntime(std::string        savedContext,
-                    RDNACallbacks*     callbacks,
-                    RDNAProxySettings* proxySettings, 
-                    void*              appCtx);
+  int
+  resumeRuntime
+  (std::string  savedContext,
+   RDNACallbacks*
+                callbacks,
+   RDNAProxySettings*
+                proxySettings, 
+   void*        appCtx);
   //..
 }
 ```
@@ -1842,21 +1921,49 @@ Routine | Description
 # Basic API - Information Getters
 
 ```c
-const char* coreGetSdkVersion();
-e_core_error_t coreGetErrorInfo(int errCode);
-int coreGetSessionID(void* pvRuntimeCtx, char** ppcSessionId);
-int coreGetAgentIdentifier(void* pvRuntimeCtx, char** ppcAgentId);
-int coreGetDeviceIdentifier(void* pvRuntimeCtx, char** ppcDeviceId);
+const char*
+coreGetSdkVersion
+();
+
+e_core_error_t
+coreGetErrorInfo
+(int errCode);
+
+int
+coreGetSessionID
+(void*  pvRuntimeCtx,
+ char** ppcSessionId);
+
+int
+coreGetAgentID
+(void*  pvRuntimeCtx,
+ char** ppcAgentId);
+
+int
+coreGetDeviceID
+(void*  pvRuntimeCtx,
+ char** ppcDeviceId);
 ```
 
 ```java
 public abstract class RDNA {
   //..
-  public static String getSDKVersion();
-  public static RDNAErrorID getErrorInfo(int errCode);
-  public abstract RDNAStatus<String> getSessionID();
-  public abstract RDNAStatus<String> getAgentIdentifier();
-  public abstract RDNAStatus<String> getDeviceIdentifier();
+  public static
+    String
+    getSDKVersion();
+  public static
+    RDNAErrorID
+    getErrorInfo
+      (int errCode);
+  public abstract
+    RDNAStatus<String>
+    getSessionID();
+  public abstract
+    RDNAStatus<String>
+    getAgentID();
+  public abstract
+    RDNAStatus<String>
+    getDeviceID();
   //..
 }
 ```
@@ -1866,9 +1973,9 @@ public abstract class RDNA {
   //..
   + (NSString *)getSDKVersion;
   + (RDNAErrorID)getErrorInfo:(int)errorCode;
-  - (int)getSessionId:(NSMutableString **)sessionID;
-  - (int)getAgentIdentifier:(NSMutableString **)agentID;
-  - (int)getDeviceIdentifier:(NSMutableString **)deviceID;
+  - (int)getSessionID:(NSMutableString **)sessionID;
+  - (int)getAgentID:(NSMutableString **)agentID;
+  - (int)getDeviceID:(NSMutableString **)deviceID;
   //..
 @end
 ```
@@ -1881,8 +1988,8 @@ public:
   static std::string getSdkVersion();
   static RDNAErrorID getErrorInfo(int errCode);
   int getSessionID(std::string& sessionID);
-  int getAgentIdentifier(std::string& agentID);
-  int getDeviceIdentifier(std::string& deviceID);
+  int getAgentID(std::string& agentID);
+  int getDeviceID(std::string& deviceID);
   //..
 }
 ```
@@ -1892,8 +1999,8 @@ Routine | Description
 <b>GetSdkVersion</b> | Get the API-SDK version number
 <b>GetErrorInfo</b> | Get the error information corresponding to an integer error code returned by any API. It returns back ```RDNAErrorID``` which gives brief information of the error occured
 <b>GetSessionID</b> | Get the session ID of the current initialized REL-ID session
-<b>GetAgentIdentifier</b> | Get the Agent ID using which the REL-ID session is initialized
-<b>GetDeviceIdentifier</b> | Get the device ID of the current device using which the REL-ID session is initialized
+<b>GetAgentID</b> | Get the Agent ID using which the REL-ID session is initialized
+<b>GetDeviceID</b> | Get the device ID of the current device using which the REL-ID session is initialized
 
 
 # Advanced API
