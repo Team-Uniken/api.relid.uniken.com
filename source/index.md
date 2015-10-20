@@ -256,11 +256,11 @@ public abstract class RDNA {
 @protocol RDNACallbacks
   @required
   - (int)onInitializeCompleted:(RDNAStatusInit *)status;
-  - (NSString *)onUnpackEndUserRelID:(NSString*)euRelId;
+  - (NSString *)onUnpackEndUserRelID:(NSString *)euRelId;
   @optional
   - (id)getDeviceContext;
   - (NSString *)getApplicationDeviceId;
-  - (int)onTerminateRuntime:(RDNAStatusTerminate *)status;
+  - (int)onTerminated:(RDNAStatusTerminate *)status;
   - (int)onPauseRuntime:(RDNAStatusPauseRuntime *)status;
   - (int)onResumeRuntime:(RDNAStatusResumeRuntime *)status;
 @end
@@ -524,6 +524,8 @@ typedef enum {
   CORE_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE = 81,
   CORE_ERR_FAILED_TO_GET_STREAM_TYPE,
   CORE_ERR_FAILED_TO_WRITE_INTO_STREAM,
+  CORE_ERR_FAILED_TO_END_STREAM,
+  CORE_ERR_FAILED_TO_DESTROY_STREAM,
   
   CORE_ERR_FAILED_TO_INITIALIZE = 101,
   CORE_ERR_FAILED_TO_PAUSERUNTIME,
@@ -580,6 +582,8 @@ public abstract class RDNA {
     RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE(81),
     RDNA_ERR_FAILED_TO_GET_STREAM_TYPE(82),
     RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM(83),
+    RDNA_ERR_FAILED_TO_END_STREAM(84),
+    RDNA_ERR_FAILED_TO_DESTROY_STREAM(85),
 
     RDNA_ERR_FAILED_TO_INITIALIZE(101),
     RDNA_ERR_FAILED_TO_PAUSERUNTIME(102),
@@ -636,6 +640,8 @@ typedef NS_ENUM(NSInteger, RDNAErrorID) {
   RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE = 81,
   RDNA_ERR_FAILED_TO_GET_STREAM_TYPE,
   RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM,
+  RDNA_ERR_FAILED_TO_END_STREAM,
+  RDNA_ERR_FAILED_TO_DESTROY_STREAM,
 
   RDNA_ERR_FAILED_TO_INITIALIZE = 101,
   RDNA_ERR_FAILED_TO_PAUSERUNTIME,
@@ -690,6 +696,8 @@ typedef enum {
   RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE = 81,
   RDNA_ERR_FAILED_TO_GET_STREAM_TYPE,
   RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM,
+  RDNA_ERR_FAILED_TO_END_STREAM,
+  RDNA_ERR_FAILED_TO_DESTROY_STREAM,
 
   RDNA_ERR_FAILED_TO_INITIALIZE = 101,
   RDNA_ERR_FAILED_TO_PAUSERUNTIME,
@@ -738,7 +746,9 @@ ERR_SERVICE_NOT_SUPPORTED | 61 | The service provided is not supported
 ERR_INVALID_SERVICE_NAME | 62 | The service name passed in is invalid
 ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE | 81 | Failed to get stream privacy scope
 ERR_FAILED_TO_GET_STREAM_TYPE | 82 | Failed to get stream type
-ERR_FAILED_TO_WRITE_INTO_STREAM | 83 | Failed to write into data stream
+ERR_FAILED_TO_WRITE_INTO_STREAM | 83 | Failed to write into privacy stream
+ERR_FAILED_TO_END_STREAM | 84 | Failed to end privacy stream
+ERR_FAILED_TO_DESTROY_STREAM | 85 | Failed to destroy privacy stream
 ERR_FAILED_TO_INITIALIZE | 101 | Failed to initialize
 ERR_FAILED_TO_PAUSERUNTIME | 102 | Failed to pause runtime
 ERR_FAILED_TO_RESUMERUNTIME | 103 | Failed to resume runtime
@@ -838,8 +848,8 @@ These flags specify attributes of the returned access port for the backend servi
 
 ```c
 typedef enum {
-  CORE_SERVICE_TYPE_PROXY = 0,
-  CORE_SERVICE_TYPE_PORTF,
+  CORE_PORT_TYPE_PROXY = 0,
+  CORE_PORT_TYPE_PORTF,
 } e_port_type_t;
 ```
 
@@ -847,8 +857,8 @@ typedef enum {
 public abstract class RDNA {
   //..
   public enum RDNAPortType {
-    RDNA_SERVICE_TYPE_PROXY(0),
-    RDNA_SERVICE_TYPE_PORTF(1);
+    RDNA_PORT_TYPE_PROXY(0),
+    RDNA_PORT_TYPE_PORTF(1);
   }
   //..
 }
@@ -856,15 +866,15 @@ public abstract class RDNA {
 
 ```objective_c
 typedef NS_ENUM (NSInteger, RDNAPortType) {
-  RDNA_SERVICE_TYPE_PROXY = 0x00,
-  RDNA_SERVICE_TYPE_PORTF,
+  RDNA_PORT_TYPE_PROXY = 0x00,
+  RDNA_PORT_TYPE_PORTF,
 };
 ```
 
 ```cpp
 typedef enum {
-  RDNA_SERVICE_TYPE_PROXY = 0x00,
-  RDNA_SERVICE_TYPE_PORTF,
+  RDNA_PORT_TYPE_PROXY = 0x00,
+  RDNA_PORT_TYPE_PORTF,
 } RDNAPortType;
 ```
 
@@ -872,8 +882,8 @@ Either one of the below flags is set in the access port structure for a service.
 
 Flag Name | Description
 --------- | -----------
-CORE_SERVICE_TYPE_PROXY (0) | When set, it specifies that the access port is that of the locally running HTTP proxy facade of the REL-ID DNA, which will transparently tunnel requests and connections to the corresponding backend enterprise service coordinate. In this case, the API-client application would require to assume it is accessing the backend enterprise service via a proxy server on the specified port number.
-CORE_SERVICE_TYPE_PORTF (1) | When set, it specifies that the access port is a locally available forwarded TCP port, representing transparent connectivity to the corresponding backend enterprise service coordinate. In this case, the API-client application would require to connect directly to this port, as if it is connecting to the backend enterprise service.
+PORT_TYPE_PROXY (0) | When set, it specifies that the access port is that of the locally running HTTP proxy facade of the REL-ID DNA, which will transparently tunnel requests and connections to the corresponding backend enterprise service coordinate. In this case, the API-client application would require to assume it is accessing the backend enterprise service via a proxy server on the specified port number.
+PORT_TYPE_PORTF (1) | When set, it specifies that the access port is a locally available forwarded TCP port, representing transparent connectivity to the corresponding backend enterprise service coordinate. In this case, the API-client application would require to connect directly to this port, as if it is connecting to the backend enterprise service.
 
 
 ## Service access - Port (structure)
@@ -935,8 +945,8 @@ isStarted | bit&nbsp;(boolean) | Specifies whether the service access is enabled
 isLocalhostOnly | bit&nbsp;(boolean) | Specifies whether the port is bound just on the local loopback interfaces. If not, it is bound on all network interfaces on the device (this is not recommended for enterprise applications)
 isAutoStarted | bit&nbsp;(boolean) | Specifies whether the service access was started as part of the API-runtime initialization.
 isPrivacyEnabled | bit&nbsp;(boolean) | Specifies whether use of the REL-ID Privacy API routines is mandated, for the data in transit between the API-client application and the REL-ID DNA
-portType | bit&nbsp;(boolean) | Specifies whether the port is of TYPE_PROXY (0) or TYPE_PORTF (1), refer ```e_port_type_t``
-port | bit&nbsp;(boolean) | Specifies the actual TCP port number for this service access (could be Proxy or Forwarded Port)
+portType | bit&nbsp;(boolean) | Specifies whether the port is of TYPE_PROXY (0) or TYPE_PORTF (1), refer ```e_port_type_t```
+port | integer | Specifies the actual TCP port number for this service access (could be Proxy or Forwarded Port)
 
 ## Service access - Service (structure)
 
@@ -1743,18 +1753,13 @@ typedef NS_ENUM(NSInteger, RDNAStreamType) {
   RDNA_STREAM_TYPE_DECRYPT = 0x01,
 };
 
-typedef struct {
-  __unsafe_unretained RDNAPrivacyStream*
-        privyStream;
-  void* pvBlockReadyCtx;
-}RDNAPrivacyStreamContext;
-
 @protocol RDNAPrivacyStreamCallBacks
 
   @required
 
-  - (int)onBlockReadyFor:(RDNAPrivacyStreamContext)rdnaPrivStreamCtx
-  withPrivacyBlockBuffer:(NSData *)pvBlockBuf
+  - (int)onBlockReadyFor:(RDNAPrivacyStream *)rdnaPrivStream
+       BlockReadyContext:(id)pvBlockReadyCtx
+      PrivacyBlockBuffer:(NSData *)pvBlockBuf
             andBlockSize:(int)nBlockSize;
 @end
 
@@ -1790,20 +1795,15 @@ typedef enum {
   RDNA_STREAM_TYPE_DECRYPT = 0x01,   /* a stream for decrypting */
 } RDNAStreamType;
 
-typedef struct {
-  RDNAPrivacyStream*
-          privyStream;
-  void*   pvBlockReadyCtx;
-} RDNAPrivacyStreamContext;
-
 class RDNAPrivacyStreamCallBacks
 {
 public:
   virtual
   int
   onBlockReady
-  (RDNAPrivacyStreamContext*
-          rdnaPrivStreamCtx,
+  (RDNAPrivacyStream*
+          rdnaPrivStream,
+   void*  pvBlockReadyCtx,
    unsigned char*
           pvBlockBuf,
    int    nBlockSize) = 0;
@@ -1894,7 +1894,7 @@ public abstract class RDNA {
 ```objective_c
 @interface RDNA : NSObject
   //..
-  - (int)pauseRuntime:(NSMutableData **)savedContext;
+  - (int)pauseRuntime:(NSMutableData **)context;
 
   - (int)resumeRuntimeWith:(NSData *)savedContext
                  Callbacks:(id<RDNACallbacks>)callbacks
