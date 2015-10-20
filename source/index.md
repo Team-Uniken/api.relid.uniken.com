@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.
 <br>
-Last updated on <u>Monday, 19 October 2015, at 1130 IST</u>
+Last updated on <u>Tuesday, 20 October 2015, at 0930 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -240,7 +240,7 @@ typedef struct {
 public abstract class RDNA {
   //...
   public interface RDNACallbacks {
-    public int onInitializeCompleted(RDNAStatusInit objStatusInit);
+    public int onInitializeCompleted(RDNAStatusInit status);
     public String unpackEndUserRelID(String euRelId);
     public Object getDeviceContext();
     public String getApplicationDeviceID();
@@ -950,7 +950,7 @@ typedef struct
   int   targetPort;        /* backend port number          */
   char* accessServerName;  /* access server name           */
   void* serviceCtx;        /* Service context structure    */
-  core_port_t portInfo;    /* proxy port setting           */
+  core_port_t portInfo;    /* port setting and info        */
 } core_service_t;
 ```
 
@@ -961,7 +961,7 @@ public abstract class RDNA {
     public String serviceName;   /* logical service name */
     public String targetHNIP;    /* backend hostname/IP */
     public int targetPort;       /* backend port number */
-    public RDNAPort portInfo;    /* proxy port setting */
+    public RDNAPort portInfo;    /* port setting and info */
   }
   //..
 }
@@ -992,7 +992,7 @@ targetHNIP | null-terminated string | The notional hostname/IP-address of the TC
 targetPort | integer | The notional port number of the TCP coordinate of the backend service
 accessServerName | null-terminated string | <b><u><i>Only in Core API</i></u></b><br>Unique logical name of the Access Gateway Server through which this service is accessible
 serviceCtx | opaque-reference | <b><u><i>Only in Core API</i></u></b><br>Opaque context reference to be used when starting/stoping the ServiceAccess via the API routines
-portInfo | access port structure | The access port structure corresponding to the proxy facade of the DNA
+portInfo | access port structure | The access port structure corresponding to the service provided
 
 # Basic API - Initialize-Terminate
 
@@ -1640,26 +1640,25 @@ Routine | Description
 ## Privacy Streams
 
 ```c
-/* TODO: stream type enums in wrappers */
 typedef enum {
-  RDNA_STREAM_TYPE_ENCRYPT = 0x01, /* Encrypts input data */
-  RDNA_STREAM_TYPE_DECRYPT = 0x02, /* Decrypts input data */
+  RDNA_STREAM_TYPE_ENCRYPT = 0x00, /* Encrypts input data */
+  RDNA_STREAM_TYPE_DECRYPT = 0x01, /* Decrypts input data */
 } e_core_stream_type_t;
 
 typedef int
 (*fn_block_ready_t)
 (void*  pvStream,
+ void*  pvBlockReadyCtx,
  unsigned char*  pvBlockBuf,
- int    nBlockSize,
- void*  pvCtx);
+ int    nBlockSize);
 
 int
 coreCreatePrivacyStream
 (void*  pvRuntimeCtx,
- e_core_privacy_scope_t
-        ePrivScope,
  e_core_stream_type_t
         eStreamType,
+ e_core_privacy_scope_t
+        ePrivScope,
  char*  sCipherSpecs,
  char*  sCipherSalt,
  int    nBlockReadyThreshold,
@@ -1697,13 +1696,18 @@ coreStreamDestroy
 ```java
 public abstract class RDNA {
   //..
+  public enum RDNAStreamType {
+    RDNA_STREAM_TYPE_ENCRYPT(0),
+    RDNA_STREAM_TYPE_DECRYPT(1);
+  };
+
   public static interface
   RDNAPrivacyStreamCallBacks {
     int
     onBlockReady
-    (Object appCtx,
-     RDNAPrivacyStream
+    (RDNAPrivacyStream
             rdnaPrivStream,
+     Object pvBlockReadyCtx,
      byte[] pvBlockBuf,
      int    nBlockSize);
   };
@@ -1719,25 +1723,30 @@ public abstract class RDNA {
   public abstract
     RDNAStatus<RDNAPrivacyStream>
     createPrivacyStream
-    (RDNAPrivacyScope
-            privacyScope,
-     RDNAStreamType
+    (RDNAStreamType
             streamType,
+     RDNAPrivacyScope
+            privacyScope,
      String cipherSpecs,
      String cipherSalt,
      int    blockReadyThreshold,
      RDNAPrivacyStreamCallBacks
             callbacks,
-     Object appCtx);
+     Object pvBlockReadyCtx);
   //..
 }
 ```
 
 ```objective_c
+typedef NS_ENUM(NSInteger, RDNAStreamType) {
+  RDNA_STREAM_TYPE_ENCRYPT = 0x00,
+  RDNA_STREAM_TYPE_DECRYPT = 0x01,
+};
+
 typedef struct {
   __unsafe_unretained RDNAPrivacyStream*
         privyStream;
-  void* appCtx;
+  void* pvBlockReadyCtx;
 }RDNAPrivacyStreamContext;
 
 @protocol RDNAPrivacyStreamCallBacks
@@ -1763,23 +1772,28 @@ typedef struct {
 
 @interface RDNA : NSObject
   //..
-  - (int)createPrivacyStreamFor:(RDNAPrivacyScope)privacyScope
-                     StreamType:(RDNAStreamType)streamType
+  - (int)createPrivacyStreamFor:(RDNAStreamType)streamType
+                   PrivacyScope:(RDNAPrivacyScope)privacyScope
                      CipherSpec:(NSString *)cipherSpec
                      CipherSalt:(NSString *)cipherSalt
-                      blockSize:(int)blockReadyThreshold
-     RDNAPrivacyStreamCallBacks:(id<RDNAPrivacyStreamCallBacks>)cbs
-                     AppContext:(id)appCtx
+            BlockReadyThreshold:(int)blockReadyThreshold
+     RDNAPrivacyStreamCallBacks:(id<RDNAPrivacyStreamCallBacks>)callbacks
+              BlockReadyContext:(id)pvBlockReadyCtx
               RDNAPrivacyStream:(RDNAPrivacyStream **)privStream;
   //..
 @end
 ```
 
 ```cpp
+typedef enum {
+  RDNA_STREAM_TYPE_ENCRYPT = 0x00,   /* a stream for encrypting */
+  RDNA_STREAM_TYPE_DECRYPT = 0x01,   /* a stream for decrypting */
+} RDNAStreamType;
+
 typedef struct {
   RDNAPrivacyStream*
           privyStream;
-  void*   appCtx;
+  void*   pvBlockReadyCtx;
 } RDNAPrivacyStreamContext;
 
 class RDNAPrivacyStreamCallBacks
@@ -1789,7 +1803,7 @@ public:
   int
   onBlockReady
   (RDNAPrivacyStreamContext*
-          rdnaPrivStream,
+          rdnaPrivStreamCtx,
    unsigned char*
           pvBlockBuf,
    int    nBlockSize) = 0;
@@ -1810,16 +1824,16 @@ class RDNA
 public:
   int
   createPrivacyStream
-  (RDNAPrivacyScope
+  (RDNAStreamType
+               streamType,
+   RDNAPrivacyScope
                privacyScope,
-   RDNAStreamType
-               activity,
    std::string cipherSpec,
    std::string cipherSalt,
    int         blockReadyThreshold,
    RDNAPrivacyStreamCallBacks*
                callbacks,
-   void*       appContext,
+   void*       pvBlockReadyCtx,
    RDNAPrivacyStream**
                privStream);
 }
@@ -1828,7 +1842,7 @@ public:
 Routine | Description
 ------- | -----------
 <b>BlockReady Callback</b> | <li>This is a callback routine supplied by the API-client. This routine is invoked from within the ```WriteDataIntoStream``` routine, when the requisite number of blocks are ready for consumption by the API-client (i.e. when that many blocks have been encrypted/decrypted, depending on the type of the privacy stream<li>In Ansi C, this refers to ```fn_block_ready_t``` and in other languages, this refers to ```RDNAPrivacyStreamCallBacks``` which needs to be implemented by API-Client
-<b>CreatePrivacyStream</b> | <li>Creates a privacy stream using the supplied input - privacy scope, stream type (encryption/decryption), cipher specifications and salt, block ready callback routine and its opaque context reference, number of blocks on which to fire the block ready callback.<li><b>Privacy scope</b> - this determines which key will be used for the encryption/decryption of data written to the stream<li><b>Stream type</b> - whether the data written into the stream should be encrypted/decrypted<li><b>Cipher specs</b> - specifications of the block encryption algorithm and associated parameters to use for encrypting/decrypting data written to the stream<li><b>Cipher salt</b> - additional salt vector to be used when creating the encryption/decryption cipher<li><b>Block ready callback</b> and <b>opaque context reference</b> - callback routine to invoke when specified number blocks are read (encrypted/decrypted), along with an opaque context reference to pass when invoking it<li><b>Block ready threshold size</b> - the number of ready blocks on which to invoke the block ready callback routine. It takes a minimum of 1 and maximum of 64 blocks(default). Pass 0 to choose the default value.<li><b>[OUT] Stream reference</b> - out parameter in which the reference to the newly created privacy stream should be updated
+<b>CreatePrivacyStream</b> | <li>Creates a privacy stream using the supplied input - stream type (encryption/decryption), privacy scope, cipher specifications and salt, block ready callback routine and its opaque context reference, number of blocks on which to fire the block ready callback.<li><b>Stream type</b> - whether the data written into the stream should be encrypted/decrypted<li><b>Privacy scope</b> - this determines which key will be used for the encryption/decryption of data written to the stream<li><b>Cipher specs</b> - specifications of the block encryption algorithm and associated parameters to use for encrypting/decrypting data written to the stream<li><b>Cipher salt</b> - additional salt vector to be used when creating the encryption/decryption cipher<li><b>Block ready threshold size</b> - the number of ready blocks on which to invoke the block ready callback routine. It takes a minimum of 1 and maximum of 64 blocks(default). Pass 0 to choose the default value.<li><b>Block ready callback</b> and <b>opaque context reference</b> - callback routine to invoke when specified number blocks are read (encrypted/decrypted), along with an opaque context reference to pass when invoking it<li><b>[OUT] Stream reference</b> - out parameter in which the reference to the newly created privacy stream should be updated
 <b>GetPrivacyScope</b> | Routine to query and determine the privacy scope (app/device/user/session) of a previously created privacy stream reference
 <b>GetStreamType</b> | Routine to query and determine the stream type (encrypt/decrypt) of a previously created privacy stream reference
 <b>WriteDataIntoStream</b> | Routine to write chunks of data into a privacy stream.<br>This routines invocation could result in the invocation of the block-ready callback routine supplied during the creation of the stream.
