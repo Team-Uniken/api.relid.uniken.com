@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.
 <br>
-Last updated on <u>Tuesday, 20 October 2015, at 0930 IST</u>
+Last updated on <u>Tuesday, 20 October 2015, at 2100 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
