@@ -958,10 +958,10 @@ typedef struct
 public abstract class RDNA {
   //..
   public static class RDNAService {
-    public String serviceName;   /* logical service name */
-    public String targetHNIP;    /* backend hostname/IP */
-    public int targetPort;       /* backend port number */
-    public RDNAPort portInfo;    /* port setting and info */
+    public String serviceName;
+    public String targetHNIP;
+    public int targetPort;
+    public RDNAPort portInfo;
   }
   //..
 }
@@ -969,19 +969,19 @@ public abstract class RDNA {
 
 ```objective_c
 @interface RDNAService : NSObject
-  @property (nonatomic, copy) NSString *serviceName;      /* logical service name */
-  @property (nonatomic, copy) NSString *targetHNIP;       /* backend hostname/IP  */
-  @property (nonatomic) uint16_t targetPort;              /* backend port number  */
-  @property (nonatomic) RDNAPort *portInfo;               /* port setting and info */
+  @property (nonatomic, copy) NSString *serviceName;
+  @property (nonatomic, copy) NSString *targetHNIP;
+  @property (nonatomic) uint16_t targetPort;
+  @property (nonatomic) RDNAPort *portInfo;
 @end
 ```
 
 ```cpp
 typedef struct RDNAService_s {
-  std::string serviceName;    /* logical service name  */
-  std::string targetHNIP;     /* backend hostname/IP   */
-  unsigned short targetPort;  /* backend port number   */
-  RDNAPort portInfo;          /* port setting and info */
+  std::string serviceName;
+  std::string targetHNIP;
+  unsigned short targetPort;
+  RDNAPort portInfo;
 } RDNAService;
 ```
 
