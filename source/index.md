@@ -19,9 +19,9 @@ search: true
 # Introduction
 <aside class="notice"><b><u>Disclaimer</u></b> -
 <br>
-This specification is a <u>working pre-release draft</u> copy - <i>it is under frequent change at the moment</i>.
+This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Tuesday, 20 October 2015, at 2100 IST</u>
+Last updated on <u>Friday, 23 October 2015, at 1300 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -33,6 +33,10 @@ The REL-ID API enables applications to be written to leverage the path-breaking 
 The core API is implemented in ANSI C, and has wrappers/bindings for Java (Android), Objective-C (iOS) and C++ (Windows Phone).
 
 <aside class="notice">JavaScript bindings for hybrid application frameworks will be made available in future</aside>
+
+<aside class="notice"><b><u>API-client</u></b><br>
+Throughout this documentation, the term <u>API-client</u> refers to an application that embeds and uses the REL-ID API within itself.
+</aside>
 
 At a high level, the REL-ID API provides the following features that enable applications to leapfrog ahead in terms of securing themselves - mutual identity and authentication, device fingerprinting and binding, privacy of data, and the digital network adapter (aka DNA). An additional feature of capability to pause and resume the API runtime, on demand, has been provided particularly keeping mobile smartphone device platforms in mind.
 
@@ -134,8 +138,8 @@ The following information is supplied by the API-client application to the initi
  * <i>If applicable</i>, proxy information for connecting through to the REL-ID Auth Gateway
 
 <aside class="notice"><i>The <b><u>API-runtime Context</u></b></i> -
-<li>While the ```Initialize``` API routine returns immediately, it returns an opaque pointer to the API-runtime context which must be supplied with every subsequent call to the API routines. Initialization of this returned context continues, and progress is notified to the API-client via ```StatusUpdate``` invocations referring to the same API-runtime context.
-<li>Note that the same API-client application process/instance can create multiple API-runtime contexts (via multiple ```Initialize``` routine calls) to communicate with different enterprise backend service zones. However, note that this type of usage can fail if the REL-ID platform backend is not appropriately configured.
+<li>While the <u>Initialize</u> API routine returns immediately, it returns an opaque pointer to the API-runtime context which must be supplied with every subsequent call to the API routines. Initialization of this returned context continues, and progress is notified to the API-client via <u>StatusUpdate</u> invocations referring to the same API-runtime context.
+<li>Note that the same API-client application process/instance can create multiple API-runtime contexts (via multiple <u>Initialize</u> routine calls) to communicate with different enterprise backend service zones. However, note that this type of usage can fail if the REL-ID platform backend is not appropriately configured.
 </aside>
 
 Upon successful initialization, a agent REL-ID-authenticated session is established with the REL-ID platform backend, in a <b>PRIMARY</b> state (i.e. only the software agent has been mutually authenticated, and device has been identified). At this point the application can access backend enterprise services configured into the context of the software agent REL-ID, and not necessarily an user identity.
@@ -243,7 +247,7 @@ public abstract class RDNA {
     public int onInitializeCompleted(RDNAStatusInit status);
     public String unpackEndUserRelID(String euRelId);
     public Object getDeviceContext();
-    public String getApplicationDeviceID();
+    public String getApplicationFingerprint();
     public int onTerminated(RDNAStatusTerminate status);
     public int onPauseRuntime(RDNAStatusPause status);
     public int onResumeRuntime(RDNAStatusResume status);
@@ -256,10 +260,9 @@ public abstract class RDNA {
 @protocol RDNACallbacks
   @required
   - (int)onInitializeCompleted:(RDNAStatusInit *)status;
-  - (NSString *)onUnpackEndUserRelID:(NSString *)euRelId;
+  - (NSString *)unpackEndUserRelID:(NSString *)euRelId;
   @optional
-  - (id)getDeviceContext;
-  - (NSString *)getApplicationDeviceId;
+  - (NSString *)getApplicationFingerprint;
   - (int)onTerminated:(RDNAStatusTerminate *)status;
   - (int)onPauseRuntime:(RDNAStatusPauseRuntime *)status;
   - (int)onResumeRuntime:(RDNAStatusResumeRuntime *)status;
@@ -272,8 +275,7 @@ class RDNACallbacks
   public:
   virtual int onInitializeCompleted(RDNAStatusInit status) = 0;
   virtual std::string unpackEndUserRelID(std::string euRelID) = 0;
-  virtual void* getDeviceContext();
-  virtual std::string getApplicationDeviceID();
+  virtual std::string getApplicationFingerprint();
   virtual int onTerminated(RDNAStatusTerminate status);
   virtual int onPauseRuntime(RDNAStatusPause status);
   virtual int onResumeRuntime(RDNAStatusResume status);
@@ -284,8 +286,8 @@ Callback Routine | Basic/Advanced | Description
 ---------------- | ---------------| -----------
 <b>StatusUpdate</b> | Basic API | Invoked by the API runtime in order to update the API-client application of the progress of a previously invoked API routine, or state changes and exceptions encountered in general during the course of its execution
 <b>GetDeviceFingerprint</b> | Basic API (core/ANSI-C) | Invoked by the API runtime during initialization (session creation) in order to retrieve the fingerprint identity of the end-point device
-<b>GetDeviceContext</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device
-<b>GetAppFingerprint</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the application fingerprint, supplied by the API-client application to include in the device details.<br>The intent of this routine is to provide the application with an opportunity to checksum itself so that the backend can check integrity of the application.
+<b>GetDeviceContext</b> | Basic API (Java-Android) | Invoked by the API runtime during initialization (session creation) on Android (Java) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device.<br>The API-client must return the Android <u>ApplicationContext</u> of the application from this method's implementation.
+<b>GetApplicationFingerprint</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the application fingerprint, supplied by the API-client application to include in the device details.<br>The intent of this routine is to provide the application with an opportunity to identify itself so that the backend can check integrity of the application. To this end, it is recommended that the application provide strong checksums which can be matched/recorded at the backend.
 <b>UnpackEndUserRelId</b> | Advanced API | Invoked by the API runtime after successful user credential authentication, in order to unpack the <i>locked</i> user REL-ID as received from the REL-ID platform backend.
 
 Apart from the above callback routines, specific events have been called out as onThisHappened() and onThatHappened() callbacks, in the wrapper APIs. This is to make it simpler and clearer for the API-client to react to these events.
@@ -294,7 +296,7 @@ Apart from the above callback routines, specific events have been called out as 
 <br>
 <u>GetDeviceFingerprint</u> is the callback defined in the ANSI C core API, while
 <br>
-<u>GetDeviceContext</u> is the callback defined in the end-point platform specific wrapper APIs - Android (Java), iOS (Objective C) and WindowsPhone (C++)
+<u>GetDeviceContext</u> is the callback defined in the end-point platform specific wrapper APIs for Android (Java).
 </aside>
 
 ## Proxy settings (structure)
@@ -384,8 +386,8 @@ public abstract class RDNA {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
     public int errCode;
-    public RDNAService services[];
     public RDNAMethodID methodID;
+    public RDNAService services[];
   }
 
   public static class RDNAStatusTerminate {
@@ -395,14 +397,14 @@ public abstract class RDNA {
     public RDNAMethodID methodID;
   }
 
-  public class RDNAStatusPause {
+  public static class RDNAStatusPause {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
     public int errCode;
     public RDNAMethodID methodID;
   }
 
-  public class RDNAStatusResume {
+  public static class RDNAStatusResume {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
     public int errCode;
@@ -834,7 +836,7 @@ These structures are used with the backend service access routines. They serve t
    * its target backend coordinate (hostname/IP-address and port number),
    * the access-gateway to connect via, and
    * its locally available access ports
- * An opaque 'coordinate' pointer is also part of this structure, which needs to be supplied in order to stop the service access via API.
+ * An opaque 'service context' pointer is also part of this structure, which needs to be supplied in order to stop the service access via API.
  * The access port structure in turn specifies further details such as -
    * whether the service is started or not,
    * whether the local port is bound to all device network interfaces or not,
@@ -1025,9 +1027,9 @@ coreInitialize
  int    nAuthGatewayPORT,
  char*  sCipherSpecs,
  char*  sCipherSalt,
- void*  pvAppCtx,
  proxy_settings_t*
-        pProxySettings);
+        pProxySettings,
+ void*  pvAppCtx);
 ```
 
 ```java
@@ -1043,43 +1045,43 @@ public abstract class RDNA {
       int    authGatewayPORT,
       String cipherSpecs,
       String cipherSalt,
-      Object appCtx,
       RDNAProxySettings
-             proxySettings);
+             proxySettings,
+      Object appCtx);
   //..
 }
 ```
 
 ```objective_c
-// TODO - make like in JAva - method that creats and returns RDNA instance
 @interface RDNA : NSObject
-  - (int)initialize:(NSString *)agentInfo
-          Callbacks:(id<RDNACallbacks>)callbacks
-        GatewayHost:(NSString *)authGatewayHNIP
-        GatewayPort:(uint16_t)authGatewayPORT
-         CipherSpec:(NSString *)cipherSpec
-         CipherSalt:(NSString *)cipherSalt
-         AppContext:(id)appCtx
-      ProxySettings:(RDNAProxySettings *)proxySettings;
+  + (int)initializeForRDNA:(RDNA **)ppRuntimeCtx
+                 AgentInfo:(NSString *)agentInfo
+                 Callbacks:(id<RDNACallbacks>)callbacks
+               GatewayHost:(NSString *)authGatewayHNIP
+               GatewayPort:(uint16_t)authGatewayPORT
+                CipherSpec:(NSString *)cipherSpec
+                CipherSalt:(NSString *)cipherSalt
+             ProxySettings:(RDNAProxySettings *)proxySettings
+                AppContext:(id)appCtx;
 @end
 ```
 
 ```cpp
-// TODO - make like in JAva - method that creats and returns RDNA instance
 class RDNA
 {
 public:
-  int
+  static int
   initialize
-  (std::string    agentInfo,
+  (RDNA**         ppRuntimeCtx,
+   std::string    agentInfo,
    RDNACallbacks* callbacks,
    std::string    authGatewayHNIP,
    unsigned short authGatewayPORT,
    std::string    cipherSpec,
    std::string    cipherSalt,
-   void*          appCtx,
    RDNAProxySettings*
-                  pProxySettings);
+                  pProxySettings,
+   void*          appCtx);
 }
 ```
 
@@ -1099,14 +1101,14 @@ Proxy&nbsp;Settings&nbsp;[in] |Hostname/IPaddress and port-number for proxy to u
 <aside class="notice"><b><u>Session-Scope Cipher Details</u></b> -
 <br>
 The way in which session-scope privacy works is as follows:
-<li>The API-client application invokes an ```Encrypt``` API routine with <i>Session</i> privacy scope and sends the encrypted data via an access port
+<li>The API-client application invokes an <u>Encrypt</u> API routine with <i>Session</i> privacy scope and sends the encrypted data via an access port
 <li>The DNA receives the data and decrypts it, before sending the data across to the backend service
 <li>The DNA receives the response from the backend service, and encrypts it before sending it back to the API-client application
-<li>The API-client application receives the encrypted response, and subsequently invokes a ```Decrypt``` API routine  with <i>Session</i> privacy scope before processing the plaintext response.
-<li>The cipher details supplied in the ```Initialize``` routine, sets the cipher specs and salt for use in the above interactions.
-<li>For more details on Cipher Spec, refer ```Data Privacy Routines```
+<li>The API-client application receives the encrypted response, and subsequently invokes a <u>Decrypt</u> API routine  with <i>Session</i> privacy scope before processing the plaintext response.
+<li>The cipher details supplied in the <u>Initialize</u> routine, sets the cipher specs and salt for use in the above interactions.
+<li>For more details on Cipher Spec, refer <u>Data Privacy Routines</u>
 <br>
-<b><i>Hence, when ```Session``` privacy scope is used with any of the ```Encrypt```/```Decrypt``` API routines, the cipher specs and salt supplied are ignored</i></b>
+<b><i>Hence, when <u>Session</u> privacy scope is used with any of the <u>Encrypt</u>/<u>Decrypt</u> API routines, the cipher specs and salt supplied are ignored</i></b>
 </aside>
 
 ## Terminate Routine
@@ -1145,7 +1147,7 @@ public:
 
 Routine | Description
 ------- | -----------
-<b>Terminate</b> | <li>API runtime shutdown is initiated - including freeing up memory and other resources, and stopping of the DNA.<li>No ```StatusUpdate``` callback invocations are made for this API routine
+<b>Terminate</b> | API runtime shutdown is initiated - including freeing up memory and other resources, and stopping of the DNA.
 
 
 # Basic API - Service Access
@@ -1170,7 +1172,7 @@ coreGetServiceByTargetCoordinate
  char*  sTargetHNIP,
  int    nTargetPORT,
  core_service_t***
-        ppService);
+        ppServices);
 
 int
 coreGetAllServices
@@ -1202,13 +1204,13 @@ public abstract class RDNA {
 ```objective_c
 @interface RDNA : NSObject
   - (int)getServiceByServiceName:(NSString *)serviceName;
-                     ServiceInfo:(RDNAService**)service
+                     ServiceInfo:(RDNAService **)service
 
   - (int)getServiceByTargetCoordinate:(NSString *)targetHNIP
                            TargetPort:(int)targetPORT
-                         ServicesInfo:(RDNAService**)service
+                         ServicesInfo:(NSArray **)services
 
-  - (int)getAllServices:(NSArray **)serviceArray;
+  - (int)getAllServices:(NSArray **)services;
 @end
 ```
 
@@ -1219,19 +1221,19 @@ public:
   int
   getServiceByServiceName
   (std::string  serviceName,
-   RDNAService& serviceDetails);
+   RDNAService& service);
 
   int
   getServiceByTargetCoordinate
-  (std::string  targetHNIP,
-   int          targetPORT,
+  (std::string   targetHNIP,
+   unsigned port targetPORT,
    vector<RDNAService>&
-                serviceDetails);
+                 services);
 
   int
   getAllServices
   (vector<RDNAService>&
-                serviceDetails);
+                services);
 }
 ```
 
@@ -1689,7 +1691,7 @@ coreStreamGetStreamType
         peStreamType);
 
 int
-coreStreamWriteDataInto
+coreStreamWriteDataIntoStream
 (void*  pvStream,
  unsigned char*  pDataBuf,
  int    nDataLen);
@@ -1725,7 +1727,7 @@ public abstract class RDNA {
   public static interface RDNAPrivacyStream {
     public RDNAStatus<RDNAPrivacyScope> getPrivacyScope();
     public RDNAStatus<RDNAStreamType> getStreamType();
-    public int writeDataInto (byte[] data);
+    public int writeDataIntoStream (byte[] data);
     public int endStream();
     public int destroy();
   }
@@ -1814,7 +1816,7 @@ class RDNAPrivacyStream
 public:
   int getPrivacyScope(RDNAPrivacyScope& privacyScope);
   int getStreamType(RDNAStreamType& streamType);
-  int writeDataInto(unsigned char* data, int dataLen);
+  int writeDataIntoStream(unsigned char* data, int dataLen);
   int endStream();
   int destroy();
 };
@@ -1874,9 +1876,9 @@ coreResumeRuntime
  int    nStateSize,
  core_callbacks_t*
         pCallbacks,
- void*  pvAppCtx,
  proxy_settings_t*
-        pProxySettings);
+        pProxySettings,
+ void*  pvAppCtx);
 ```
 
 ```java
@@ -1884,7 +1886,7 @@ public abstract class RDNA {
   //..
   public abstract RDNAStatus<byte[]> pauseRuntime();
 
-  public abstract RDNAStatus<RDNA> resumeRuntime(
+  public static RDNAStatus<RDNA> resumeRuntime(
          byte[] state, RDNACallbacks callbacks,
          RDNAProxySettings proxySettings, Object appCtx);
   //..
@@ -1894,12 +1896,13 @@ public abstract class RDNA {
 ```objective_c
 @interface RDNA : NSObject
   //..
-  - (int)pauseRuntime:(NSMutableData **)context;
+  - (int)pauseRuntime:(NSMutableData **)state;
 
-  - (int)resumeRuntimeWith:(NSData *)savedContext
-                 Callbacks:(id<RDNACallbacks>)callbacks
-             ProxySettings:(RDNAProxySettings *)proxySettings
-                AppContext:(id)appCtx;
+  + (int)resumeRuntimeForRDNA:(RDNA **)ppRuntimeCtx
+                    SaveState:(NSData *)state
+                    Callbacks:(id<RDNACallbacks>)callbacks
+                ProxySettings:(RDNAProxySettings *)proxySettings
+                   AppContext:(id)appCtx;
   //..
 @end
 ```
@@ -1911,24 +1914,23 @@ public:
   //..
   int
   pauseRuntime
-  (std::string& context);
+  (std::string& state);
 
-  int
+  static int
   resumeRuntime
-  (std::string  savedContext,
-   RDNACallbacks*
-                callbacks,
-   RDNAProxySettings*
-                proxySettings, 
-   void*        appCtx);
+  (RDNA**             ppRuntimeCtx,
+   std::string        state,
+   RDNACallbacks*     callbacks,
+   RDNAProxySettings* proxySettings, 
+   void*              appCtx);
   //..
 }
 ```
 
 Routine | Description
 ------- | -----------
-<b>PauseRuntime</b> | <li>State of API runtime is serialized and returned in output buffer.<li>Information in this buffer is encrypted and must be supplied <i>AS IS</i> back with the ```ResumeRuntme``` routine call.<li><b>Initiates termination/cleanup of the API-runtime before returning</b> - no ```StatusUpdate``` callback invocations are made for this API routine.
-<b>ResumeRuntime</b> | <li>The supplied buffer containing a previously saved runtime state is used to re-initialize the runtime to that saved state. <li>The callback routines from the API-client must again be supplied herewith - these are not serialized by ```PauseRuntime``` since they are references to code blocks in memory and may not be valid across process re-invocations.<li>```StatusUpdate``` callback is invoked to signal completion of the re-initialization - the method ID specified is that of the ```Initialize``` API routine.
+<b>PauseRuntime</b> | <li>State of API runtime is serialized and returned in output buffer.<li>Information in this buffer is encrypted and must be supplied <i>AS IS</i> back with the ```ResumeRuntme``` routine call.<li><b>Initiates termination/cleanup of the API-runtime before returning</b>
+<b>ResumeRuntime</b> | <li>The supplied buffer containing a previously saved runtime state is used to re-initialize the runtime to that saved state. <li>The callback routines from the API-client must again be supplied herewith - these are not serialized by ```PauseRuntime``` since they are references to code blocks in memory and may not be valid across process re-invocations.<li>```StatusUpdate``` callback is invoked to signal completion of the re-initialization.
 
 <aside class="notice"><b>It is recommended that the API-client application further encrypt this information before storing it for later retrieval and restoration into the API-runtime</b></aside>
 
@@ -1941,7 +1943,7 @@ coreGetSdkVersion
 
 e_core_error_t
 coreGetErrorInfo
-(int errCode);
+(int errorCode);
 
 int
 coreGetSessionID
@@ -1968,7 +1970,7 @@ public abstract class RDNA {
   public static
     RDNAErrorID
     getErrorInfo
-      (int errCode);
+      (int errorCode);
   public abstract
     RDNAStatus<String>
     getSessionID();
@@ -2000,7 +2002,7 @@ class RDNA
 public:
   //..
   static std::string getSdkVersion();
-  static RDNAErrorID getErrorInfo(int errCode);
+  static RDNAErrorID getErrorInfo(int errorCode);
   int getSessionID(std::string& sessionID);
   int getAgentID(std::string& agentID);
   int getDeviceID(std::string& deviceID);
