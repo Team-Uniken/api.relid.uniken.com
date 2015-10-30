@@ -128,7 +128,7 @@ This interaction is governed by a single API routine (```Initialize```) invocati
 
 Most importantly, this is the phase when the <u>API runtime establishes an agent-authenticated session with the REL-ID platform</u> backend and <u>bootstraps the DNA for subsequent connectivity with both REL-ID platform services as well as the configured backend enterprise services</u>
 
-The following information is supplied by the API-client application to the initialization routing:
+The following information is supplied by the API-client application to the initialization routine:
 
  * Agent information (available as a base64-encoded blob, upon provisioning a new agent REL-ID on a commercially licensed REL-ID Gateway Manager)
  * Callback methods/functions that the API runtime will use to communicate with the API-client application (status/error notifications, device context/fingerprint retrieval)
@@ -1032,7 +1032,7 @@ public abstract class RDNA {
   //..
   public static
     RDNAStatus<RDNA>
-    Initialize(
+    initialize(
       String agentInfo,
       RDNACallbacks
              callbacks,
@@ -1049,15 +1049,15 @@ public abstract class RDNA {
 
 ```objective_c
 @interface RDNA : NSObject
-  + (int)initializeForRDNA:(RDNA **)ppRuntimeCtx
-                 AgentInfo:(NSString *)agentInfo
-                 Callbacks:(id<RDNACallbacks>)callbacks
-               GatewayHost:(NSString *)authGatewayHNIP
-               GatewayPort:(uint16_t)authGatewayPORT
-                CipherSpec:(NSString *)cipherSpec
-                CipherSalt:(NSString *)cipherSalt
-             ProxySettings:(RDNAProxySettings *)proxySettings
-                AppContext:(id)appCtx;
+  + (int)initialize:(RDNA **)ppRuntimeCtx
+          AgentInfo:(NSString *)agentInfo
+          Callbacks:(id<RDNACallbacks>)callbacks
+        GatewayHost:(NSString *)authGatewayHNIP
+        GatewayPort:(uint16_t)authGatewayPORT
+         CipherSpec:(NSString *)cipherSpec
+         CipherSalt:(NSString *)cipherSalt
+      ProxySettings:(RDNAProxySettings *)proxySettings
+         AppContext:(id)appCtx;
 @end
 ```
 
@@ -1144,6 +1144,102 @@ Routine | Description
 ------- | -----------
 <b>Terminate</b> | API runtime shutdown is initiated - including freeing up memory and other resources, and stopping of the DNA.
 
+# Basic API - Sessions
+
+The REL-ID Session is issued to the client-side as an opaque ticket from the REL-ID backend. This ticket is subsequently used by the client-side API-runtime to gain access to backend enterprise services. 
+
+There are 2 types of REL-ID sessions - PRIMARY and SECONDARY:
+
+ * <b>PRIMARY</b> (app) session - The Basic API Initialize routine creates a session associated with (i) the application identity (AgentInfo), and (ii) the device identity (or fingerprint). This session is called a <b>PRIMARY</b> session.
+ * <b>SECONDARY</b> (user) session - Upon successful end-user authentication, a new session ticket is issued to the client, which additionally associates a 3rd identity - (iii) the identity of the user. This session is called a <b>SECONDARY</b> session.
+
+<aside class="notice"><b><u>Sessions are persistent</u></b><br>
+The <b>PauseRuntime</b> routine returns the <i>in-session</i> state of the API-runtime includes the session tickets and their access configurations as well. This returned state may be persisted and reloaded into the API-runtime with the call to <b>ResumeRuntime</b>, to recreate the runtime state along with the session information required for accessing backend services.
+</aside>
+
+When an API-client application no longer requires a session, for example when the end-user logs of the enterprise application, it can invoke the ```InvalidateAppSession``` and/or ```InvalidateUserSession``` routines to notify the REL-ID backend that the session is no longer valid and is not to be entertained anymore.
+
+When an API-client application accesses a backend service, this access is first checked against the SECONDARY session configuration, before being checked against the PRIMARY session configuration.
+
+## InvalidateAppSession routine
+
+```c
+int
+coreInvalidateAppSession
+(void** ppvRuntimeCtx);
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public RDNAStatus<int>
+    invalidateAppSession();
+  //..
+}
+```
+
+```objective_c
+@interface RDNA : NSObject
+  //..
+  - (int)invalidateAppSession;
+  //..
+@end
+```
+
+```cpp
+class RDNA
+{
+public:
+  //..
+  int invalidateAppSession();
+  //..
+}
+```
+
+This routine notifies the REL-ID backend that the application (PRIMARY) session present in the API-runtime context is to be invalidated. Accordingly the API-runtime, <i>forgets</i> the corresponding session ticket.
+
+<aside class="notice"><b><u>Note</u></b> that at this point, since there is no application session present in the API-runtime, the only possible API interaction for the API-client, is to invoke <b>Terminate</b>. If subsequent REL-ID based access is required, successful <b>Initialize</b> invocation would be required to create new <b>PRIMARY</b> application session.
+</aside>
+
+## InvalidateUserSession routine
+
+```c
+int
+coreInvalidateUserSession
+(void** ppvRuntimeCtx);
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public RDNAStatus<int>
+    invalidateUserSession();
+  //..
+}
+```
+
+```objective_c
+@interface RDNA : NSObject
+  //..
+  - (int)invalidateUserSession;
+  //..
+@end
+```
+
+```cpp
+class RDNA
+{
+public:
+  //..
+  int invalidateUserSession();
+  //..
+}
+```
+
+This routine notifies the REL-ID backend that the user (SECONDARY) session present in the API-runtime context is to be invalidated. Accordingly the API-runtime, <i>forgets</i> the corresponding session ticket.
+
+<aside class="notice"><b><u>Note</u></b> that at this point, since there is no user (SECONDARY) session present in the API-runtime, the API-client may only access backend services that are accessible by virtue of the application (PRIMARY) session present in the API-runtime context.
+</aside>
 
 # Basic API - Service Access
 
@@ -1893,11 +1989,11 @@ public abstract class RDNA {
   //..
   - (int)pauseRuntime:(NSMutableData **)state;
 
-  + (int)resumeRuntimeForRDNA:(RDNA **)ppRuntimeCtx
-                   SavedState:(NSData *)state
-                    Callbacks:(id<RDNACallbacks>)callbacks
-                ProxySettings:(RDNAProxySettings *)proxySettings
-                   AppContext:(id)appCtx;
+  + (int)resumeRuntime:(RDNA **)ppRuntimeCtx
+            SavedState:(NSData *)state
+             Callbacks:(id<RDNACallbacks>)callbacks
+         ProxySettings:(RDNAProxySettings *)proxySettings
+            AppContext:(id)appCtx;
   //..
 @end
 ```
