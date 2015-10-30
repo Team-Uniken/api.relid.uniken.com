@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Friday, 30 October 2015, at 1930 IST</u>
+Last updated on <u>Friday, 30 October 2015, at 1945 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -2037,22 +2037,22 @@ coreGetErrorInfo
 (int errorCode);
 
 int
-coreGetAppSessionID
+coreGetAppSessionId
 (void*  pvRuntimeCtx,
  char** ppcAppSessionId);
 
 int
-coreGetUserSessionID
+coreGetUserSessionId
 (void*  pvRuntimeCtx,
  char** ppcUserSessionId);
 
 int
-coreGetAgentID
+coreGetAgentId
 (void*  pvRuntimeCtx,
  char** ppcAgentId);
 
 int
-coreGetDeviceID
+coreGetDeviceId
 (void*  pvRuntimeCtx,
  char** ppcDeviceId);
 ```
