@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Friday, 23 October 2015, at 1300 IST</u>
+Last updated on <u>Friday, 30 October 2015, at 1530 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -248,7 +248,7 @@ public abstract class RDNA {
     public String unpackEndUserRelID(String euRelId);
     public Object getDeviceContext();
     public String getApplicationFingerprint();
-    public int onTerminated(RDNAStatusTerminate status);
+    public int onTerminate(RDNAStatusTerminate status);
     public int onPauseRuntime(RDNAStatusPause status);
     public int onResumeRuntime(RDNAStatusResume status);
   }
@@ -263,7 +263,7 @@ public abstract class RDNA {
   - (NSString *)unpackEndUserRelID:(NSString *)euRelId;
   @optional
   - (NSString *)getApplicationFingerprint;
-  - (int)onTerminated:(RDNAStatusTerminate *)status;
+  - (int)onTerminate:(RDNAStatusTerminate *)status;
   - (int)onPauseRuntime:(RDNAStatusPauseRuntime *)status;
   - (int)onResumeRuntime:(RDNAStatusResumeRuntime *)status;
 @end
@@ -276,7 +276,7 @@ class RDNACallbacks
   virtual int onInitializeCompleted(RDNAStatusInit status) = 0;
   virtual std::string unpackEndUserRelID(std::string euRelID) = 0;
   virtual std::string getApplicationFingerprint();
-  virtual int onTerminated(RDNAStatusTerminate status);
+  virtual int onTerminate(RDNAStatusTerminate status);
   virtual int onPauseRuntime(RDNAStatusPause status);
   virtual int onResumeRuntime(RDNAStatusResume status);
 };
@@ -501,9 +501,9 @@ typedef enum {
   CORE_ERR_GENERIC_ERROR,
   CORE_ERR_INVALID_VERSION,
   CORE_ERR_INVALID_ARGS,
+  CORE_ERR_INVALID_CONTEXT,
 
-  CORE_ERR_NULL_AGENT_INFO = 21,
-  CORE_ERR_NULL_CALLBACKS,
+  CORE_ERR_NULL_CALLBACKS = 22,
   CORE_ERR_INVALID_HOST,
   CORE_ERR_INVALID_PORTNUM,
   CORE_ERR_INVALID_AGENT_INFO,
@@ -513,8 +513,7 @@ typedef enum {
   CORE_ERR_INVALID_HTTP_REQUEST,
   CORE_ERR_INVALID_HTTP_RESPONSE,
 
-  CORE_ERR_INVALID_CIPHERSPECS = 41,
-  CORE_ERR_UNSUPPORTED_CIPHERSPECS,
+  CORE_ERR_INVALID_CIPHERSPECS = 42,
   CORE_ERR_PLAINTEXT_EMPTY,
   CORE_ERR_PLAINTEXT_LENGTH_INVALID,
   CORE_ERR_CIPHERTEXT_EMPTY,
@@ -559,8 +558,8 @@ public abstract class RDNA {
     RDNA_ERR_GENERIC_ERROR(2),
     RDNA_ERR_INVALID_VERSION(3),
     RDNA_ERR_INVALID_ARGS(4),
+    RDNA_ERR_INVALID_CONTEXT(5),
 
-    RDNA_ERR_NULL_AGENT_INFO(21),
     RDNA_ERR_NULL_CALLBACKS(22),
     RDNA_ERR_INVALID_HOST(23),
     RDNA_ERR_INVALID_PORTNUM(24),
@@ -571,8 +570,7 @@ public abstract class RDNA {
     RDNA_ERR_INVALID_HTTP_REQUEST(29),
     RDNA_ERR_INVALID_HTTP_RESPONSE(30),
 
-    RDNA_ERR_INVALID_CIPHERSPECS(41),
-    RDNA_ERR_UNSUPPORTED_CIPHERSPECS(42),
+    RDNA_ERR_INVALID_CIPHERSPECS(42),
     RDNA_ERR_PLAINTEXT_EMPTY(43),
     RDNA_ERR_PLAINTEXT_LENGTH_INVALID(44),
     RDNA_ERR_CIPHERTEXT_EMPTY(45),
@@ -617,9 +615,9 @@ typedef NS_ENUM(NSInteger, RDNAErrorID) {
   RDNA_ERR_GENERIC_ERROR,
   RDNA_ERR_INVALID_VERSION,
   RDNA_ERR_INVALID_ARGS,
+  RDNA_ERR_INVALID_CONTEXT,
 
-  RDNA_ERR_NULL_AGENT_INFO = 21,
-  RDNA_ERR_NULL_CALLBACKS,
+  RDNA_ERR_NULL_CALLBACKS = 22,
   RDNA_ERR_INVALID_HOST,
   RDNA_ERR_INVALID_PORTNUM,
   RDNA_ERR_INVALID_AGENT_INFO,
@@ -629,8 +627,7 @@ typedef NS_ENUM(NSInteger, RDNAErrorID) {
   RDNA_ERR_INVALID_HTTP_REQUEST,
   RDNA_ERR_INVALID_HTTP_RESPONSE,
 
-  RDNA_ERR_INVALID_CIPHERSPECS = 41,
-  RDNA_ERR_UNSUPPORTED_CIPHERSPECS,
+  RDNA_ERR_INVALID_CIPHERSPECS = 42,
   RDNA_ERR_PLAINTEXT_EMPTY,
   RDNA_ERR_PLAINTEXT_LENGTH_INVALID,
   RDNA_ERR_CIPHERTEXT_EMPTY,
@@ -673,9 +670,9 @@ typedef enum {
   RDNA_ERR_GENERIC_ERROR,
   RDNA_ERR_INVALID_VERSION,
   RDNA_ERR_INVALID_ARGS,
+  RDNA_ERR_INVALID_CONTEXT,
 
-  RDNA_ERR_NULL_AGENT_INFO = 21,
-  RDNA_ERR_NULL_CALLBACKS,
+  RDNA_ERR_NULL_CALLBACKS = 22,
   RDNA_ERR_INVALID_HOST,
   RDNA_ERR_INVALID_PORTNUM,
   RDNA_ERR_INVALID_AGENT_INFO,
@@ -685,8 +682,7 @@ typedef enum {
   RDNA_ERR_INVALID_HTTP_REQUEST,
   RDNA_ERR_INVALID_HTTP_RESPONSE,
 
-  RDNA_ERR_INVALID_CIPHERSPECS = 41,
-  RDNA_ERR_UNSUPPORTED_CIPHERSPECS,
+  RDNA_ERR_INVALID_CIPHERSPECS = 42,
   RDNA_ERR_PLAINTEXT_EMPTY,
   RDNA_ERR_PLAINTEXT_LENGTH_INVALID,
   RDNA_ERR_CIPHERTEXT_EMPTY,
@@ -728,7 +724,7 @@ ERR_NOT_INITIALIZED | 1 | The API Runtime is not initialized
 ERR_GENERIC_ERROR | 2 | Generic error has occured
 ERR_INVALID_VERSION | 3 | The SDK Version is invalid or unsupported
 ERR_INVALID_ARGS | 4 | The argument(s) passed to the API is invalid
-ERR_NULL_AGENT_INFO | 21 | The agent info passed in is null
+ERR_INVALID_CONTEXT| 5 | The context passed to the API is invalid
 ERR_NULL_CALLBACKS | 22 | The callback/ptr passed in is null
 ERR_INVALID_HOST | 23 | The hostname/IP is null or empty
 ERR_INVALID_PORTNUM | 24 | The port number is invalid
@@ -738,12 +734,11 @@ ERR_FAILED_TO_AUTHENTICATE | 27 | Failed to authenticate with REL-ID Gateway Ser
 ERR_INVALID_SAVED_CONTEXT | 28 | The saved context passed to Resume is invalid
 ERR_INVALID_HTTP_REQUEST | 29 | The Http Request passed to Encrypt Http API is invalid
 ERR_INVALID_HTTP_RESPONSE | 30 | The Http Request passed to Decrypt Http API is invalid
-ERR_INVALID_CIPHERSPECS | 41 | The cipher spec passed in is invalid
-ERR_PLAINTEXT_EMPTY | 42 | The plain text passed to Encrypt API is empty
-ERR_PLAINTEXT_LENGTH_INVALID | 43 | The plain text length passed to Encrypt API is invalid
-ERR_CIPHERTEXT_EMPTY | 44 | The cipher text passed to Decrypt API is empty
-ERR_CIPHERTEXT_LENGTH_INVALID | 45 | The cipher text length passed to Decrypt API is invalid
-ERR_UNSUPPORTED_CIPHERSPECS | 46 | The cipher specs passed in is unsupported
+ERR_INVALID_CIPHERSPECS | 42 | The cipher spec passed in is invalid
+ERR_PLAINTEXT_EMPTY | 43 | The plain text passed to Encrypt API is empty
+ERR_PLAINTEXT_LENGTH_INVALID | 44 | The plain text length passed to Encrypt API is invalid
+ERR_CIPHERTEXT_EMPTY | 45 | The cipher text passed to Decrypt API is empty
+ERR_CIPHERTEXT_LENGTH_INVALID | 46 | The cipher text length passed to Decrypt API is invalid
 ERR_SERVICE_NOT_SUPPORTED | 61 | The service provided is not supported
 ERR_INVALID_SERVICE_NAME | 62 | The service name passed in is invalid
 ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE | 81 | Failed to get stream privacy scope
@@ -1899,7 +1894,7 @@ public abstract class RDNA {
   - (int)pauseRuntime:(NSMutableData **)state;
 
   + (int)resumeRuntimeForRDNA:(RDNA **)ppRuntimeCtx
-                    SaveState:(NSData *)state
+                   SavedState:(NSData *)state
                     Callbacks:(id<RDNACallbacks>)callbacks
                 ProxySettings:(RDNAProxySettings *)proxySettings
                    AppContext:(id)appCtx;
@@ -1946,9 +1941,14 @@ coreGetErrorInfo
 (int errorCode);
 
 int
-coreGetSessionID
+coreGetAppSessionID
 (void*  pvRuntimeCtx,
- char** ppcSessionId);
+ char** ppcAppSessionId);
+
+int
+coreGetUserSessionID
+(void*  pvRuntimeCtx,
+ char** ppcUserSessionId);
 
 int
 coreGetAgentID
@@ -1973,13 +1973,16 @@ public abstract class RDNA {
       (int errorCode);
   public abstract
     RDNAStatus<String>
-    getSessionID();
+    getAppSessionId();
   public abstract
     RDNAStatus<String>
-    getAgentID();
+    getUserSessionId();
   public abstract
     RDNAStatus<String>
-    getDeviceID();
+    getAgentId();
+  public abstract
+    RDNAStatus<String>
+    getDeviceId();
   //..
 }
 ```
@@ -1989,9 +1992,10 @@ public abstract class RDNA {
   //..
   + (NSString *)getSDKVersion;
   + (RDNAErrorID)getErrorInfo:(int)errorCode;
-  - (int)getSessionID:(NSMutableString **)sessionID;
-  - (int)getAgentID:(NSMutableString **)agentID;
-  - (int)getDeviceID:(NSMutableString **)deviceID;
+  - (int)getAppSessionId:(NSMutableString **)appSessionId;
+  - (int)getUserSessionId:(NSMutableString **)userSessionId;
+  - (int)getAgentId:(NSMutableString **)agentId;
+  - (int)getDeviceId:(NSMutableString **)deviceId;
   //..
 @end
 ```
@@ -2003,9 +2007,10 @@ public:
   //..
   static std::string getSdkVersion();
   static RDNAErrorID getErrorInfo(int errorCode);
-  int getSessionID(std::string& sessionID);
-  int getAgentID(std::string& agentID);
-  int getDeviceID(std::string& deviceID);
+  int getAppSessionId(std::string& appSessionId);
+  int getUserSessionId(std::string& userSessionId);
+  int getAgentId(std::string& agentId);
+  int getDeviceId(std::string& deviceId);
   //..
 }
 ```
@@ -2014,9 +2019,10 @@ Routine | Description
 ------- | -----------
 <b>GetSdkVersion</b> | Get the API-SDK version number
 <b>GetErrorInfo</b> | Get the error information corresponding to an integer error code returned by any API. It returns back ```RDNAErrorID``` which gives brief information of the error occured
-<b>GetSessionID</b> | Get the session ID of the current initialized REL-ID session
-<b>GetAgentID</b> | Get the Agent ID using which the REL-ID session is initialized
-<b>GetDeviceID</b> | Get the device ID of the current device using which the REL-ID session is initialized
+<b>GetAppSessionId</b> | Get the session ID of the current application (PRIMARY) REL-ID session
+<b>GetUserSessionId</b> | Get the session ID of the current user (SECONDARY) REL-ID session<br><i>This is applicable only when using the Advanced API</i>
+<b>GetAgentId</b> | Get the Agent ID using which the REL-ID session is initialized
+<b>GetDeviceId</b> | Get the device ID of the current device using which the REL-ID session is initialized
 
 
 # Advanced API
