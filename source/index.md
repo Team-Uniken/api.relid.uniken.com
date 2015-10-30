@@ -1153,6 +1153,8 @@ There are 2 types of REL-ID sessions - PRIMARY and SECONDARY:
  * <b>PRIMARY</b> (app) session - The Basic API Initialize routine creates a session associated with (i) the application identity (AgentInfo), and (ii) the device identity (or fingerprint). This session is called a <b>PRIMARY</b> session.
  * <b>SECONDARY</b> (user) session - Upon successful end-user authentication, a new session ticket is issued to the client, which additionally associates a 3rd identity - (iii) the identity of the user. This session is called a <b>SECONDARY</b> session.
 
+<aside class="notice"><u><b>SECONDARY (user) sessions</b> are part of the <b>Advanced API</b></u>. Explained here just to put the types of sessions in perspective.</aside>
+
 <aside class="notice"><b><u>Sessions are persistent</u></b><br>
 The <b>PauseRuntime</b> routine returns the <i>in-session</i> state of the API-runtime includes the session tickets and their access configurations as well. This returned state may be persisted and reloaded into the API-runtime with the call to <b>ResumeRuntime</b>, to recreate the runtime state along with the session information required for accessing backend services.
 </aside>
