@@ -227,8 +227,8 @@ int
 typedef
 int
 (*fn_unpack_enduser_relid_t)
-(char* euRelId,
- char** uRelId);
+(char* euRelID,
+ char** uRelID);
 
 /* struct of callback pointers */
 typedef struct {
@@ -236,7 +236,7 @@ typedef struct {
   fn_get_device_fingerprint_t
                      pfnGetDeviceFingerprint;
   fn_unpack_enduser_relid_t
-                     pfnUnpackEndUserRelId;
+                     pfnUnpackEndUserRelID;
 } core_callbacks_t;
 ```
 
@@ -245,7 +245,7 @@ public abstract class RDNA {
   //...
   public interface RDNACallbacks {
     public int onInitializeCompleted(RDNAStatusInit status);
-    public String unpackEndUserRelID(String euRelId);
+    public String unpackEndUserRelID(String euRelID);
     public Object getDeviceContext();
     public String getApplicationFingerprint();
     public int onTerminate(RDNAStatusTerminate status);
@@ -260,7 +260,7 @@ public abstract class RDNA {
 @protocol RDNACallbacks
   @required
   - (int)onInitializeCompleted:(RDNAStatusInit *)status;
-  - (NSString *)unpackEndUserRelID:(NSString *)euRelId;
+  - (NSString *)unpackEndUserRelID:(NSString *)euRelID;
   @optional
   - (NSString *)getApplicationFingerprint;
   - (int)onTerminate:(RDNAStatusTerminate *)status;
@@ -288,7 +288,7 @@ Callback Routine | Basic/Advanced | Description
 <b>GetDeviceFingerprint</b> | Basic API (core/ANSI-C) | Invoked by the API runtime during initialization (session creation) in order to retrieve the fingerprint identity of the end-point device
 <b>GetDeviceContext</b> | Basic API (Java-Android) | Invoked by the API runtime during initialization (session creation) on Android (Java) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device.<br>The API-client must return the Android <u>ApplicationContext</u> of the application from this method's implementation.
 <b>GetApplicationFingerprint</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the application fingerprint, supplied by the API-client application to include in the device details.<br>The intent of this routine is to provide the application with an opportunity to identify itself so that the backend can check integrity of the application. To this end, it is recommended that the application provide strong checksums which can be matched/recorded at the backend.
-<b>UnpackEndUserRelId</b> | Advanced API | Invoked by the API runtime after successful user credential authentication, in order to unpack the <i>locked</i> user REL-ID as received from the REL-ID platform backend.
+<b>UnpackEndUserRelID</b> | Advanced API | Invoked by the API runtime after successful user credential authentication, in order to unpack the <i>locked</i> user REL-ID as received from the REL-ID platform backend.
 
 Apart from the above callback routines, specific events have been called out as onThisHappened() and onThatHappened() callbacks, in the wrapper APIs. This is to make it simpler and clearer for the API-client to react to these events.
 
@@ -373,7 +373,7 @@ typedef struct {
 typedef struct {
   void* pvtRuntimeCtx;
   void* pvtAppCtx;
-  e_core_method_t methodId;
+  e_core_method_t methodID;
   int  errCode;
   core_args_t* pArgs;
 } core_status_t;
@@ -2138,9 +2138,9 @@ The following routines constitute the REL-ID Advanced API -
 
 Routine | Description
 ------- | -----------
-<b>CheckUserStatus</b> | This routine submits the user identity (username/userId) to the REL-ID backend, to check its status - whether this user requires authentication on this device, what authentication to perform for this user, whether the user is blocked (on this device and/or app, or otherwise).<br>The result is one of the following - <li><b>FAILURE, &lt;reason&gt;</b><li><b>CHALLENGE, &lt;challenge&gt;</b><li><b>SUCCESS, &lt;eurelid&gt;</b><br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+<b>CheckUserStatus</b> | This routine submits the user identity (username/userID) to the REL-ID backend, to check its status - whether this user requires authentication on this device, what authentication to perform for this user, whether the user is blocked (on this device and/or app, or otherwise).<br>The result is one of the following - <li><b>FAILURE, &lt;reason&gt;</b><li><b>CHALLENGE, &lt;challenge&gt;</b><li><b>SUCCESS, &lt;eurelid&gt;</b><br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
 <b>CheckCredentials</b> | This routine can only be invoked if a successful ```CheckUserStatus``` was performed earlier, and if that invocation reverted with a status that indicated the requirement of authentication.<br>This routine submits the user credentials (passwords, responses to challenges etc) to the REL-ID backend, to authenticate the end-user.<br>Multiple successful invocations of this routine may be needed before receiving a <b>SUCCESS, &lt;eurelid&gt;</b> result from this routine, with the same challenge (retries) and/or different challenges (additional authentication).<br>The result is one of the following - <li><b>FAILURE, &lt;reason></b><li><b>CHALLENGE, &lt;challenge&gt;</b><li><b>SUCCESS, &lt;eurelid&gt;</b><br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
-<b>UpdateCredentials</b> | This routine can only be invoked if <li>a previously invoked ```CheckUserStatus``` or ```CheckCredentials``` resulted in a <b>SUCCESS, &lt;eurelid&gt;</b>,<li>which was subsequently successfully unpacked by a call to the ```UnpackEndUserRelId```,<li>after which a 'SECONDARY' session was successfully created using the unpacked UserRelId.<br><br>Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine.<br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+<b>UpdateCredentials</b> | This routine can only be invoked if <li>a previously invoked ```CheckUserStatus``` or ```CheckCredentials``` resulted in a <b>SUCCESS, &lt;eurelid&gt;</b>,<li>which was subsequently successfully unpacked by a call to the ```UnpackEndUserRelID```,<li>after which a 'SECONDARY' session was successfully created using the unpacked UserRelID.<br><br>Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine.<br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
 
 ## CheckUserStatus
 
@@ -2150,7 +2150,7 @@ The purpose of this routine is to check the status of the supplied end-user iden
 int
 advCheckUserStatus
 (void** ppvRuntimeCtx,
- char*  sUserId);
+ char*  sUserID);
 ```
 
 ```java
@@ -2171,8 +2171,8 @@ Argument&nbsp;[in/out] | Language Binding | Prototype/Description
 &nbsp; | Objective C | TODO
 &nbsp; | C++ | TODO
 &nbsp; | <u>Description</u> | <b>Previously created and valid API runtime context reference</b>
-<b>User&nbsp;Identity&nbsp;[in]</b> | ANSI C | ```char* sUserId```<br>Must be non-null, non-empty user identification
-&nbsp; | Java | ```String sUserId```<br>Must be non-null, non-empty user identification
+<b>User&nbsp;Identity&nbsp;[in]</b> | ANSI C | ```char* sUserID```<br>Must be non-null, non-empty user identification
+&nbsp; | Java | ```String sUserID```<br>Must be non-null, non-empty user identification
 &nbsp; | Objective C | TODO
 &nbsp; | C++ | TODO
 &nbsp; | <u>Description</u> | <b>End-user identity information supplied as a single opaque ASCII-encoded blob (base64/...)</b><br>The API-client application can take in user identity information, via one or more fields of input used to form a structured/unstructured end-user identity - for example, [<corporate-id>.]<user-id> (internet banking), or <sol-id>.<user-id> (Finacle CBS), or <user-id>@<fqdn> / <domain>\<user-id (corporate intranet Windows domain user), etc
@@ -2183,7 +2183,7 @@ Result | Description
 ------ | -----------
 <b>FAILURE,&nbsp;&lt;reason&gt;</b> | <b>&lt;reason&gt;</b> refers an exception to be reported to the API-client.<br>For example, the system is down, disk is full, the user/dev/agent is blocked/invalid, some policy check failed etc etc etc
 <b>CHALLENGE,&nbsp;&lt;challenge&gt;</b> | <b>&lt;challenge&gt;</b> is a blob containing information that the API-client application knows to process -<br><li>by displaying an appropriate challenge to the end-user operating the API-client app, with an appropriate CAPTCHA probably,<li>by accepting credential(s) in response to the challenge, and<li>by packaging the accepted credential(s) into another single opaque ASCII blob to be sent back to the AuG in a CheckCredentials API routine invocation
-<b>SUCCESS,&nbsp;&lt;eurelid&gt;</b> | <b>&lt;eurelid&gt;</b> is a blob containing the '<u>encrypted UserRelId</u>' for the end-user.<li>Upon receiving this, the API-runtime invokes the ```UnpackEndUserRelId``` callback routine to allow the API-client app to decrypt and return the plaintext UserRelId to the API-runtime.<li>At this point the API-runtime will perform a full RMAK with the REL-ID backend authentication gateway using this UserRelId and attempt recreation of its session. During this session-creation request, the PRIMARY session information (ticket) as well as variant device info is submitted, for the gateway to process and revert with a 'SECONDARY' session ticket.
+<b>SUCCESS,&nbsp;&lt;eurelid&gt;</b> | <b>&lt;eurelid&gt;</b> is a blob containing the '<u>encrypted UserRelID</u>' for the end-user.<li>Upon receiving this, the API-runtime invokes the ```UnpackEndUserRelID``` callback routine to allow the API-client app to decrypt and return the plaintext UserRelID to the API-runtime.<li>At this point the API-runtime will perform a full RMAK with the REL-ID backend authentication gateway using this UserRelID and attempt recreation of its session. During this session-creation request, the PRIMARY session information (ticket) as well as variant device info is submitted, for the gateway to process and revert with a 'SECONDARY' session ticket.
 
 ## CheckCredentials
 
@@ -2229,8 +2229,8 @@ The purpose of this routine is to update one or more credentials of the end-user
 Hence, this routine can only be invoked if -
 
  * a previously invoked ```CheckUserStatus``` or ```CheckCredentials``` resulted in a <b>SUCCESS, &lt;eurelid&gt;</b>,
- * which was subsequently successfully unpacked by a call to the ```UnpackEndUserRelId```,
- * after which, a 'SECONDARY' session was successfully created by the API-runtime using the unpacked UserRelId.
+ * which was subsequently successfully unpacked by a call to the ```UnpackEndUserRelID```,
+ * after which, a 'SECONDARY' session was successfully created by the API-runtime using the unpacked UserRelID.
 
 ```c
 int
