@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Friday, 30 October 2015, at 1945 IST</u>
+Last updated on <u>Friday, 30 October 2015, at 2000 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -2037,24 +2037,24 @@ coreGetErrorInfo
 (int errorCode);
 
 int
-coreGetAppSessionId
+coreGetAppSessionID
 (void*  pvRuntimeCtx,
- char** ppcAppSessionId);
+ char** ppcAppSessionID);
 
 int
-coreGetUserSessionId
+coreGetUserSessionID
 (void*  pvRuntimeCtx,
- char** ppcUserSessionId);
+ char** ppcUserSessionID);
 
 int
-coreGetAgentId
+coreGetAgentID
 (void*  pvRuntimeCtx,
- char** ppcAgentId);
+ char** ppcAgentID);
 
 int
-coreGetDeviceId
+coreGetDeviceID
 (void*  pvRuntimeCtx,
- char** ppcDeviceId);
+ char** ppcDeviceID);
 ```
 
 ```java
@@ -2069,16 +2069,16 @@ public abstract class RDNA {
       (int errorCode);
   public abstract
     RDNAStatus<String>
-    getAppSessionId();
+    getAppSessionID();
   public abstract
     RDNAStatus<String>
-    getUserSessionId();
+    getUserSessionID();
   public abstract
     RDNAStatus<String>
-    getAgentId();
+    getAgentID();
   public abstract
     RDNAStatus<String>
-    getDeviceId();
+    getDeviceID();
   //..
 }
 ```
@@ -2088,10 +2088,10 @@ public abstract class RDNA {
   //..
   + (NSString *)getSDKVersion;
   + (RDNAErrorID)getErrorInfo:(int)errorCode;
-  - (int)getAppSessionId:(NSMutableString **)appSessionId;
-  - (int)getUserSessionId:(NSMutableString **)userSessionId;
-  - (int)getAgentId:(NSMutableString **)agentId;
-  - (int)getDeviceId:(NSMutableString **)deviceId;
+  - (int)getAppSessionID:(NSMutableString **)appSessionID;
+  - (int)getUserSessionID:(NSMutableString **)userSessionID;
+  - (int)getAgentID:(NSMutableString **)agentID;
+  - (int)getDeviceID:(NSMutableString **)deviceID;
   //..
 @end
 ```
@@ -2103,10 +2103,10 @@ public:
   //..
   static std::string getSdkVersion();
   static RDNAErrorID getErrorInfo(int errorCode);
-  int getAppSessionId(std::string& appSessionId);
-  int getUserSessionId(std::string& userSessionId);
-  int getAgentId(std::string& agentId);
-  int getDeviceId(std::string& deviceId);
+  int getAppSessionID(std::string& appSessionID);
+  int getUserSessionID(std::string& userSessionID);
+  int getAgentID(std::string& agentID);
+  int getDeviceID(std::string& deviceID);
   //..
 }
 ```
@@ -2115,10 +2115,10 @@ Routine | Description
 ------- | -----------
 <b>GetSdkVersion</b> | Get the API-SDK version number
 <b>GetErrorInfo</b> | Get the error information corresponding to an integer error code returned by any API. It returns back ```RDNAErrorID``` which gives brief information of the error occured
-<b>GetAppSessionId</b> | Get the session ID of the current application (PRIMARY) REL-ID session
-<b>GetUserSessionId</b> | Get the session ID of the current user (SECONDARY) REL-ID session<br><i>This is applicable only when using the Advanced API</i>
-<b>GetAgentId</b> | Get the Agent ID using which the REL-ID session is initialized
-<b>GetDeviceId</b> | Get the device ID of the current device using which the REL-ID session is initialized
+<b>GetAppSessionID</b> | Get the session ID of the current application (PRIMARY) REL-ID session
+<b>GetUserSessionID</b> | Get the session ID of the current user (SECONDARY) REL-ID session<br><i>This is applicable only when using the Advanced API</i>
+<b>GetAgentID</b> | Get the Agent ID using which the REL-ID session is initialized
+<b>GetDeviceID</b> | Get the device ID of the current device using which the REL-ID session is initialized
 
 
 # Advanced API
