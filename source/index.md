@@ -1,5 +1,5 @@
 ---
-title: REL-ID SDK (work-in-progress)
+title: REL-ID SDK
 
 language_tabs:
   - c: ANSI C
@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Friday, 30 October 2015, at 2015 IST</u>
+Last updated on <u>Wednesday, 25 November 2015, at 1300 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -44,7 +44,7 @@ At a high level, the REL-ID API provides the following features that enable appl
 
 <u>Relative Identity</u> (or <u>REL-ID</u> for short) is a mutual identity that encapsulates/represents uniquely, the relationship between 2 parties/entities. This mutual identity is mathematically split in two, and one part each is distributed securely to the communicating parties. The identity of each end-point party/entity is thus relative to the identity of the other end-point party/entity. REL-ID can be used to represent the relationship between user and app, user and user, or app and other app, thus providing a holistic digital identity model
 
-The protocol handshake that authenticates the REL-ID between 2 parties/entities is RMAK â€“ which is short form for â€˜<b><u>R</u>EL-ID <u>M</u>utual <u>A</u>uthentication and <u>K</u>ey-exchange</b>â€™. It is a unique and patented protocol handshake that enables MITM-resistant, true mutual authentication. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.
+The protocol handshake that authenticates the REL-ID between 2 parties/entities is RMAK – which is short form for ‘<b><u>R</u>EL-ID <u>M</u>utual <u>A</u>uthentication and <u>K</u>ey-exchange</b>’. It is a unique and patented protocol handshake that enables MITM-resistant, true mutual authentication. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.
 
 <aside class="notice"><i><b><u>Agent REL-ID</u></b> and <b><u>User REL-ID</u></b></i> -
 <li>An <u><b>Agent REL-ID</b></u> is used to represent the relationship between software application and the REL-ID platform backend.
@@ -55,9 +55,9 @@ The protocol handshake that authenticates the REL-ID between 2 parties/entities 
 
 ## Device fingerprinting and binding
 
-Every end-point computing device has a number of unique identities associated with it â€“ this includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point deviceâ€™s fingerprint is created by collecting these various identities, and using them together to uniquely identify it. 
+Every end-point computing device has a number of unique identities associated with it – this includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point device’s fingerprint is created by collecting these various identities, and using them together to uniquely identify it. 
 
-The REL-ID platformâ€™s multi-factor authentication (MFA) is implemented by binding the deviceâ€™s fingerprint/identity with the REL-ID of the user/app â€“ thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
+The REL-ID platform’s multi-factor authentication (MFA) is implemented by binding the device’s fingerprint/identity with the REL-ID of the user/app – thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
 
 ## Access to backend enterprise services
 
@@ -133,7 +133,7 @@ The following information is supplied by the API-client application to the initi
  * Agent information (available as a base64-encoded blob, upon provisioning a new agent REL-ID on a commercially licensed REL-ID Gateway Manager)
  * Callback methods/functions that the API runtime will use to communicate with the API-client application (status/error notifications, device context/fingerprint retrieval)
  * Network coordinates of the REL-ID Authentication Gateway (hostname/IP address and port number)
- * Privacy (encryption) specifications for the Session-Scope - includes cipher specs and salt to use
+ * Privacy (encryption) specifications for the Data Privacy APIs - includes cipher specs and salt to use
  * Opaque reference to the API-client application context (never interpreted/modified by the API runtime, placeholder for application)
  * <i>If applicable</i>, proxy information for connecting through to the REL-ID Auth Gateway
 
@@ -221,22 +221,11 @@ int
 (char** psDeviceFingerprint,
  void*  pvAppCtx);
 
-/* Invoked by core API runtime to unpack the
-   'locked' end-user REL-ID received post
-   successful end-user authentication */
-typedef
-int
-(*fn_unpack_enduser_relid_t)
-(char* euRelID,
- char** uRelID);
-
 /* struct of callback pointers */
 typedef struct {
   fn_status_update_t pfnStatusUpdate;
   fn_get_device_fingerprint_t
                      pfnGetDeviceFingerprint;
-  fn_unpack_enduser_relid_t
-                     pfnUnpackEndUserRelID;
 } core_callbacks_t;
 ```
 
@@ -245,7 +234,6 @@ public abstract class RDNA {
   //...
   public interface RDNACallbacks {
     public int onInitializeCompleted(RDNAStatusInit status);
-    public String unpackEndUserRelID(String euRelID);
     public Object getDeviceContext();
     public String getApplicationFingerprint();
     public int onTerminate(RDNAStatusTerminate status);
@@ -260,7 +248,6 @@ public abstract class RDNA {
 @protocol RDNACallbacks
   @required
   - (int)onInitializeCompleted:(RDNAStatusInit *)status;
-  - (NSString *)unpackEndUserRelID:(NSString *)euRelID;
   @optional
   - (NSString *)getApplicationFingerprint;
   - (int)onTerminate:(RDNAStatusTerminate *)status;
@@ -274,7 +261,6 @@ class RDNACallbacks
 {
   public:
   virtual int onInitializeCompleted(RDNAStatusInit status) = 0;
-  virtual std::string unpackEndUserRelID(std::string euRelID) = 0;
   virtual std::string getApplicationFingerprint();
   virtual int onTerminate(RDNAStatusTerminate status);
   virtual int onPauseRuntime(RDNAStatusPause status);
@@ -288,7 +274,7 @@ Callback Routine | Basic/Advanced | Description
 <b>GetDeviceFingerprint</b> | Basic API (core/ANSI-C) | Invoked by the API runtime during initialization (session creation) in order to retrieve the fingerprint identity of the end-point device
 <b>GetDeviceContext</b> | Basic API (Java-Android) | Invoked by the API runtime during initialization (session creation) on Android (Java) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device.<br>The API-client must return the Android <u>ApplicationContext</u> of the application from this method's implementation.
 <b>GetApplicationFingerprint</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the application fingerprint, supplied by the API-client application to include in the device details.<br>The intent of this routine is to provide the application with an opportunity to identify itself so that the backend can check integrity of the application. To this end, it is recommended that the application provide strong checksums which can be matched/recorded at the backend.
-<b>UnpackEndUserRelID</b> | Advanced API | Invoked by the API runtime after successful user credential authentication, in order to unpack the <i>locked</i> user REL-ID as received from the REL-ID platform backend.
+
 
 Apart from the above callback routines, specific events have been called out as onThisHappened() and onThatHappened() callbacks, in the wrapper APIs. This is to make it simpler and clearer for the API-client to react to these events.
 
@@ -503,7 +489,8 @@ typedef enum {
   CORE_ERR_INVALID_ARGS,
   CORE_ERR_INVALID_CONTEXT,
 
-  CORE_ERR_NULL_CALLBACKS = 22,
+  CORE_ERR_FAILED_TO_CONNECT_VIA_PROXY = 21,
+  CORE_ERR_NULL_CALLBACKS,
   CORE_ERR_INVALID_HOST,
   CORE_ERR_INVALID_PORTNUM,
   CORE_ERR_INVALID_AGENT_INFO,
@@ -532,7 +519,7 @@ typedef enum {
   CORE_ERR_FAILED_TO_PAUSERUNTIME,
   CORE_ERR_FAILED_TO_RESUMERUNTIME,
   CORE_ERR_FAILED_TO_TERMINATE,
-  CORE_ERR_FAILED_TO_SET_CIPHERSPECS,
+  CORE_ERR_FAILED_TO_GET_CIPHERSALT,
   CORE_ERR_FAILED_TO_GET_CIPHERSPECS,
   CORE_ERR_FAILED_TO_GET_AGENT_INFO,
   CORE_ERR_FAILED_TO_GET_SESSION_ID,
@@ -560,6 +547,7 @@ public abstract class RDNA {
     RDNA_ERR_INVALID_ARGS(4),
     RDNA_ERR_INVALID_CONTEXT(5),
 
+    RDNA_ERR_FAILED_TO_CONNECT_VIA_PROXY (21),
     RDNA_ERR_NULL_CALLBACKS(22),
     RDNA_ERR_INVALID_HOST(23),
     RDNA_ERR_INVALID_PORTNUM(24),
@@ -589,7 +577,7 @@ public abstract class RDNA {
     RDNA_ERR_FAILED_TO_PAUSERUNTIME(102),
     RDNA_ERR_FAILED_TO_RESUMERUNTIME(103),
     RDNA_ERR_FAILED_TO_TERMINATE(104),
-    RDNA_ERR_FAILED_TO_SET_CIPHERSPECS(105),
+    RDNA_ERR_FAILED_TO_GET_CIPHERSALT(105),
     RDNA_ERR_FAILED_TO_GET_CIPHERSPECS(106),
     RDNA_ERR_FAILED_TO_GET_AGENT_ID(107),
     RDNA_ERR_FAILED_TO_GET_SESSION_ID(108),
@@ -617,7 +605,8 @@ typedef NS_ENUM(NSInteger, RDNAErrorID) {
   RDNA_ERR_INVALID_ARGS,
   RDNA_ERR_INVALID_CONTEXT,
 
-  RDNA_ERR_NULL_CALLBACKS = 22,
+  RDNA_ERR_FAILED_TO_CONNECT_VIA_PROXY = 21,
+  RDNA_ERR_NULL_CALLBACKS,
   RDNA_ERR_INVALID_HOST,
   RDNA_ERR_INVALID_PORTNUM,
   RDNA_ERR_INVALID_AGENT_INFO,
@@ -646,7 +635,7 @@ typedef NS_ENUM(NSInteger, RDNAErrorID) {
   RDNA_ERR_FAILED_TO_PAUSERUNTIME,
   RDNA_ERR_FAILED_TO_RESUMERUNTIME,
   RDNA_ERR_FAILED_TO_TERMINATE,
-  RDNA_ERR_FAILED_TO_SET_CIPHERSPECS,
+  RDNA_ERR_FAILED_TO_GET_CIPHERSALT,
   RDNA_ERR_FAILED_TO_GET_CIPHERSPECS,
   RDNA_ERR_FAILED_TO_GET_AGENT_INFO,
   RDNA_ERR_FAILED_TO_GET_SESSION_ID,
@@ -672,7 +661,8 @@ typedef enum {
   RDNA_ERR_INVALID_ARGS,
   RDNA_ERR_INVALID_CONTEXT,
 
-  RDNA_ERR_NULL_CALLBACKS = 22,
+  RDNA_ERR_FAILED_TO_CONNECT_VIA_PROXY = 21,
+  RDNA_ERR_NULL_CALLBACKS,
   RDNA_ERR_INVALID_HOST,
   RDNA_ERR_INVALID_PORTNUM,
   RDNA_ERR_INVALID_AGENT_INFO,
@@ -701,7 +691,7 @@ typedef enum {
   RDNA_ERR_FAILED_TO_PAUSERUNTIME,
   RDNA_ERR_FAILED_TO_RESUMERUNTIME,
   RDNA_ERR_FAILED_TO_TERMINATE,
-  RDNA_ERR_FAILED_TO_SET_CIPHERSPECS,
+  RDNA_ERR_FAILED_TO_GET_CIPHERSALT,
   RDNA_ERR_FAILED_TO_GET_CIPHERSPECS,
   RDNA_ERR_FAILED_TO_GET_AGENT_ID,
   RDNA_ERR_FAILED_TO_GET_SESSION_ID,
@@ -725,6 +715,7 @@ ERR_GENERIC_ERROR | 2 | Generic error has occured
 ERR_INVALID_VERSION | 3 | The SDK Version is invalid or unsupported
 ERR_INVALID_ARGS | 4 | The argument(s) passed to the API is invalid
 ERR_INVALID_CONTEXT| 5 | The context passed to the API is invalid
+ERR_FAILED_TO_CONNECT_VIA_PROXY | 21 | Failed to connect to REL-ID Gateway Server via proxy.
 ERR_NULL_CALLBACKS | 22 | The callback/ptr passed in is null
 ERR_INVALID_HOST | 23 | The hostname/IP is null or empty
 ERR_INVALID_PORTNUM | 24 | The port number is invalid
@@ -750,7 +741,7 @@ ERR_FAILED_TO_INITIALIZE | 101 | Failed to initialize
 ERR_FAILED_TO_PAUSERUNTIME | 102 | Failed to pause runtime
 ERR_FAILED_TO_RESUMERUNTIME | 103 | Failed to resume runtime
 ERR_FAILED_TO_TERMINATE | 104 | Failed to terminate
-ERR_FAILED_TO_SET_CIPHERSPECS | 105 | Failed to set cipherspecs
+ERR_FAILED_TO_GET_CIPHERSALT | 105 | Failed to get cipher salt
 ERR_FAILED_TO_GET_CIPHERSPECS | 106 | Failed to get cipherspecs
 ERR_FAILED_TO_GET_AGENT_ID | 107 | Failed to get agent id
 ERR_FAILED_TO_GET_SESSION_ID | 108 | Failed to get session id
@@ -1087,24 +1078,11 @@ Agent&nbsp;Info&nbsp;[in] | Software identity information for the API-runtime to
 Callbacks&nbsp;[in] | Callback routines supplied by the API-client application. These are invoked by the API-runtime.
 Auth&nbsp;Gateway&nbsp;HNIP&nbsp;[in] | <b>H</b>ost<b>N</b>ame/<b>IP</b>-address of the REL-ID Authentication Gateway against which the API-runtime must establish mutual authenticated connectivity (on behalf of the API-client application)
 Auth&nbsp;Gateway&nbsp;PORT&nbsp;[in] | <b>PORT</b>-number at ```AuthGatewayHNIP```, on which the REL-ID Authentication Gateway is accessible (accepting connections)
-Cipher&nbsp;Specs&nbsp;[in] | The session-scope cipher specifications (encryption algorithm, padding scheme and cipher-mode)
-Cipher&nbsp;Salt&nbsp;[in] | The salt/IV to use with the session-scope cipher
-&nbsp; | <i><u>See <b>aside/note</b> below on <b>Session-Scope Cipher Details</b> to understand how the above 2 parameters are used</u></i>
+Cipher&nbsp;Specs&nbsp;[in] | The cipher specifications (encryption algorithm, padding scheme and cipher-mode) to be used as a default for this API-Runtime context. If passed as empty, then the default Cipher Spec of the API-SDK will be used as default.
+Cipher&nbsp;Salt&nbsp;[in] | The salt/IV to be used as default salt/IV for this API-Runtime context. If passed as empty, then the default Cipher Salt of the API-SDK will be used as default.
 Application&nbsp;Context&nbsp;[in] | Opaque reference to API-client application context that is never interpreted/modified by the API-runtime. This reference is supplied with each callback invocation to the API-client.
 Proxy&nbsp;Settings&nbsp;[in] |Hostname/IPaddress and port-number for proxy to use when connecting to the Auth Gateway server. This is an optional parameter that may be null if it is not applicable
 
-<aside class="notice"><b><u>Session-Scope Cipher Details</u></b> -
-<br>
-The way in which session-scope privacy works is as follows:
-<li>The API-client application invokes an <u>Encrypt</u> API routine with <i>Session</i> privacy scope and sends the encrypted data via an access port
-<li>The DNA receives the data and decrypts it, before sending the data across to the backend service
-<li>The DNA receives the response from the backend service, and encrypts it before sending it back to the API-client application
-<li>The API-client application receives the encrypted response, and subsequently invokes a <u>Decrypt</u> API routine  with <i>Session</i> privacy scope before processing the plaintext response.
-<li>The cipher details supplied in the <u>Initialize</u> routine, sets the cipher specs and salt for use in the above interactions.
-<li>For more details on Cipher Spec, refer <u>Data Privacy Routines</u>
-<br>
-<b><i>Hence, when <u>Session</u> privacy scope is used with any of the <u>Encrypt</u>/<u>Decrypt</u> API routines, the cipher specs and salt supplied are ignored</i></b>
-</aside>
 
 ## Terminate Routine
 
@@ -1161,14 +1139,14 @@ The <b>PauseRuntime</b> routine returns the <i>in-session</i> state of the API-r
 
 When an API-client application no longer requires a session, for example when the end-user logs of the enterprise application, it can invoke the ```InvalidateAppSession``` and/or ```InvalidateUserSession``` routines to notify the REL-ID backend that the session is no longer valid and is not to be entertained anymore.
 
-When an API-client application accesses a backend service, this access is first checked against the SECONDARY session configuration, before being checked against the PRIMARY session configuration.
+After the formation of user session - the app session is subsided by saving its state, the services related to app session is shutdown and the services related to user session is started. Hence after the invalidation of user session, the app session is again restored and the services related to app session is started as per its last subsided state.
 
 ## InvalidateAppSession routine
 
 ```c
 int
 coreInvalidateAppSession
-(void** ppvRuntimeCtx);
+(void* pvRuntimeCtx);
 ```
 
 ```java
@@ -1208,7 +1186,7 @@ This routine notifies the REL-ID backend that the application (PRIMARY) session 
 ```c
 int
 coreInvalidateUserSession
-(void** ppvRuntimeCtx);
+(void* pvRuntimeCtx);
 ```
 
 ```java
@@ -1447,7 +1425,7 @@ typedef enum {
 
 Scope | Description
 ----- | -----------
-RDNA_PRIVACY_SCOPE_SESSION | Keys used are specific to the REL-ID session and valid for duration of the session.<br>Used to secure the privacy of data in transit between the API-client application and the REL-ID DNA, as well as between the API-client application and its backend services.<br>Cipher details for this scope is ALWAYS set during initialization (see ```Initialize``` routine documentation above)
+RDNA_PRIVACY_SCOPE_SESSION | Keys used are specific to the REL-ID session and valid for duration of the session.<br>Used to secure the privacy of data in transit between the API-client application and the REL-ID DNA, as well as between the API-client application and its backend services.<br>Depending on the current state of the API-Runtime, the retrieved key will be either belonging to the current application (PRIMARY) REL-ID session or to the current user (SECONDARY) REL-ID session.
 RDNA_PRIVACY_SCOPE_DEVICE | Keys used are specific to the end-point device.<br>Used by the API-client application to secure the privacy of persistent data that the API-client application would store on the device.
 RDNA_PRIVACY_SCOPE_USER | Keys used are specific to the authenticated user-identity.<br>This is relevant ONLY when the Advanced API (User-Interaction) is used.
 RDNA_PRIVACY_SCOPE_AGENT | Keys used are specific to the agent (i.e. the application using the API)
@@ -1459,7 +1437,20 @@ The cipher specification details contain the cipher algorithm to be used for enc
 The format for cipher specification is [CIPHER_ALGO_SPECS]:[DIGEST_ALGO_SPECS]. 
 For example: AES/256/CBC/PKCS7Padding:SHA-1, where "AES/256/CBC/PKCS7Padding" is the cipher algorithm specification and "SHA-1" is the HMAC digest specification (optional). 
 
-The API Client can also choose to use default Cipher Spec ("AES/256/CFB/PKCS7Padding:SHA-256") available in the API-SDK. The API Client can get and also change the default Cipher Spec to be used inside the API-SDK.
+The API-Client can also choose to use default Cipher Spec ("AES/256/CFB/PKCS7Padding:SHA-256") and default Cipher Salt/IV available in the API-SDK. The API-Client can get the default Cipher Spec and Salt of the API-Runtime context using the GetDefaultCipherSpec and GetDefaultCipherSalt APIs. These default CipherSpec and CipherSalt can be overridden by passing these information in the ```Initialize``` API.
+
+The API-Client can use a separate Cipher Spec and Salt/IV for a specific call of Data Privacy APIs or can send empty details to use the default Cipher Spec and Salt/IV. But note that while using the Data Privacy APIs for session-scope privy service, the API-Client should make sure that it either sends empty or same CipherSpec/Salt as the default so that service provider can make use of the encrypted data.
+
+<aside class="notice"><b><u>Session-Scope Cipher Details</u></b> -
+<br>
+The way in which session-scope privacy works is as follows:
+<li>The API-client application invokes an <u>Encrypt</u> API routine with <i>Session</i> privacy scope and sends the encrypted data via an access port
+<li>The DNA receives the data and decrypts it, before sending the data across to the backend service
+<li>The DNA receives the response from the backend service, and encrypts it before sending it back to the API-client application
+<li>The API-client application receives the encrypted response, and subsequently invokes a <u>Decrypt</u> API routine  with <i>Session</i> privacy scope before processing the plaintext response.
+<li>Hence the API-Client should make sure that it either sends empty or same CipherSpec/Salt as the default so that service provider can make use of the encrypted data. The DNA will use the default cipher details (can be overridden by the supplied details in the <u>Initialize</u> routine).
+</aside>
+
 
 ```c
 int
@@ -1468,16 +1459,16 @@ coreGetDefaultCipherSpec
  char** psDefCipherSpecs);
 
 int
-coreSetDefaultCipherSpec
+coreGetDefaultCipherSalt
 (void*  pvRuntimeCtx,
- char*  sDefCipherSpecs);
+ char*  sDefCipherSalt);
 ```
 
 ```java
 public abstract class RDNA {
   //..
   public abstract RDNAStatus<String> getDefaultCipherSpec();
-  public abstract int setDefaultCipherSpec(String cipherSpec);
+  public abstract RDNAStatus<byte[]> getDefaultCipherSalt();
   //..
 }
 ```
@@ -1486,7 +1477,7 @@ public abstract class RDNA {
 @interface RDNA : NSObject
   //..
   - (int)getDefaultCipherSpec:(NSMutableString **)cipherSpec;
-  - (int)setDefaultCipherSpec:(NSString *)cipherSpec;
+  - (int)getDefaultCipherSalt:(NSMutableString **)cipherSalt;
   //..
 @end
 ```
@@ -1497,7 +1488,7 @@ class RDNA
 public:
   //..
   int getDefaultCipherSpec(std::string& cipherSpec);
-  int setDefaultCipherSpec(std::string cipherSpec);
+  int getDefaultCipherSalt(std::string& cipherSalt);
   //..
 }
 ```
@@ -1505,7 +1496,7 @@ public:
 Routine | Description
 ----- | -----------
 GetDefaultCipherSpec | Get the default cipher spec used in the RDNA context
-SetDefaultCipherSpec | Set the default cipher spec to be used in the RDNA context
+GetDefaultCipherSalt | Get the default cipher salt used in the RDNA context
 
 
 List of supported cipher algorithm -
@@ -1630,7 +1621,7 @@ Routine | Description
 &nbsp; | Java, Objective C -<li>The output is always returned as a newly allocated array/buffer (```byte[]``` in Java, ```NSMutableData **``` in Objective C)
 
 <aside class="notice"><b><u>Session Scope</u></b> -
-<br>When used with session scope, these routines ignore the supplied cipher details (specs and salt). This is because for the session scope the cipher details are specified while initializing the API runtime (remember?)
+<br>When used with session scope, the API-Client should use the default CipherSpec/Salt so that service provider can make use of the encrypted data (remember?)
 </aside>
 
 ## HTTP Requests/Responses
@@ -1739,7 +1730,7 @@ Routine | Description
 &nbsp; | Java, Objective C -<li>The output is always returned as a newly allocated String (```String``` in Java, ```NSMutableString **``` in Objective C)
 
 <aside class="notice"><b><u>Session Scope</u></b> -
-<br>When used with session scope, these routines ignore the supplied cipher details (specs and salt). This is because for the session scope the cipher details are specified while initializing the API runtime (remember?)
+<br>When used with session scope, the API-Client should use the default CipherSpec/Salt so that service provider can make use of the encrypted data (remember?)
 </aside>
 
 ## Privacy Streams
@@ -1946,7 +1937,7 @@ Routine | Description
 
 
 <aside class="notice"><b><u>Session Scope</u></b> -
-<br>When used with session scope, these routines ignore the supplied cipher details (specs and salt). This is because for the session scope the cipher details are specified while initializing the API runtime (remember?)
+<br>When used with session scope, the API-Client should use the default CipherSpec/Salt so that service provider can make use of the encrypted data (remember?)
 </aside>
 
 # Basic API - Pause-Resume
@@ -2039,14 +2030,9 @@ coreGetErrorInfo
 (int errorCode);
 
 int
-coreGetAppSessionID
+coreGetSessionID
 (void*  pvRuntimeCtx,
- char** ppcAppSessionID);
-
-int
-coreGetUserSessionID
-(void*  pvRuntimeCtx,
- char** ppcUserSessionID);
+ char** ppcSessionId);
 
 int
 coreGetAgentID
@@ -2071,10 +2057,7 @@ public abstract class RDNA {
       (int errorCode);
   public abstract
     RDNAStatus<String>
-    getAppSessionID();
-  public abstract
-    RDNAStatus<String>
-    getUserSessionID();
+    getSessionID();
   public abstract
     RDNAStatus<String>
     getAgentID();
@@ -2090,8 +2073,7 @@ public abstract class RDNA {
   //..
   + (NSString *)getSDKVersion;
   + (RDNAErrorID)getErrorInfo:(int)errorCode;
-  - (int)getAppSessionID:(NSMutableString **)appSessionID;
-  - (int)getUserSessionID:(NSMutableString **)userSessionID;
+  - (int)getSessionID:(NSMutableString **)sessionID;
   - (int)getAgentID:(NSMutableString **)agentID;
   - (int)getDeviceID:(NSMutableString **)deviceID;
   //..
@@ -2105,8 +2087,7 @@ public:
   //..
   static std::string getSdkVersion();
   static RDNAErrorID getErrorInfo(int errorCode);
-  int getAppSessionID(std::string& appSessionID);
-  int getUserSessionID(std::string& userSessionID);
+  int getSessionID(std::string& sessionID);
   int getAgentID(std::string& agentID);
   int getDeviceID(std::string& deviceID);
   //..
@@ -2117,8 +2098,7 @@ Routine | Description
 ------- | -----------
 <b>GetSdkVersion</b> | Get the API-SDK version number
 <b>GetErrorInfo</b> | Get the error information corresponding to an integer error code returned by any API. It returns back ```RDNAErrorID``` which gives brief information of the error occured
-<b>GetAppSessionID</b> | Get the session ID of the current application (PRIMARY) REL-ID session
-<b>GetUserSessionID</b> | Get the session ID of the current user (SECONDARY) REL-ID session<br><i>This is applicable only when using the Advanced API</i>
+<b>GetSessionID</b> | Get the session ID of the current initialized REL-ID session. Depending on the current state of the API-Runtime, the retrieved session ID will be either of the current application (PRIMARY) REL-ID session or of the current user (SECONDARY) REL-ID session.
 <b>GetAgentID</b> | Get the Agent ID using which the REL-ID session is initialized
 <b>GetDeviceID</b> | Get the device ID of the current device using which the REL-ID session is initialized
 
@@ -2126,143 +2106,197 @@ Routine | Description
 # Advanced API
 
 
-The REL-ID Basic API bootstraps the REL-ID DNA with information for providing access to backend enterprise services, via the HTTP proxy and/or the forwarded TCP port facades. The REL-ID Session created during this phase is in <b>'PRIMARY'</b> state. This state represents the fact that the device has been fingerprinted and associated with a session against an application identity (Agent REL-ID).
-
-The Advanced API, builds on top of this session, accomplishes end-user authentication, and further associates a mutually authenticated end-user to the session (which is already associated with application and device identities). At this point, the REL-ID Session is in <b>'SECONDARY'</b> state.
+The Advanced API, builds on top of the application (PRIMARY) REL-ID session, accomplishes end-user authentication, and further associates a mutually authenticated end-user to form the user (SECONDARY) REL-ID session.
 
 <aside class="notice">Note that all of the Advanced API routines may only be invoked once the Basic Initialization is successfully completed. This is because the primary function of the Advanced API is to perform end-user authentication on a previously established, valid 'PRIMARY' session</aside>
 
-<aside class="notice">This API is designed to allow complete flexibility to the API-client application to be able to specify/conduct its own method of user-authentication. <i><u>While the built-in behavior for these API routines in the REL-ID API and backend is specific albeit configurable, this behavior can be customized to the needs of the enterprise application</u></i>.</aside>
+<aside class="notice">These APIs is designed to allow complete flexibility to the API-client application to be able to specify/conduct its own method of user-authentication. <i><u>While the built-in behavior for these API routines in the REL-ID API-SDK and backend is specific albeit configurable, this behavior can be customized to the needs of the enterprise application</u></i>.</aside>
 
-The following routines constitute the REL-ID Advanced API -
+Following API routines constitute the Advanced APIs of REL-ID API-SDK.
 
-Routine | Description
-------- | -----------
-<b>CheckUserStatus</b> | This routine submits the user identity (username/userID) to the REL-ID backend, to check its status - whether this user requires authentication on this device, what authentication to perform for this user, whether the user is blocked (on this device and/or app, or otherwise).<br>The result is one of the following - <li><b>FAILURE, &lt;reason&gt;</b><li><b>CHALLENGE, &lt;challenge&gt;</b><li><b>SUCCESS, &lt;eurelid&gt;</b><br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
-<b>CheckCredentials</b> | This routine can only be invoked if a successful ```CheckUserStatus``` was performed earlier, and if that invocation reverted with a status that indicated the requirement of authentication.<br>This routine submits the user credentials (passwords, responses to challenges etc) to the REL-ID backend, to authenticate the end-user.<br>Multiple successful invocations of this routine may be needed before receiving a <b>SUCCESS, &lt;eurelid&gt;</b> result from this routine, with the same challenge (retries) and/or different challenges (additional authentication).<br>The result is one of the following - <li><b>FAILURE, &lt;reason></b><li><b>CHALLENGE, &lt;challenge&gt;</b><li><b>SUCCESS, &lt;eurelid&gt;</b><br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
-<b>UpdateCredentials</b> | This routine can only be invoked if <li>a previously invoked ```CheckUserStatus``` or ```CheckCredentials``` resulted in a <b>SUCCESS, &lt;eurelid&gt;</b>,<li>which was subsequently successfully unpacked by a call to the ```UnpackEndUserRelID```,<li>after which a 'SECONDARY' session was successfully created using the unpacked UserRelID.<br><br>Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine.<br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+## CheckCredential
 
-## CheckUserStatus
+This routine submits one or more user credentials (username/userID, passwords, responses to challenges etc) with the REL-ID backend, to authenticate the end-user. <br><li>To check the user status - whether this user requires authentication on this device, what authentication to perform for this user, whether the user is blocked (on this device and/or app, or otherwise). <li>To check the username and password. <li>To check the additional authentication credentials such as secret answer, captcha, etc <br>The result is one of the following - <li><b>FAILURE, &lt;reason&gt;</b><li><b>CHALLENGE, &lt;challenge&gt;</b><li><b>SUCCESS, &lt;eurelid&gt;</b><br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines. <br>Multiple successful invocations of this routine may be needed before receiving a <b>SUCCESS, &lt;eurelid&gt;</b> result from this routine, with the same challenge (retries) and/or different challenges (additional authentication).
 
-The purpose of this routine is to check the status of the supplied end-user identity, relative to the existing agent-device binding (the 'PRIMARY' session). It could result in error (the user is blocked, the user is blocked in this agent and/or device, the user has a previous
 
 ```c
-int
-advCheckUserStatus
-(void** ppvRuntimeCtx,
- char*  sUserID);
+int coreCheckCredential
+(void* pvRuntimeCtx,
+ char* pcCredData,
+ int nCredDataLen);
 ```
 
 ```java
-/* TODO */
+public abstract class RDNA {
+  //..
+  public abstract int checkCredential(String credData);
+  //..
+}
 ```
 
 ```objective_c
-/* TODO */
+@interface RDNA : NSObject
+  //..
+  - (int)checkCredential:(NSString *)credData;
+  //..
+@end
 ```
 
 ```cpp
-/* TODO */
+class RDNA
+{
+public:
+  //..
+  int checkCredential(std::string credData);
+  //..
+}
 ```
-Argument&nbsp;[in/out] | Language Binding | Prototype/Description
----------------------- | ---------------- | ---------------------
-<b>API&nbsp;Context&nbsp;[in]</b> | ANSI C | ```void* pvRuntimeCtx```<br>Must be non-null, valid API runtime context reference
-&nbsp; | Java | ```RDNA rdna```<br>Must be non-null, valid API runtime context reference
-&nbsp; | Objective C | TODO
-&nbsp; | C++ | TODO
-&nbsp; | <u>Description</u> | <b>Previously created and valid API runtime context reference</b>
-<b>User&nbsp;Identity&nbsp;[in]</b> | ANSI C | ```char* sUserID```<br>Must be non-null, non-empty user identification
-&nbsp; | Java | ```String sUserID```<br>Must be non-null, non-empty user identification
-&nbsp; | Objective C | TODO
-&nbsp; | C++ | TODO
-&nbsp; | <u>Description</u> | <b>End-user identity information supplied as a single opaque ASCII-encoded blob (base64/...)</b><br>The API-client application can take in user identity information, via one or more fields of input used to form a structured/unstructured end-user identity - for example, [<corporate-id>.]<user-id> (internet banking), or <sol-id>.<user-id> (Finacle CBS), or <user-id>@<fqdn> / <domain>\<user-id (corporate intranet Windows domain user), etc
+
+Argument&nbsp;[in/out] | Description
+---------------------- | ---------------------
+API-Runtime Context [in] | Previously created and valid API runtime context reference
+Cred Data [in] | End-user identity or credential data supplied as a single opaque ASCII-encoded blob (base64/...)<br>In case of username/userID validation, the API-client application can take in user identity information, via one or more fields of input used to form a structured/unstructured end-user identity - for example, [<corporate-id>.]<user-id> (internet banking), or <sol-id>.<user-id> (Finacle CBS), or <user-id>@<fqdn> / <domain>\<user-id (corporate intranet Windows domain user), etc.
 
 The following table explains the results of this API routine, which is notified to the API-client via the status update (core) / event notification (wrapper) callback routine.
 
 Result | Description
 ------ | -----------
-<b>FAILURE,&nbsp;&lt;reason&gt;</b> | <b>&lt;reason&gt;</b> refers an exception to be reported to the API-client.<br>For example, the system is down, disk is full, the user/dev/agent is blocked/invalid, some policy check failed etc etc etc
-<b>CHALLENGE,&nbsp;&lt;challenge&gt;</b> | <b>&lt;challenge&gt;</b> is a blob containing information that the API-client application knows to process -<br><li>by displaying an appropriate challenge to the end-user operating the API-client app, with an appropriate CAPTCHA probably,<li>by accepting credential(s) in response to the challenge, and<li>by packaging the accepted credential(s) into another single opaque ASCII blob to be sent back to the AuG in a CheckCredentials API routine invocation
-<b>SUCCESS,&nbsp;&lt;eurelid&gt;</b> | <b>&lt;eurelid&gt;</b> is a blob containing the '<u>encrypted UserRelID</u>' for the end-user.<li>Upon receiving this, the API-runtime invokes the ```UnpackEndUserRelID``` callback routine to allow the API-client app to decrypt and return the plaintext UserRelID to the API-runtime.<li>At this point the API-runtime will perform a full RMAK with the REL-ID backend authentication gateway using this UserRelID and attempt recreation of its session. During this session-creation request, the PRIMARY session information (ticket) as well as variant device info is submitted, for the gateway to process and revert with a 'SECONDARY' session ticket.
+<b>FAILURE,&nbsp;&lt;reason&gt;</b> | <b>&lt;reason&gt;</b> refers an exception to be reported to the API-client.<br>For example, the system is down, disk is full, the user/dev/agent is blocked/invalid, some policy check failed, etc.
+<b>CHALLENGE,&nbsp;&lt;challenge&gt;</b> | <b>&lt;challenge&gt;</b> is a blob containing information that the API-client application knows to process -<br><li>by displaying an appropriate challenge to the end-user operating the API-client app, with an appropriate CAPTCHA probably,<li>by accepting credential(s) in response to the challenge, and<li>by packaging the accepted credential(s) into another single opaque ASCII blob to be sent back to the REL-ID backend in another invocation of ```CheckCredential``` API routine. Hence the API-Client must authenticate the response (credentials) received from the end-user, after having shown him/her the challenges received from the previous ```CheckCredential``` routine invocation until it gets SUCCESS.
+<b>SUCCESS,&nbsp;&lt;eurelid&gt;</b> | <b>&lt;eurelid&gt;</b> is a blob containing the '<u>encrypted User REL-ID</u>' for the end-user.<li>Upon receiving this, the API-Client must unpack the user REL-ID and call the ```AuthenticateUser``` routine.
 
-## CheckCredentials
 
-The purpose of this routine is to authenticate the response (credentials) received from the end-user, after having shown him/her the challenges received from the previous ```CheckUserStatus``` or ```CheckCredentials``` routine invocation. The results from this API routine are identical in form to those of ```CheckUserStatus```
+## AuthenticateUser
+
+This routine accomplishes the end-user authentication, and further associates a mutually authenticated end-user to form the user (SECONDARY) REL-ID session. <br>Upon receiving the <b>SUCCESS, &lt;eurelid&gt;</b> in the ```CheckCredential``` routine, the API-Client must unpack the user REL-ID and call the ```AuthenticateUser``` routine. <br>Upon successful completion of this routine, <li>a user REL-ID-authenticated session is established with the REL-ID platform backend, in a SECONDARY state <li>the app session is subsided by saving its state, the services related to app session is shutdown <li>the services related to user session is started. <br><br>The result of this routine is informed to API-client via status update (core) / event notification (wrapper) callback routines.
 
 ```c
-int
-advCheckCredentials
-(void** ppvRuntimeCtx,
- char*  sCreds);
+int coreAuthenticateUser
+(void* pvRuntimeCtx,
+ char* pcEuRelID,
+ int nEuRelIDLen);
 ```
 
 ```java
-/* TODO */
+public abstract class RDNA {
+  //..
+  public abstract int authenticateUser(String euRelID);
+  //..
+}
 ```
 
 ```objective_c
-/* TODO */
+@interface RDNA : NSObject
+  //..
+  - (int)authenticateUser:(NSString *)euRelID;
+  //..
+@end
 ```
 
 ```cpp
-/* TODO */
+class RDNA
+{
+public:
+  //..
+  int authenticateUser(std::string euRelID);
+  //..
+}
 ```
-Argument&nbsp;[in/out] | Language Binding | Prototype/Description
----------------------- | ---------------- | ---------------------
-<b>API&nbsp;Context&nbsp;[in]</b> | ANSI C | ```void* pvRuntimeCtx```<br>Must be non-null, valid API runtime context reference
-&nbsp; | Java | ```RDNA rdna```<br>Must be non-null, valid API runtime context reference
-&nbsp; | Objective C | TODO
-&nbsp; | C++ | TODO
-&nbsp; | <u>Description</u> | <b>Previously created and valid API runtime context reference</b>
-<b>Credentials&nbsp;[in]</b> | ANSI C | ```char* sCreds```<br>Must be non-null, non-empty user identification
-&nbsp; | Java | ```String sCreds```<br>Must be non-null, non-empty user identification
-&nbsp; | Objective C | TODO
-&nbsp; | C++ | TODO
-&nbsp; | <u>Description</u> | <b>User-supplied credentials in the form of a single opaque ASCII-encoded blob (base64/...)</b><li>Upon receiving a <b>CHALLENGE</b> result from the ```CheckUserStatus``` API routine, the API-client application performs the actions as detailed in ```CheckUserStatus```-response(<b>CHALLENGE</b>) above.<li>The API-client displays an appropriate challenge to the end-user, with an appropriate CAPTCHA probably, accepts credential(s) in response to the challenge, packages the accepted credential(s) into a another single opaque ASCII-encoded blob and invokes this API routine.
 
-The description of the results of this API routine is identical to those of ```CheckUserStatus``` above.
+Argument&nbsp;[in/out] | Description
+---------------------- | ---------------------
+API-Rumtime Context [in] | Previously created and valid API runtime context reference
+EuRelID [in] | Unpacked end-user REL-ID with which a user REL-ID-authenticated session can be established with the REL-ID platform backend.
 
-## UpdateCredentials
+Similar to the result provided in the callback of ```Initialize``` routine, the callback of this routine as well provides the result of this routine and list of services started with respect to user (SECONDARY) REL-ID session.
 
-The purpose of this routine is to update one or more credentials of the end-user.
 
-Hence, this routine can only be invoked if -
+## UpdateCredential
 
- * a previously invoked ```CheckUserStatus``` or ```CheckCredentials``` resulted in a <b>SUCCESS, &lt;eurelid&gt;</b>,
- * which was subsequently successfully unpacked by a call to the ```UnpackEndUserRelID```,
- * after which, a 'SECONDARY' session was successfully created by the API-runtime using the unpacked UserRelID.
+The purpose of this routine is to update one or more credentials of the end-user. This routine can only be invoked if ```AuthenticateUser``` routine has been successfully completed.<br>Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine. <br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
 
 ```c
-int
-advUpdateCredentials
-(void** ppvRuntimeCtx,
- char*  sCreds);
+int coreUpdateCredential
+(void* pvRuntimeCtx,
+ char* pcCredData,
+ int nCredDataLen);
 ```
 
 ```java
-/* TODO */
+public abstract class RDNA {
+  //..
+  public abstract int updateCredential(String credData);
+  //..
+}
 ```
 
 ```objective_c
-/* TODO */
+@interface RDNA : NSObject
+  //..
+  - (int)updateCredential:(NSString *)credData;
+  //..
+@end
 ```
 
 ```cpp
-/* TODO */
+class RDNA
+{
+public:
+  //..
+  int updateCredential(std::string credData);
+  //..
+}
 ```
-Argument&nbsp;[in/out] | Language Binding | Prototype/Description
----------------------- | ---------------- | ---------------------
-<b>API&nbsp;Context&nbsp;[in]</b> | ANSI C | ```void* pvRuntimeCtx```<br>Must be non-null, valid API runtime context reference
-&nbsp; | Java | ```RDNA rdna```<br>Must be non-null, valid API runtime context reference
-&nbsp; | Objective C | TODO
-&nbsp; | C++ | TODO
-&nbsp; | <u>Description</u> | <b>Previously created and valid API runtime context reference</b>
-<b>Credentials&nbsp;[in]</b> | ANSI C | ```char* sCreds```<br>Must be non-null, non-empty user identification
-&nbsp; | Java | ```String sCreds```<br>Must be non-null, non-empty user identification
-&nbsp; | Objective C | TODO
-&nbsp; | C++ | TODO
-&nbsp; | <u>Description</u> | <b>User-supplied credentials in the form of a single opaque ASCII-encoded blob (base64/...)</b><li>Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine.
 
-The results of this API routine is just a plain <b>SUCCESS</b> or <b>FAILURE, &lt;reason&gt;</b>.
+Argument&nbsp;[in/out] | Description
+---------------------- | ---------------------
+API-Rumtime Context [in] | Previously created and valid API runtime context reference
+Cred data [in] | End-user identity or credential data supplied as a single opaque ASCII-encoded blob (base64/...)<br>This could contain one or more credential to be updated.
 
+The result of this API routine is just a plain <b>SUCCESS</b> or <b>FAILURE, &lt;reason&gt;</b>.
+
+
+## GetConfig
+
+The purpose of this routine is to get the configuration (if any) needed for API-Client from the REL-ID backend server so that the behavior of the API-Client can be made configurable in some use cases. For example - password policy to be validated when password is set/changed, customization settings, other application/user level settings, etc. <br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+
+```c
+int coreGetConfig
+(void* pvRuntimeCtx,
+ char* pcConfigRequest,
+ int nConfigRequestLen);
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int getConfig(String configRequest);
+  //..
+}
+```
+
+```objective_c
+@interface RDNA : NSObject
+  //..
+  - (int)getConfig:(NSString *)configRequest;
+  //..
+@end
+```
+
+```cpp
+class RDNA
+{
+public:
+  //..
+  int getConfig(std::string configRequest);
+  //..
+}
+```
+
+Argument&nbsp;[in/out] | Description
+---------------------- | ---------------------
+API-Rumtime Context [in] | Previously created and valid API runtime context reference
+Config Request [in] | The config request data supplied as a single opaque ASCII-encoded blob (base64/...)<br>This could contain the identity (agent, user, etc) and/or set of configuration key names for which the configuration request is made.
+
+The result of this API routine is just a plain <b>SUCCESS, &lt;configuration data&gt;</b> or <b>FAILURE, &lt;reason&gt;</b>.
 
