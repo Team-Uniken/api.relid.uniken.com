@@ -1152,7 +1152,7 @@ coreInvalidateAppSession
 ```java
 public abstract class RDNA {
   //..
-  public RDNAStatus<int>
+  public abstract int
     invalidateAppSession();
   //..
 }
@@ -1192,7 +1192,7 @@ coreInvalidateUserSession
 ```java
 public abstract class RDNA {
   //..
-  public RDNAStatus<int>
+  public abstract int
     invalidateUserSession();
   //..
 }
