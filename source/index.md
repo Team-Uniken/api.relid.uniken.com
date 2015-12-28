@@ -44,7 +44,7 @@ At a high level, the REL-ID API provides the following features that enable appl
 
 <u>Relative Identity</u> (or <u>REL-ID</u> for short) is a mutual identity that encapsulates/represents uniquely, the relationship between 2 parties/entities. This mutual identity is mathematically split in two, and one part each is distributed securely to the communicating parties. The identity of each end-point party/entity is thus relative to the identity of the other end-point party/entity. REL-ID can be used to represent the relationship between user and app, user and user, or app and other app, thus providing a holistic digital identity model
 
-The protocol handshake that authenticates the REL-ID between 2 parties/entities is RMAK â€“ which is short form for â€˜<b><u>R</u>EL-ID <u>M</u>utual <u>A</u>uthentication and <u>K</u>ey-exchange</b>â€™. It is a unique and patented protocol handshake that enables MITM-resistant, true mutual authentication. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.
+The protocol handshake that authenticates the REL-ID between 2 parties/entities is RMAK – which is short form for ‘<b><u>R</u>EL-ID <u>M</u>utual <u>A</u>uthentication and <u>K</u>ey-exchange</b>’. It is a unique and patented protocol handshake that enables MITM-resistant, true mutual authentication. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.
 
 <aside class="notice"><i><b><u>Agent REL-ID</u></b> and <b><u>User REL-ID</u></b></i> -
 <li>An <u><b>Agent REL-ID</b></u> is used to represent the relationship between software application and the REL-ID platform backend.
@@ -55,9 +55,9 @@ The protocol handshake that authenticates the REL-ID between 2 parties/entities 
 
 ## Device fingerprinting and binding
 
-Every end-point computing device has a number of unique identities associated with it â€“ this includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point deviceâ€™s fingerprint is created by collecting these various identities, and using them together to uniquely identify it. 
+Every end-point computing device has a number of unique identities associated with it – this includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point device’s fingerprint is created by collecting these various identities, and using them together to uniquely identify it. 
 
-The REL-ID platformâ€™s multi-factor authentication (MFA) is implemented by binding the deviceâ€™s fingerprint/identity with the REL-ID of the user/app â€“ thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
+The REL-ID platform’s multi-factor authentication (MFA) is implemented by binding the device’s fingerprint/identity with the REL-ID of the user/app – thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
 
 ## Access to backend enterprise services
 
@@ -2316,3 +2316,4 @@ API-Rumtime Context [in] | Previously created and valid API runtime context refe
 Config Request [in] | The config request data supplied as a single opaque ASCII-encoded blob (base64/...)<br>This could contain the identity (agent, user, etc) and/or set of configuration key names for which the configuration request is made.
 
 The result of this API routine is just a plain <b>SUCCESS, &lt;configuration data&gt;</b> or <b>FAILURE, &lt;reason&gt;</b>.
+
