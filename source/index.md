@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Wednesday, 25 November 2015, at 1300 IST</u>
+Last updated on <u>Monday, 28 December 2015, at 1200 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -2116,7 +2116,17 @@ Following API routines constitute the Advanced APIs of REL-ID API-SDK.
 
 ## CheckCredential
 
-This routine submits one or more user credentials (username/userID, passwords, responses to challenges etc) with the REL-ID backend, to authenticate the end-user. <br><li>To check the user status - whether this user requires authentication on this device, what authentication to perform for this user, whether the user is blocked (on this device and/or app, or otherwise). <li>To check the username and password. <li>To check the additional authentication credentials such as secret answer, captcha, etc <br>The result is one of the following - <li><b>FAILURE, &lt;reason&gt;</b><li><b>CHALLENGE, &lt;challenge&gt;</b><li><b>SUCCESS, &lt;eurelid&gt;</b><br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines. <br>Multiple successful invocations of this routine may be needed before receiving a <b>SUCCESS, &lt;eurelid&gt;</b> result from this routine, with the same challenge (retries) and/or different challenges (additional authentication).
+This routine submits one or more user credentials (username/userID, passwords, responses to challenges etc) with the REL-ID backend, to authenticate the end-user. This can be used to -
+ * To check the user status - whether this user requires authentication on this device, what authentication to perform for this user, whether the user is blocked (on this device and/or app, or otherwise).
+ * To check the username and password.
+ * To check the additional authentication credentials such as secret answer, captcha, etc 
+ 
+The result is one of the following - 
+ * <b>FAILURE, &lt;reason&gt;</b>
+ * <b>CHALLENGE, &lt;challenge&gt;</b>
+ * <b>SUCCESS, &lt;eurelid&gt;</b>
+
+The result is informed to API-client via status update (core) / event notification (wrapper) callback routines. <br>Multiple successful invocations of this routine may be needed before receiving a <b>SUCCESS, &lt;eurelid&gt;</b> result from this routine, with the same challenge (retries) and/or different challenges (additional authentication).
 
 
 ```c
@@ -2157,6 +2167,7 @@ Argument&nbsp;[in/out] | Description
 API-Runtime Context [in] | Previously created and valid API runtime context reference
 Cred Data [in] | End-user identity or credential data supplied as a single opaque ASCII-encoded blob (base64/...)<br>In case of username/userID validation, the API-client application can take in user identity information, via one or more fields of input used to form a structured/unstructured end-user identity - for example, [<corporate-id>.]<user-id> (internet banking), or <sol-id>.<user-id> (Finacle CBS), or <user-id>@<fqdn> / <domain>\<user-id (corporate intranet Windows domain user), etc.
 
+
 The following table explains the results of this API routine, which is notified to the API-client via the status update (core) / event notification (wrapper) callback routine.
 
 Result | Description
@@ -2168,7 +2179,12 @@ Result | Description
 
 ## AuthenticateUser
 
-This routine accomplishes the end-user authentication, and further associates a mutually authenticated end-user to form the user (SECONDARY) REL-ID session. <br>Upon receiving the <b>SUCCESS, &lt;eurelid&gt;</b> in the ```CheckCredential``` routine, the API-Client must unpack the user REL-ID and call the ```AuthenticateUser``` routine. <br>Upon successful completion of this routine, <li>a user REL-ID-authenticated session is established with the REL-ID platform backend, in a SECONDARY state <li>the app session is subsided by saving its state, the services related to app session is shutdown <li>the services related to user session is started. <br><br>The result of this routine is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+This routine accomplishes the end-user authentication, and further associates a mutually authenticated end-user to form the user (SECONDARY) REL-ID session. Upon receiving the <b>SUCCESS, &lt;eurelid&gt;</b> in the ```CheckCredential``` routine, the API-Client must unpack the user REL-ID and call the ```AuthenticateUser``` routine. Upon successful completion of this routine, 
+ * a user REL-ID-authenticated session is established with the REL-ID platform backend, in a SECONDARY state 
+ * the app session is subsided by saving its state, the services related to app session is shutdown
+ * the services related to user session is started. 
+
+The result of this routine is informed to API-client via status update (core) / event notification (wrapper) callback routines.
 
 ```c
 int coreAuthenticateUser
@@ -2213,7 +2229,8 @@ Similar to the result provided in the callback of ```Initialize``` routine, the 
 
 ## UpdateCredential
 
-The purpose of this routine is to update one or more credentials of the end-user. This routine can only be invoked if ```AuthenticateUser``` routine has been successfully completed.<br>Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine. <br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+The purpose of this routine is to update one or more credentials of the end-user. This routine can only be invoked if ```AuthenticateUser``` routine has been successfully completed. Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine.
+The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
 
 ```c
 int coreUpdateCredential
@@ -2258,7 +2275,7 @@ The result of this API routine is just a plain <b>SUCCESS</b> or <b>FAILURE, &lt
 
 ## GetConfig
 
-The purpose of this routine is to get the configuration (if any) needed for API-Client from the REL-ID backend server so that the behavior of the API-Client can be made configurable in some use cases. For example - password policy to be validated when password is set/changed, customization settings, other application/user level settings, etc. <br><br>The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+The purpose of this routine is to get the configuration (if any) needed for API-Client from the REL-ID backend server so that the behavior of the API-Client can be made configurable in some use cases. For example - password policy to be validated when password is set/changed, customization settings, other application/user level settings, etc. The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
 
 ```c
 int coreGetConfig
