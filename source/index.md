@@ -19,7 +19,7 @@ search: true
 # Introduction
 <aside class="notice"><b><u>Disclaimer</u></b> -
 <br>
-This specification is a <u>working pre-release draft</u>.
+This specification is a <u>working draft</u>.
 </aside>
 
 Welcome to the REL-ID API !
