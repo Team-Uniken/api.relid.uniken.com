@@ -20,8 +20,6 @@ search: true
 <aside class="notice"><b><u>Disclaimer</u></b> -
 <br>
 This specification is a <u>working pre-release draft</u>.
-<br>
-Last updated on <u>Monday, 28 December 2015, at 1200 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
