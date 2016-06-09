@@ -2,10 +2,10 @@
 title: REL-ID SDK
 
 language_tabs:
-  - c: ANSI C
   - java: Java
   - objective_c: Objective C
   - cpp: C++
+  - c: ANSI C
 
 toc_footers:
   - <a href='http://www.uniken.com'>Uniken Website</a>
@@ -19,7 +19,9 @@ search: true
 # Introduction
 <aside class="notice"><b><u>Disclaimer</u></b> -
 <br>
-This specification is a <u>working draft</u>.
+This specification is a <u>working pre-release draft</u>.
+<br>
+Last updated on <u>Thursday, 12th May 2016, at 1330 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -28,7 +30,7 @@ REL-ID is a distributed digital trust platform that connects things - people, ne
 
 The REL-ID API enables applications to be written to leverage the path-breaking security REL-ID provides. The API SDK is shipped with client-side API libraries, reference implementations and documentation, as well as the server-side REL-ID platform.
 
-The core API is implemented in ANSI C, and has wrappers/bindings for Java (Android), Objective-C (iOS) and C++ (Windows Phone).
+The core API is implemented in ANSI C, and has wrappers/bindings for Java (Android), Objective-C (iOS, OSX) and C++ (Windows Phone, Windows Desktop).
 
 <aside class="notice">JavaScript bindings for hybrid application frameworks will be made available in future</aside>
 
@@ -42,7 +44,7 @@ At a high level, the REL-ID API provides the following features that enable appl
 
 <u>Relative Identity</u> (or <u>REL-ID</u> for short) is a mutual identity that encapsulates/represents uniquely, the relationship between 2 parties/entities. This mutual identity is mathematically split in two, and one part each is distributed securely to the communicating parties. The identity of each end-point party/entity is thus relative to the identity of the other end-point party/entity. REL-ID can be used to represent the relationship between user and app, user and user, or app and other app, thus providing a holistic digital identity model
 
-The protocol handshake that authenticates the REL-ID between 2 parties/entities is RMAK – which is short form for ‘<b><u>R</u>EL-ID <u>M</u>utual <u>A</u>uthentication and <u>K</u>ey-exchange</b>’. It is a unique and patented protocol handshake that enables MITM-resistant, true mutual authentication. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.
+The protocol handshake that authenticates the REL-ID between 2 parties/entities is RMAK which is short form for <b><u>R</u>EL-ID <u>M</u>utual <u>A</u>uthentication and <u>K</u>ey-exchange</b>. It is a unique and patented protocol handshake that enables MITM-resistant, true mutual authentication. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.
 
 <aside class="notice"><i><b><u>Agent REL-ID</u></b> and <b><u>User REL-ID</u></b></i> -
 <li>An <u><b>Agent REL-ID</b></u> is used to represent the relationship between software application and the REL-ID platform backend.
@@ -53,9 +55,9 @@ The protocol handshake that authenticates the REL-ID between 2 parties/entities 
 
 ## Device fingerprinting and binding
 
-Every end-point computing device has a number of unique identities associated with it – this includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point device’s fingerprint is created by collecting these various identities, and using them together to uniquely identify it. 
+Every end-point computing device has a number of unique identities associated with it. This includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point device's fingerprint is created by collecting these various identities, and using them together to uniquely identify it. 
 
-The REL-ID platform’s multi-factor authentication (MFA) is implemented by binding the device’s fingerprint/identity with the REL-ID of the user/app – thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
+The REL-ID platform's multi-factor authentication (MFA) is implemented by binding the devices fingerprint/identity with the REL-ID of the user/app, thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
 
 ## Access to backend enterprise services
 
@@ -77,10 +79,10 @@ One of the important functionalities the API SDK provides is to encrypt and decr
 
 Privacy Scope | Description
 ------------- | -----------
-Session | The keys used are specific to the REL-ID session and valid for the duration of the session. These keys are primarily used to secure the privacy of data in transit between the API-client application and the REL-ID DNA, as well as between the API-client application and its backend services.
-Device | The keys used are specific to the end-point device. These keys are primarily used by the API-client application to secure the privacy of data that the API-client application might want to persist on the device.
-User | The keys used are specific to the user.
-Agent | The keys used are specific to the agent (i.e. the application using the API)
+<b>Session</b> | The keys used are specific to the REL-ID session and valid for the duration of the session. These keys are primarily used to secure the privacy of data in transit between the API-client application and the REL-ID DNA, as well as between the API-client application and its backend services.
+<b>Device</b> | The keys used are specific to the end-point device. These keys are primarily used by the API-client application to secure the privacy of data that the API-client application might want to persist on the device.
+<b>User</b> | The keys used are specific to the user.
+<b>Agent</b> | The keys used are specific to the agent (i.e. the application using the API)
 
 ## Pause-resume of API runtime
 
@@ -90,8 +92,8 @@ The REL-ID API includes ```PauseRuntime``` and ```ResumeRuntime``` routines that
 
 Routine | Description
 ------- | -----------
-PauseRuntime | Routine that terminates the API runtime, saves a <u><i>private</i></u> copy of the relevant data structures, and returns an encoded dump of the saved information as a null-terminated string.<br><br>When an API-client application is asked to <i>pause</i> itself, it anyway saves its runtime state in a bundle of some kind and persists it (either using OS services, or separately where it knows to look when the application is resumed)<br>At this point, the API-client application must also invoke the ```PauseRuntime``` routine and save the returned string as well.
-ResumeRuntime | Routine that accepts a previously saved <u><i>private</i></u> copy of the API runtime, and restores the API runtime back to the saved state while validating some of the saved state (like session information - validity/life, other information).<br><br>When an API-client application is asked to <i>resume</i> itself, it anyway restores its own runtime status from a previously persisted information bundle of some kind<br><b>BEFORE</b> it does that, it should first restore the previously persisted <i><u>private</u></i> copy of the API runtime state (from a previously executed ```PauseRuntime```) and invoke the ```ResumeRuntime``` routine passing this state information in to it.
+<b>PauseRuntime</b> | Routine that terminates the API runtime, saves a <u><i>private</i></u> copy of the relevant data structures, and returns an encoded dump of the saved information as a null-terminated string.<br><br>When an API-client application is asked to <i>pause</i> itself, it anyway saves its runtime state in a bundle of some kind and persists it (either using OS services, or separately where it knows to look when the application is resumed)<br>At this point, the API-client application must also invoke the ```PauseRuntime``` routine and save the returned string as well.
+<b>ResumeRuntime</b> | Routine that accepts a previously saved <u><i>private</i></u> copy of the API runtime, and restores the API runtime back to the saved state while validating some of the saved state (like session information - validity/life, other information).<br><br>When an API-client application is asked to <i>resume</i> itself, it anyway restores its own runtime status from a previously persisted information bundle of some kind<br><b>BEFORE</b> it does that, it should first restore the previously persisted <i><u>private</u></i> copy of the API runtime state (from a previously executed ```PauseRuntime```) and invoke the ```ResumeRuntime``` routine passing this state information in to it.
 
 ## Non-blocking API
 
@@ -211,14 +213,6 @@ int
 (*fn_status_update_t)
 (core_status_t* pStatus);
 
-/* Invoked by core API runtime to retrieve
-   device fingerprint identity information */
-typedef
-int
-(*fn_get_device_fingerprint_t)
-(char** psDeviceFingerprint,
- void*  pvAppCtx);
-
 /* struct of callback pointers */
 typedef struct {
   fn_status_update_t pfnStatusUpdate;
@@ -232,11 +226,22 @@ public abstract class RDNA {
   //...
   public interface RDNACallbacks {
     public int onInitializeCompleted(RDNAStatusInit status);
-    public Object getDeviceContext();
-    public String getApplicationFingerprint();
     public int onTerminate(RDNAStatusTerminate status);
     public int onPauseRuntime(RDNAStatusPause status);
     public int onResumeRuntime(RDNAStatusResume status);
+    public int onCheckChallengeResponseStatus(RDNAStatusCheckChallenge status);
+    public int onLogOff(RDNAStatusLogOff status);
+	public int onForgotPasswordStatus(RDNAStatusForgotPassword status);
+	public int onUpdateChallengeStatus(RDNAStatusUpdateChallenge status);
+	public int onGetPostLoginChallenges(RDNAStatusGetPostLoginChallenges status);
+	public int onGetRegistredDeviceDetails(RDNAStatusGetRegisteredDeviceDetails status);
+	public int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);
+	
+    public Object getDeviceContext();
+    public String getApplicationName();		
+    public String getApplicationVersion();
+	public RDNAIWACreds getCredentials(String domainUrl);
+	//...
   }
   //..
 }
@@ -246,11 +251,26 @@ public abstract class RDNA {
 @protocol RDNACallbacks
   @required
   - (int)onInitializeCompleted:(RDNAStatusInit *)status;
+  - (CLLocationManager *)getLocationManager;
+  - (NSString *)getApplicationVersion;
+  - (NSString *)getApplicationName;
+  //...
+
   @optional
-  - (NSString *)getApplicationFingerprint;
   - (int)onTerminate:(RDNAStatusTerminate *)status;
   - (int)onPauseRuntime:(RDNAStatusPauseRuntime *)status;
   - (int)onResumeRuntime:(RDNAStatusResumeRuntime *)status;
+  - (int)onLogOff:(RDNAStatusLogOff *)status;
+  - (int)onCheckChallengeResponseStatus:(RDNAStatusCheckChallengesResponse *) status;
+  - (int)onGetAllChallengeStatus:(RDNAStatusGetAllChallenges *) status;
+  - (int)onUpdateChallengeStatus:(RDNAStatusUpdateChallenge *) status;
+  - (int)onForgotPasswordStatus:(RDNAStatusForgotPassword *)status;
+  - (int)onLogOff: (RDNAStatusLogOff *)status;
+  - (int)onGetPostLoginAuthenticationResponseStatus:(RDNAStatusGetPostChallengeResponse *)status;
+  - (int)onGetRegistredDeviceDetails:(RDNAStatusGetRegisteredDeviceDetails *)status;
+  - (int)onUpdateDeviceDetails:(RDNAStatusUpdateDeviceDetails *)status;  
+  - (RDAIWACreds *)getCredentials:(NSString *)domainUrl;
+  //...
 @end
 ```
 
@@ -259,29 +279,34 @@ class RDNACallbacks
 {
   public:
   virtual int onInitializeCompleted(RDNAStatusInit status) = 0;
-  virtual std::string getApplicationFingerprint();
   virtual int onTerminate(RDNAStatusTerminate status);
   virtual int onPauseRuntime(RDNAStatusPause status);
   virtual int onResumeRuntime(RDNAStatusResume status);
+  virtual int onCheckChallengeResponseStatus(RDNAStatusCheckChallengeResponse status);
+  virtual int onGetAllChallengeStatus(RDNAStatusGetAllChallenges status);
+  virtual int onUpdateChallengeStatus(RDNAStatusUpdateChallenges status);
+  virtual int onForgotPasswordStatus(RDNAStatusForgotPassword status);
+  virtual int onLogOff(RDNAStatusLogOff status);
+  virtual int onGetPostLoginChallenges(RDNAStatusGetPostLoginChallenges status);
+  virtual int onGetRegistredDeviceDetails(RDNAStatusGetRegisteredDeviceDetails status);
+  virtual int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);  
+  
+  virtual std::string getApplicationName();
+  virtual std::string getApplicationVersion();
+  virtual RDNAIWACreds getCredentials(std::string domainUrl);
 };
 ```
 
-Callback Routine | Basic/Advanced | Description
----------------- | ---------------| -----------
-<b>StatusUpdate</b> | Basic API | Invoked by the API runtime in order to update the API-client application of the progress of a previously invoked API routine, or state changes and exceptions encountered in general during the course of its execution
-<b>GetDeviceFingerprint</b> | Basic API (core/ANSI-C) | Invoked by the API runtime during initialization (session creation) in order to retrieve the fingerprint identity of the end-point device
-<b>GetDeviceContext</b> | Basic API (Java-Android) | Invoked by the API runtime during initialization (session creation) on Android (Java) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device.<br>The API-client must return the Android <u>ApplicationContext</u> of the application from this method's implementation.
-<b>GetApplicationFingerprint</b> | Basic API (Java/Obj-C/C++) | Invoked by the API runtime during initialization (session creation) in order to retrieve the application fingerprint, supplied by the API-client application to include in the device details.<br>The intent of this routine is to provide the application with an opportunity to identify itself so that the backend can check integrity of the application. To this end, it is recommended that the application provide strong checksums which can be matched/recorded at the backend.
-
+Callback Routine | Description
+---------------- | -----------
+<b>Status Object and variants</b> | Invoked by the API runtime in order to update the API-client application of the progress of a previously invoked API routine, or state changes and exceptions encountered in general during the course of its execution.
+<b>GetDeviceContext</b> | Invoked by the API runtime during initialization (session creation) on Android (Java) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device.<br><br>The API-client must return the Android <u>ApplicationContext</u> of the application from this method's implementation.<br><b><u>This callback routine is specific to Android platform</u></b> 
+<b>getLocationManager</b> | Invoked by the API runtime during initialization for the purpose of computing the location attributes of the device.<br><b><u>This callback routine is specific to iOS platform</u></b>
+<b>getApplicationName</b> | Invoked by the API runtime when the runtime needs to retrieve the application name. The application name is used for blacklisting or whitelisting an application.
+<b>getApplicationVersion</b> | This is the callback invoked when the runtime needs to retrieve the application version. The application version is used for blacklisting or whitelisting an application.
+<b>getCredentials</b> | This is the callback invoked by the DNA, when it needs the HTTP authentication credentials for accessing a webpage. The parameter domainURL is of the form <<u>HNIP</u>:<u>Port</u>>, where HNIP represent the Hostname or IP address where the webpage is hosted, and the Port represents to the port number to which the connection is being made. The callaback implementation is expected to return an ```RDNAIWACreds``` object containing the relevant credentials. 
 
 Apart from the above callback routines, specific events have been called out as onThisHappened() and onThatHappened() callbacks, in the wrapper APIs. This is to make it simpler and clearer for the API-client to react to these events.
-
-<aside class="notice"><i><b><u>GetDeviceFingerprint</u></b> and <b><u>GetDeviceContext</u></b> callback routines</i> -
-<br>
-<u>GetDeviceFingerprint</u> is the callback defined in the ANSI C core API, while
-<br>
-<u>GetDeviceContext</u> is the callback defined in the end-point platform specific wrapper APIs for Android (Java).
-</aside>
 
 ## Proxy settings (structure)
 
@@ -371,7 +396,9 @@ public abstract class RDNA {
     public Object pvtAppCtx;
     public int errCode;
     public RDNAMethodID methodID;
-    public RDNAService services[];
+    public RDNAService services[];	
+    public RDNAPort pxyDetails;
+    public RDNAChallenge[] challenges;
   }
 
   public static class RDNAStatusTerminate {
@@ -394,7 +421,74 @@ public abstract class RDNA {
     public int errCode;
     public RDNAMethodID methodID;
     public RDNAService services[];
+    public RDNAPort pxyDetails;
+    public RDNAChallenge[] challenges;
   }
+  
+  public static class RDNAStatusCheckChallengesResponse {
+    public Object pvtRuntimeCtx;
+    public Object pvtAppCtx;
+    public int errCode;
+    public RDNAMethodID methodID;
+    public RDNAChallengeStatus status;
+    public RDNAChallenge[] challenges;
+    public RDNAService services[];
+    public RDNAPort pxyDetails;
+  }
+
+  public static class RDNAStatusUpdateChallenge {
+    public Object pvtRuntimeCtx;
+    public Object pvtAppCtx;
+    public int errCode;
+    public RDNAMethodID methodID;
+    public RDNAChallenge[] challenges;
+    public RDNAChallengeStatus status;
+  }
+
+  public static class RDNAStatusGetAllChallenges {
+    public Object pvtRuntimeCtx;
+    public Object pvtAppCtx;
+    public int errCode;
+    public RDNAMethodID methodID;
+    public RDNAChallenge[] challenges;
+    public RDNAChallengeStatus status;
+  }
+
+  public static class RDNAStatusLogOff {
+    public Object pvtRuntimeCtx;
+    public Object pvtAppCtx;
+    public int errCode;
+    public RDNAMethodID methodID;
+    public RDNAService services[];
+    public RDNAPort pxyDetails;
+  }
+
+  public static class RDNAStatusGetPostLoginChallenges{
+    public Object pvtRuntimeCtx;
+    public Object pvtAppCtx;
+    public int errCode;
+    public RDNAMethodID methodID;
+    public RDNAChallengeStatus status;
+    public RDNAChallenge[] challenges;
+  }
+  
+  public static class RDNAStatusGetRegisteredDeviceDetails {
+    public Object pvtRuntimeCtx;
+    public Object pvtAppCtx;
+    public int errCode;
+    public RDNAMethodID methodID;
+    public RDNADeviceDetails[] devices;
+    public RDNAChallengeStatus challengeStatus;
+  }
+
+  public static class RDNAStatusUpdateDeviceDetails {	
+    public Object pvtRuntimeCtx;
+    public Object pvtAppCtx;
+    public int errCode;
+    public RDNAMethodID methodID;
+    public RDNAChallengeStatus challengeStatus;
+  }
+  
   //..
 }
 ```
@@ -405,7 +499,9 @@ public abstract class RDNA {
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
   @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) RDNAPort *pxyDetails;
   @property (nonatomic) NSArray *services;
+  @property (nonatomic) NSArray *challenges;
 @end
 
 @interface RDNAStatusTerminate : NSObject
@@ -427,7 +523,83 @@ public abstract class RDNA {
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
   @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) RDNAPort *pxyDetails;
   @property (nonatomic) NSArray *services;
+  @property (nonatomic) NSArray *challenges;
+@end
+
+@interface RDNAStatusCheckChallengesResponse : NSObject
+  @property (nonatomic) void *pvtRuntimeCtx;
+  @property (nonatomic) void *pvtAppCtx;
+  @property (nonatomic) int errCode;
+  @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) RDNAPort *pxyDetails;
+  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) NSArray *services;
+  @property (nonatomic) NSArray *challenges;
+@end
+
+@interface RDNAStatusUpdateChallenge : NSObject
+  @property (nonatomic) void *pvtRuntimeCtx;
+  @property (nonatomic) void *pvtAppCtx;
+  @property (nonatomic) int errCode;
+  @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) NSArray *challenges;
+@end
+
+@interface RDNAStatusGetAllChallenges : NSObject
+  @property (nonatomic) void *pvtRuntimeCtx;
+  @property (nonatomic) void *pvtAppCtx;
+  @property (nonatomic) int errCode;
+  @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) NSArray *challenges;
+@end
+
+@interface RDNAStatusForgotPassword : NSObject
+  @property (nonatomic) void *pvtRuntimeCtx;
+  @property (nonatomic) void *pvtAppCtx;
+  @property (nonatomic) int errCode;
+  @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) NSArray *challenges;
+@end
+
+@interface RDNAStatusLogOff : NSObject
+  @property (nonatomic) void *pvtRuntimeCtx;
+  @property (nonatomic) void *pvtAppCtx;
+  @property (nonatomic) int errCode;
+  @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) NSArray *services;
+  @property (nonatomic) RDNAPort *pxyDetails;
+  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) NSArray *challenges;
+@end
+
+@interface RDNAStatusGetRegisteredDeviceDetails : NSObject
+  @property (nonatomic) void *pvtRuntimeCtx;
+  @property (nonatomic) void *pvtAppCtx;
+  @property (nonatomic) int errorCode;
+  @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) NSArray *devices;
+@end
+ 
+@interface RDNAStatusUpdateDeviceDetails : NSObject 
+  @property (nonatomic) void *pvtRuntimeCtx;
+  @property (nonatomic) void *pvtAppCtx;
+  @property (nonatomic) int errorCode;
+  @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) RDNAChallengeStatus *status;
+@end
+ 
+@interface RDNAStatusGetPostLoginChallengeResponse : NSObject
+  @property (nonatomic) void *pvtRuntimeCtx;
+  @property (nonatomic) void *pvtAppCtx;
+  @property (nonatomic) int errCode;
+  @property (nonatomic) RDNAMethodID methodID;
+  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) NSArray *postLoginChallenges;
 @end
 ```
 
@@ -437,8 +609,9 @@ typedef struct {
   void*        pvtAppCtx;
   int          errCode;
   RDNAMethodID methodID;
-  vector<RDNAService>
-               services;
+  RDNAPort pxyDetails;
+  vector<RDNAService> services;
+  vector<RDNAChallenge> challenges;
 } RDNAStatusInit;
 
 typedef struct {
@@ -460,9 +633,109 @@ typedef struct {
   void*        pvtAppCtx;
   int          errCode;
   RDNAMethodID methodID;
-  vector<RDNAService>
-               services;
+  RDNAPort pxyDetails;
+  vector<RDNAService> services;
+  vector<RDNAChallenge> challenges;
 } RDNAStatusResume;
+
+typedef struct RDNAStatusCheckChallengesResponse_s{
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  RDNAMethodID methodID;
+  RDNAPort pxyDetails;
+  RDNAChallengeStatus status;
+  vector<RDNAService> services;
+  vector<RDNAChallenge> challenges;
+  RDNAStatusCheckChallengesResponse_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                                  methodID(RDNA_METH_NONE)
+  {}
+}RDNAStatusCheckChallengeResponse;
+
+typedef struct RDNAStatusUpdateChallenges_s{
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  RDNAMethodID methodID;
+  RDNAChallengeStatus status;
+  vector<RDNAChallenge> challenges;
+  RDNAStatusUpdateChallenges_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                                  methodID(RDNA_METH_NONE)
+  {}
+}RDNAStatusUpdateChallenges;
+
+typedef struct RDNAStatusGetAllChallenges_s{
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  RDNAMethodID methodID;
+  RDNAChallengeStatus status;
+  vector<RDNAChallenge> challenges;
+  RDNAStatusGetAllChallenges_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                                  methodID(RDNA_METH_NONE)
+  {}
+}RDNAStatusGetAllChallenges;
+
+typedef struct RDNAStatusForgotPassword_s{
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  RDNAMethodID methodID;
+  RDNAChallengeStatus status;
+  vector<RDNAChallenge> challenges;
+
+  RDNAStatusForgotPassword_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                                  methodID(RDNA_METH_NONE)
+  {}
+}RDNAStatusForgotPassword;
+
+typedef struct RDNAStatusLogOff_s {
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  RDNAMethodID methodID;
+  RDNAPort pxyDetails;
+  RDNAChallengeStatus status;
+  vector<RDNAService> services;
+  vector<RDNAChallenge> challenges;
+  RDNAStatusLogOff_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                         methodID(RDNA_METH_NONE)
+  {}
+} RDNAStatusLogOff;
+
+typedef struct RDNAStatusGetRegisteredDeviceDetails_s {
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  RDNAMethodID methodID;
+  vector<RDNADeviceDetails> devices;
+  RDNAStatusGetRegisteredDeviceDetails_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                         methodID(RDNA_METH_NONE)
+  {}
+} RDNAStatusGetRegisteredDeviceDetails;
+  
+typedef struct RDNAStatusUpdateDeviceDetails_s {
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  RDNAMethodID methodID;
+  RDNAChallengeStatus updateStatus;
+  RDNAStatusUpdateDeviceDetails_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                         methodID(RDNA_METH_NONE)
+  {}
+} RDNAStatusUpdateDeviceDetails;
+
+typedef struct RDNAStatusGetPostLoginChallenges_s {
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  RDNAMethodID methodID;
+  RDNAChallengeStatus status;
+  vector<RDNAChallenge> challenges;
+  RDNAStatusGetPostLoginChallenges_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                       methodID(RDNA_METH_NONE)
+  {}
+} RDNAStatusGetPostLoginChallenges;
 ```
 
 Field | Description
@@ -471,9 +744,93 @@ Field | Description
 <b>API-Client (Application) Context</b> | ```pvtAppCtx```<br>An opaque reference to the API-client supplied context. This is supplied by the API-client to the ```Initialize``` routine, and is associated with the REL-ID DNA context throughout its lifetime. Note that this context is never read/interpreted or modified by the API runtime.
 <b>Method&nbsp;ID</b> | ```methodID```<br>An identifier that specifies which method was invoked by the API-client application.
 <b>Error&nbsp;Code</b> | ```errCode```<br>An identifier that specifies the nature of the error that is being reported in the status update.
-<b>Status&nbsp;Arguments</b> | <li><b>In the Core API (ANSI C)</b>, this is a polymorphic reference to status information - the actual reference to use depends on the method and error identifiers.<li><b>In the Wrapper APIs (Java, Obj-C, C++)<b>, each status structure is separate <i>per event</i>, and hence is one or more members specific to that event's structure 
+<b>Status&nbsp;Arguments</b> | <li><b>In the Core API (ANSI C)</b>, this is a polymorphic reference to status information - the actual reference to use depends on the method and error identifiers.<li><b>In the Wrapper APIs (Java, Obj-C, C++)<b>, each status structure is separate <i>per event</i>, and hence is one or more members specific to that event's structure <b>Array&nbsp;of&nbsp;Challenges</b> | ```challenges```<br><li>For the RDNAStatusInit status object, this is the initial set of challenges. The API client needs to respond to these challenges, which initiates the user authentication sequence. If the API-client does not wish to perform user authentication, this member can be ignored.<li>For the rest of the status objects, this is the array of challenges thrown by the server to the API-client as part of the user authentication flow or for allowing the API-client to update the security challenges and their responses.
+<b>Tunnel Proxy details</b> | ```pxyDetails``` <br> The tunnel proxy service listening port information and other details.
+<b>Array of Services </b> | ```services``` <br> Array of services, it will include the list of services which are tunneled.
+<b>Array of devices </b> | ```devices``` <br> All the registered devices list, for the specific user.
 
 The wrapper APIs written in high level languages provide similar information of status update in more specific callbacks and structures such as RDNAStatusInit, RDNAStatusPause, etc. This is to make it simpler and clearer for the API-client to react to these events.
+
+
+## HTTP Authentication related structures, interfaces, enumerations and callbacks
+
+For supporting HTTP based authentication, we provide the following 
+
+```c
+```
+
+```java
+public abstract class RDNA {
+	
+  public static class RDNAIWACreds {
+    public String userName;
+    public String userPassword;
+    public RDNAIWAAuthStatus status;
+
+    public RDNAIWACreds() {}
+	
+	public RDNAIWACreds(String userName,String userPassword,RDNAIWAAuthStatus status) {
+      this.userName = userName;
+      this.userPassword = userPassword;
+      this.status = status;
+	}
+  }
+  
+  public enum RDNAIWAAuthStatus {
+    AUTH_SUCCESS(0),
+    AUTH_CANCELLED(1),
+    AUTH_DEFERRED(2);
+		
+    public int intVal;
+
+    private RDNAIWAAuthStatus(int val) {
+      this.intVal = val;
+	}
+}
+```
+
+```objective_c
+@interface RDAIWACreds : NSObject
+  @property (nonatomic, strong) NSString *userName;
+  @property (nonatomic, strong) NSString *password;
+  @property (assign) RDNAIWAAuthStatus authStatus;
+@end
+
+typedef NS_ENUM(NSInteger, RDNAIWAAuthStatus) {
+  RDNA_IWA_AUTH_SUCCESS   = 0,
+  RDNA_IWA_AUTH_CANCELLED = 1,
+  RDNA_IWA_AUTH_DEFERRED  = 2
+};
+```
+
+```cpp
+typedef struct RDNAIWACreds_s {
+  std::string userName;                    /* userName for authentication */
+  std::string password;                    /* password for authentication */
+  RDNAIWAAuthStatus authStatus;            /* status of authentication    */
+  RDNAIWACreds_s() : userName(""),password(""), authStatus(RDNA_IWA_AUTH_SUCCESS)
+  {}
+} RDNAIWACreds;
+
+typedef enum{
+  RDNA_IWA_AUTH_SUCCESS   = 0,
+  RDNA_IWA_AUTH_CANCELLED = 1,
+  RDNA_IWA_AUTH_DEFERRED  = 2
+} RDNAIWAAuthStatus;
+```
+
+Member | Description
+------ | -----------
+userName | This is the userName to be used when attempting to perform HTTP authentication
+password | This is the password to be used when attempting to perform HTTP authentication
+authStatus | This represents the status of the operation to fetch credentials for performing HTTP authentication
+
+
+Enum | Value | Description
+---- | ----- | -----------
+RDNA_IWA_AUTH_SUCCESS | 0 | The API client was able to successfully fetch the appropriate credentials for performing HTTP authentication
+RDNA_IWA_AUTH_CANCELLED | 1 | The API client has cancelled the request for fetching credentials. This will result in failure of the HTTP request.
+RDNA_IWA_AUTH_DEFERRED | 2 | This represents the state where the API client has deferred the task of fetching the credentials. The API client would then at a later point of time provide the credentials
 
 ## Error codes (enum)
 
@@ -538,13 +895,12 @@ public abstract class RDNA {
   //...
   public enum RDNAErrorID {
     RDNA_ERR_NONE(0),
-
     RDNA_ERR_NOT_INITIALIZED(1),
     RDNA_ERR_GENERIC_ERROR(2),
     RDNA_ERR_INVALID_VERSION(3),
     RDNA_ERR_INVALID_ARGS(4),
     RDNA_ERR_INVALID_CONTEXT(5),
-
+	
     RDNA_ERR_FAILED_TO_CONNECT_VIA_PROXY (21),
     RDNA_ERR_NULL_CALLBACKS(22),
     RDNA_ERR_INVALID_HOST(23),
@@ -555,22 +911,22 @@ public abstract class RDNA {
     RDNA_ERR_INVALID_SAVED_CONTEXT(28),
     RDNA_ERR_INVALID_HTTP_REQUEST(29),
     RDNA_ERR_INVALID_HTTP_RESPONSE(30),
-
+	
     RDNA_ERR_INVALID_CIPHERSPECS(42),
     RDNA_ERR_PLAINTEXT_EMPTY(43),
     RDNA_ERR_PLAINTEXT_LENGTH_INVALID(44),
     RDNA_ERR_CIPHERTEXT_EMPTY(45),
     RDNA_ERR_CIPHERTEXT_LENGTH_INVALID(46),
-
+	
     RDNA_ERR_SERVICE_NOT_SUPPORTED(61),
     RDNA_ERR_INVALID_SERVICE_NAME(62),
-
+	
     RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE(81),
     RDNA_ERR_FAILED_TO_GET_STREAM_TYPE(82),
     RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM(83),
     RDNA_ERR_FAILED_TO_END_STREAM(84),
     RDNA_ERR_FAILED_TO_DESTROY_STREAM(85),
-
+	
     RDNA_ERR_FAILED_TO_INITIALIZE(101),
     RDNA_ERR_FAILED_TO_PAUSERUNTIME(102),
     RDNA_ERR_FAILED_TO_RESUMERUNTIME(103),
@@ -588,6 +944,27 @@ public abstract class RDNA {
     RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST(115),
     RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE(116),
     RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM(117),
+    RDNA_ERR_FAILED_TO_CHECK_CHALLENGE(118),
+    RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE(119),
+    RDNA_ERR_FAILED_TO_GET_CONFIG(120),
+    RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES(121),
+    RDNA_ERR_FAILED_TO_LOGOFF(122),
+    RDNA_ERR_FAILED_TO_RESET_CHALLENGE(123),
+    RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD(124),
+    RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS(125),
+    RDNA_ERR_FAILED_TO_SET_DNS_SERVER(126),
+    RDNA_ERR_USERID_EMPTY(127),
+    RDNA_ERR_CHALLENGE_EMPTY(128),
+    RDNA_ERR_FAILED_TO_SERIALIZE_JSON(129),
+    RDNA_ERR_FAILED_TO_DESERIALIZE_JSON(130),
+    RDNA_ERR_INVALID_CHALLENGE_CONFIG(131),
+    RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES(132),
+    RDNA_ERR_FAILED_TO_GET_REGISTERD_DEVICE_DETAILS(133),
+    RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS(134),
+    RDNA_ERR_USECASE_EMPTY(135),
+    RDNA_ERR_DEVICE_DETAILS_EMPTY(136),
+    RDNA_ERR_401_URL_EMPTY(137),
+    RDNA_ERR_PASSWORD_EMPTY(138);
   }
   //..
 }
@@ -646,6 +1023,27 @@ typedef NS_ENUM(NSInteger, RDNAErrorID) {
   RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST,
   RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE,
   RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM,
+  RDNA_ERR_FAILED_TO_CHECK_CHALLENGE,
+  RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE,
+  RDNA_ERR_FAILED_TO_GET_CONFIG,
+  RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES,
+  RDNA_ERR_FAILED_TO_LOGOFF,
+  RDNA_ERR_FAILED_TO_RESET_CHALLENGE,
+  RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD,
+  RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS,
+  RDNA_ERR_FAILED_TO_SET_DNS_SERVER,
+  RDNA_ERR_USERID_EMPTY,
+  RDNA_ERR_CHALLENGE_EMPTY,
+  RDNA_ERR_FAILED_TO_SERIALIZE_JSON,
+  RDNA_ERR_FAILED_TO_DESERIALIZE_JSON,
+  RDNA_ERR_INVALID_CHALLENGE_CONFIG,
+  RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES,
+  RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS,
+  RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS,
+  RDNA_ERR_USECASE_EMPTY,
+  RDNA_ERR_DEVICE_DETAILS_EMPTY,
+  RDNA_ERR_401_URL_EMPTY,
+  RDNA_ERR_PASSWORD_EMPTY,
 };
 ```
 
@@ -702,56 +1100,168 @@ typedef enum {
   RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST,
   RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE,
   RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM,
+  RDNA_ERR_FAILED_TO_CHECK_CHALLENGE,
+  RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE,
+  RDNA_ERR_FAILED_TO_GET_CONFIG,
+  RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES,
+  RDNA_ERR_FAILED_TO_LOGOFF,
+  RDNA_ERR_FAILED_TO_RESET_CHALLENGE,
+  RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD,
+  RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS,
+  RDNA_ERR_FAILED_TO_SET_DNS_SERVER,
+  RDNA_ERR_USERID_EMPTY,
+  RDNA_ERR_CHALLENGE_EMPTY,
+  RDNA_ERR_FAILED_TO_SERIALIZE_JSON,
+  RDNA_ERR_FAILED_TO_DESERIALIZE_JSON,
+  RDNA_ERR_INVALID_CHALLENGE_CONFIG,
+  RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES,
+  RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS,
+  RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS,
+  RDNA_ERR_USECASE_EMPTY,
+  RDNA_ERR_DEVICE_DETAILS_EMPTY,
+  RDNA_ERR_401_URL_EMPTY,
+  RDNA_ERR_PASSWORD_EMPTY,  
 } RDNAErrorID;
 ```
 
 Error ID | Value | Meaning
 -------- | ----- | -------
-ERR_NONE | 0  | The operation is successful and no error has occured
-ERR_NOT_INITIALIZED | 1 | The API Runtime is not initialized
-ERR_GENERIC_ERROR | 2 | Generic error has occured
-ERR_INVALID_VERSION | 3 | The SDK Version is invalid or unsupported
-ERR_INVALID_ARGS | 4 | The argument(s) passed to the API is invalid
-ERR_INVALID_CONTEXT| 5 | The context passed to the API is invalid
-ERR_FAILED_TO_CONNECT_VIA_PROXY | 21 | Failed to connect to REL-ID Gateway Server via proxy.
-ERR_NULL_CALLBACKS | 22 | The callback/ptr passed in is null
-ERR_INVALID_HOST | 23 | The hostname/IP is null or empty
-ERR_INVALID_PORTNUM | 24 | The port number is invalid
-ERR_INVALID_AGENT_INFO | 25 | The agent info is invalid (check the agent info blob received by Admin)
-ERR_FAILED_TO_CONNECT_TO_SERVER | 26 | Failed to connect to REL-ID Gateway Server
-ERR_FAILED_TO_AUTHENTICATE | 27 | Failed to authenticate with REL-ID Gateway Server
-ERR_INVALID_SAVED_CONTEXT | 28 | The saved context passed to Resume is invalid
-ERR_INVALID_HTTP_REQUEST | 29 | The Http Request passed to Encrypt Http API is invalid
-ERR_INVALID_HTTP_RESPONSE | 30 | The Http Request passed to Decrypt Http API is invalid
-ERR_INVALID_CIPHERSPECS | 42 | The cipher spec passed in is invalid
-ERR_PLAINTEXT_EMPTY | 43 | The plain text passed to Encrypt API is empty
-ERR_PLAINTEXT_LENGTH_INVALID | 44 | The plain text length passed to Encrypt API is invalid
-ERR_CIPHERTEXT_EMPTY | 45 | The cipher text passed to Decrypt API is empty
-ERR_CIPHERTEXT_LENGTH_INVALID | 46 | The cipher text length passed to Decrypt API is invalid
-ERR_SERVICE_NOT_SUPPORTED | 61 | The service provided is not supported
-ERR_INVALID_SERVICE_NAME | 62 | The service name passed in is invalid
-ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE | 81 | Failed to get stream privacy scope
-ERR_FAILED_TO_GET_STREAM_TYPE | 82 | Failed to get stream type
-ERR_FAILED_TO_WRITE_INTO_STREAM | 83 | Failed to write into privacy stream
-ERR_FAILED_TO_END_STREAM | 84 | Failed to end privacy stream
-ERR_FAILED_TO_DESTROY_STREAM | 85 | Failed to destroy privacy stream
-ERR_FAILED_TO_INITIALIZE | 101 | Failed to initialize
-ERR_FAILED_TO_PAUSERUNTIME | 102 | Failed to pause runtime
-ERR_FAILED_TO_RESUMERUNTIME | 103 | Failed to resume runtime
-ERR_FAILED_TO_TERMINATE | 104 | Failed to terminate
-ERR_FAILED_TO_GET_CIPHERSALT | 105 | Failed to get cipher salt
-ERR_FAILED_TO_GET_CIPHERSPECS | 106 | Failed to get cipherspecs
-ERR_FAILED_TO_GET_AGENT_ID | 107 | Failed to get agent id
-ERR_FAILED_TO_GET_SESSION_ID | 108 | Failed to get session id
-ERR_FAILED_TO_GET_DEVICE_ID | 109 | Failed to get device id
-ERR_FAILED_TO_GET_SERVICE | 110 | Failed to get service
-ERR_FAILED_TO_START_SERVICE | 111 | Failed to start service
-ERR_FAILED_TO_STOP_SERVICE | 112 | Failed to stop service
-ERR_FAILED_TO_ENCRYPT_DATA_PACKET | 113 | Failed to encrypt data packet
-ERR_FAILED_TO_DECRYPT_DATA_PACKET | 114 | Failed to decrypt data packet
-ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST | 115 | Failed to encrypt HTTP request
-ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE | 116 | Failed to decrypt HTTP response
-ERR_FAILED_TO_CREATE_PRIVACY_STREAM | 117 | Failed to create privacy stream
+RDNA_ERR_NONE | 0  | The operation is successful and no error has occured
+RDNA_ERR_NOT_INITIALIZED | 1 | The API Runtime is not initialized
+RDNA_ERR_GENERIC_ERROR | 2 | Generic error has occured
+RDNA_ERR_INVALID_VERSION | 3 | The SDK Version is invalid or unsupported
+RDNA_ERR_INVALID_ARGS | 4 | The argument(s) passed to the API is invalid
+RDNA_ERR_INVALID_CONTEXT| 5 | The context passed to the API is invalid
+RDNA_ERR_FAILED_TO_CONNECT_VIA_PROXY | 21 | Failed to connect to REL-ID Gateway Server via proxy.
+RDNA_ERR_NULL_CALLBACKS | 22 | The callback/ptr passed in is null
+RDNA_ERR_INVALID_HOST | 23 | The hostname/IP is null or empty
+RDNA_ERR_INVALID_PORTNUM | 24 | The port number is invalid
+RDNA_ERR_INVALID_AGENT_INFO | 25 | The agent info is invalid (check the agent info blob received by Admin)
+RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER | 26 | Failed to connect to REL-ID Gateway Server
+RDNA_ERR_FAILED_TO_AUTHENTICATE | 27 | Failed to authenticate with REL-ID Gateway Server
+RDNA_ERR_INVALID_SAVED_CONTEXT | 28 | The saved context passed to Resume is invalid
+RDNA_ERR_INVALID_HTTP_REQUEST | 29 | The Http Request passed to Encrypt Http API is invalid
+RDNA_ERR_INVALID_HTTP_RESPONSE | 30 | The Http Request passed to Decrypt Http API is invalid
+RDNA_ERR_INVALID_CIPHERSPECS | 42 | The cipher spec passed in is invalid
+RDNA_ERR_PLAINTEXT_EMPTY | 43 | The plain text passed to Encrypt API is empty
+RDNA_ERR_PLAINTEXT_LENGTH_INVALID | 44 | The plain text length passed to Encrypt API is invalid
+RDNA_ERR_CIPHERTEXT_EMPTY | 45 | The cipher text passed to Decrypt API is empty
+RDNA_ERR_CIPHERTEXT_LENGTH_INVALID | 46 | The cipher text length passed to Decrypt API is invalid
+RDNA_ERR_SERVICE_NOT_SUPPORTED | 61 | The service provided is not supported
+RDNA_ERR_INVALID_SERVICE_NAME | 62 | The service name passed in is invalid
+RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE | 81 | Failed to get stream privacy scope
+RDNA_ERR_FAILED_TO_GET_STREAM_TYPE | 82 | Failed to get stream type
+RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM | 83 | Failed to write into privacy stream
+RDNA_ERR_FAILED_TO_END_STREAM | 84 | Failed to end privacy stream
+RDNA_ERR_FAILED_TO_DESTROY_STREAM | 85 | Failed to destroy privacy stream
+RDNA_ERR_FAILED_TO_INITIALIZE | 101 | Failed to initialize
+RDNA_ERR_FAILED_TO_PAUSERUNTIME | 102 | Failed to pause runtime
+RDNA_ERR_FAILED_TO_RESUMERUNTIME | 103 | Failed to resume runtime
+RDNA_ERR_FAILED_TO_TERMINATE | 104 | Failed to terminate
+RDNA_ERR_FAILED_TO_GET_CIPHERSALT | 105 | Failed to get cipher salt
+RDNA_ERR_FAILED_TO_GET_CIPHERSPECS | 106 | Failed to get cipherspecs
+RDNA_ERR_FAILED_TO_GET_AGENT_ID | 107 | Failed to get agent id
+RDNA_ERR_FAILED_TO_GET_SESSION_ID | 108 | Failed to get session id
+RDNA_ERR_FAILED_TO_GET_DEVICE_ID | 109 | Failed to get device id
+RDNA_ERR_FAILED_TO_GET_SERVICE | 110 | Failed to get service
+RDNA_ERR_FAILED_TO_START_SERVICE | 111 | Failed to start service
+RDNA_ERR_FAILED_TO_STOP_SERVICE | 112 | Failed to stop service
+RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET | 113 | Failed to encrypt data packet
+RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET | 114 | Failed to decrypt data packet
+RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST | 115 | Failed to encrypt HTTP request
+RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE | 116 | Failed to decrypt HTTP response
+RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM | 117 | Failed to create privacy stream
+RDNA_ERR_FAILED_TO_CHECK_CHALLENGE | 118 | Failed to check challenge response
+RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE | 119 | Failed to update challenge
+RDNA_ERR_FAILED_TO_GET_CONFIG | 120 | Failed to retrieve configuration 
+RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES | 121 | Failed to retrieve list of all challenges
+RDNA_ERR_FAILED_TO_LOGOFF | 122 | Failed to log off the user
+RDNA_ERR_FAILED_TO_RESET_CHALLENGE | 123 | Failed to reset challenge
+RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD | 124 | Failed to reset password via forgot password API
+RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS | 125 | Failed to send device details to the server
+RDNA_ERR_FAILED_TO_SET_DNS_SERVER | 126 | Failed to set DNS server
+RDNA_ERR_USERID_EMPTY | 127 | Userid field is empty
+RDNA_ERR_CHALLENGE_EMPTY | 128 | Challenge field is empty
+RDNA_ERR_FAILED_TO_SERIALIZE_JSON | 129 | Failed to serialize to internal representation
+RDNA_ERR_FAILED_TO_DESERIALIZE_JSON | 130 | Failed to deserialize from internal representation
+RDNA_ERR_INVALID_CHALLENGE_CONFIG | 131 | Invalid challenge configuration 
+RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES | Error while attempting to fetch post-login challenges
+RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | Error while attempting to get details of the registered devices of the user
+RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS | Failed to update device details of the user
+RDNA_ERR_USECASE_EMPTY | The input parameter to GetConfig API cannot be EMPTY or NULL.
+RDNA_ERR_DEVICE_DETAILS_EMPTY | Received empty device details list
+RDNA_ERR_401_URL_EMPTY | HTTP authentication credentials callback does not specify the URL or the URL is NULL 
+RDNA_ERR_PASSWORD_EMPTY |  Empty password in response is not allowed
+
+
+Error ID | Value | Meaning
+-------- | ----- | -------
+NONE | 0  | The operation is successful and no error has occured
+NOT_INITIALIZED | 1 | The API Runtime is not initialized
+GENERIC_ERROR | 2 | Generic error has occured
+INVALID_VERSION | 3 | The SDK Version is invalid or unsupported
+INVALID_ARGS | 4 | The argument(s) passed to the API is invalid
+INVALID_CONTEXT| 5 | The context passed to the API is invalid
+FAILED_TO_CONNECT_VIA_PROXY | 21 | Failed to connect to REL-ID Gateway Server via proxy.
+NULL_CALLBACKS | 22 | The callback/ptr passed in is null
+INVALID_HOST | 23 | The hostname/IP is null or empty
+INVALID_PORTNUM | 24 | The port number is invalid
+INVALID_AGENT_INFO | 25 | The agent info is invalid (check the agent info blob received by Admin)
+FAILED_TO_CONNECT_TO_SERVER | 26 | Failed to connect to REL-ID Gateway Server
+FAILED_TO_AUTHENTICATE | 27 | Failed to authenticate with REL-ID Gateway Server
+INVALID_SAVED_CONTEXT | 28 | The saved context passed to Resume is invalid
+INVALID_HTTP_REQUEST | 29 | The Http Request passed to Encrypt Http API is invalid
+INVALID_HTTP_RESPONSE | 30 | The Http Request passed to Decrypt Http API is invalid
+INVALID_CIPHERSPECS | 42 | The cipher spec passed in is invalid
+RDNA_ERR_PLAINTEXT_EMPTY | 43 | The plain text passed to Encrypt API is empty
+RDNA_ERR_PLAINTEXT_LENGTH_INVALID | 44 | The plain text length passed to Encrypt API is invalid
+RDNA_ERR_CIPHERTEXT_EMPTY | 45 | The cipher text passed to Decrypt API is empty
+RDNA_ERR_CIPHERTEXT_LENGTH_INVALID | 46 | The cipher text length passed to Decrypt API is invalid
+RDNA_ERR_SERVICE_NOT_SUPPORTED | 61 | The service provided is not supported
+RDNA_ERR_INVALID_SERVICE_NAME | 62 | The service name passed in is invalid
+FAILED_TO_GET_STREAM_PRIVACYSCOPE | 81 | Failed to get stream privacy scope
+RDNA_ERR_FAILED_TO_GET_STREAM_TYPE | 82 | Failed to get stream type
+RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM | 83 | Failed to write into privacy stream
+RDNA_ERR_FAILED_TO_END_STREAM | 84 | Failed to end privacy stream
+RDNA_ERR_FAILED_TO_DESTROY_STREAM | 85 | Failed to destroy privacy stream
+RDNA_ERR_FAILED_TO_INITIALIZE | 101 | Failed to initialize
+RDNA_ERR_FAILED_TO_PAUSERUNTIME | 102 | Failed to pause runtime
+RDNA_ERR_FAILED_TO_RESUMERUNTIME | 103 | Failed to resume runtime
+RDNA_ERR_FAILED_TO_TERMINATE | 104 | Failed to terminate
+RDNA_ERR_FAILED_TO_GET_CIPHERSALT | 105 | Failed to get cipher salt
+RDNA_ERR_FAILED_TO_GET_CIPHERSPECS | 106 | Failed to get cipherspecs
+RDNA_ERR_FAILED_TO_GET_AGENT_ID | 107 | Failed to get agent id
+RDNA_ERR_FAILED_TO_GET_SESSION_ID | 108 | Failed to get session id
+RDNA_ERR_FAILED_TO_GET_DEVICE_ID | 109 | Failed to get device id
+RDNA_ERR_FAILED_TO_GET_SERVICE | 110 | Failed to get service
+RDNA_ERR_FAILED_TO_START_SERVICE | 111 | Failed to start service
+RDNA_ERR_FAILED_TO_STOP_SERVICE | 112 | Failed to stop service
+FAILED_TO_ENCRYPT_DATA_PACKET | 113 | Failed to encrypt data packet
+FAILED_TO_DECRYPT_DATA_PACKET | 114 | Failed to decrypt data packet
+FAILED_TO_ENCRYPT_HTTP_REQUEST | 115 | Failed to encrypt HTTP request
+FAILED_TO_DECRYPT_HTTP_RESPONSE | 116 | Failed to decrypt HTTP response
+FAILED_TO_CREATE_PRIVACY_STREAM | 117 | Failed to create privacy stream
+RDNA_ERR_FAILED_TO_CHECK_CHALLENGE | 118 | Failed to check challenge response
+RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE | 119 | Failed to update challenge
+RDNA_ERR_FAILED_TO_GET_CONFIG | 120 | Failed to retrieve configuration 
+FAILED_TO_GET_ALL_CHALLENGES | 121 | Failed to retrieve list of all challenges
+RDNA_ERR_FAILED_TO_LOGOFF | 122 | Failed to log off the user
+RDNA_ERR_FAILED_TO_RESET_CHALLENGE | 123 | Failed to reset challenge
+FAILED_TO_DO_FORGOT_PASSWORD | 124 | Failed to reset password via forgot password API
+RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS | 125 | Failed to send device details to the server
+RDNA_ERR_FAILED_TO_SET_DNS_SERVER | 126 | Failed to set DNS server
+RDNA_ERR_USERID_EMPTY | 127 | Userid field is empty
+RDNA_ERR_CHALLENGE_EMPTY | 128 | Challenge field is empty
+RDNA_ERR_FAILED_TO_SERIALIZE_JSON | 129 | Failed to serialize to internal representation
+RDNA_ERR_FAILED_TO_DESERIALIZE_JSON | 130 | Failed to deserialize from internal representation
+RDNA_ERR_INVALID_CHALLENGE_CONFIG | 131 | Invalid challenge configuration 
+FAILED_TO_GET_POST_LOGIN_CHALLENGES | Error while attempting to fetch post-login challenges
+FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | Error while attempting to get details of the registered devices of the user
+FAILED_TO_UPDATE_DEVICE_DETAILS | Failed to update device details of the user
+RDNA_ERR_USECASE_EMPTY | The input parameter to GetConfig API cannot be EMPTY or NULL.
+RDNA_ERR_DEVICE_DETAILS_EMPTY | Received empty device details list
+RDNA_ERR_401_URL_EMPTY | HTTP authentication credentials callback does not specify the URL or the URL is NULL 
+RDNA_ERR_PASSWORD_EMPTY |  Empty password in response is not allowed
 
 
 ## Method identifiers (enum)
@@ -777,6 +1287,15 @@ public abstract class RDNA {
     RDNA_METH_TERMINATE(2),
     RDNA_METH_RESUME(3),
     RDNA_METH_PAUSE(4);
+    RDNA_METH_GET_CONFIG(5),
+    RDNA_METH_CHECK_CHALLENGE(6),
+    RDNA_METH_UPDATE_CHALLENGE(7),
+    RDNA_METH_GET_ALL_CHALLENGES(8),
+    RDNA_METH_LOGOFF(9),
+    RDNA_METH_FORGOT_PASSWORD(10),
+    RDNA_METH_GET_POST_LOGIN_CHALLENGES(11);
+    RDNA_METH_GET_DEVICE_DETAILS(12),
+    RDNA_METH_UPDATE_DEVICE_DETAILS(13),
   }
   //..
 }
@@ -789,6 +1308,15 @@ typedef NS_ENUM(NSInteger, RDNAMethodID) {
   RDNA_METH_TERMINATE,
   RDNA_METH_RESUME,
   RDNA_METH_PAUSE,
+  RDNA_METH_GET_CONFIG,
+  RDNA_METH_CHECK_CHALLENGE,
+  RDNA_METH_UPDATE_CHALLENGE,
+  RDNA_METH_GET_ALL_CHALLENGES,
+  RDNA_METH_LOGOFF,
+  RDNA_METH_FORGOT_PASSWORD,
+  RDNA_METH_GET_POST_LOGIN_CHALLENGES,
+  RDNA_METH_GET_DEVICE_DETAILS,
+  RDNA_METH_UPDATE_DEVICE_DETAILS,
 };
 ```
 
@@ -799,17 +1327,32 @@ typedef enum {
   RDNA_METH_TERMINATE,
   RDNA_METH_RESUME,
   RDNA_METH_PAUSE,
+  RDNA_METH_GET_CONFIG,
+  RDNA_METH_CHECK_CHALLENGE,
+  RDNA_METH_UPDATE_CHALLENGE,
+  RDNA_METH_GET_ALL_CHALLENGES,
+  RDNA_METH_LOGOFF,
+  RDNA_METH_FORGOT_PASSWORD,
+  RDNA_METH_GET_POST_LOGIN_CHALLENGES,
+  RDNA_METH_GET_DEVICE_DETAILS,
+  RDNA_METH_UPDATE_DEVICE_DETAILS,
 } RDNAMethodID;
 ```
 
 Method ID | Meaning
 --------- | -------
-CORE_METH_NONE  | Not a specific method ID, can be used for generic status update
-CORE_METH_INITIALIZE | Initialize runtime method
-CORE_METH_TERMINATE | Terminate runtime method
-CORE_METH_RESUME | Resume runtime method
-CORE_METH_PAUSE | Pause runtime method
-
+RDNA_METH_NONE  | Not a specific method ID, can be used for generic status update
+RDNA_METH_INITIALIZE | Initialize runtime method
+RDNA_METH_TERMINATE | Terminate runtime method
+RDNA_METH_RESUME | Resume runtime method
+RDNA_METH_PAUSE | Pause runtime method
+RDNA_METH_GET_CONFIG | GetConfig runtime method
+RDNA_METH_CHECK_CHALLENGE | CheckChallenges runtime method
+RDNA_METH_UPDATE_CHALLENGE | UpdateChallenges runtime method
+RDNA_METH_GET_ALL_CHALLENGES | GetAllChallenges runtime method
+RDNA_METH_LOGOFF | Logoff runtime method
+RDNA_METH_FORGOT_PASSWORD | ForgotPassword runtime method
+RDNA_METH_GET_POST_LOGIN_CHALLENGES | PostLoginChallenges runtime method
 
 ## Service access - Introduction
 
@@ -828,7 +1371,7 @@ These structures are used with the backend service access routines. They serve t
    * whether it requires local privacy (between API-client and the REL-ID DNA) or not, and finally,
    * whether it is accessible locally via a forwarded port or via the proxy facade on the DNA.
 
-## Service access - Port type (enum)
+## Service access - Port type (enumeration)
 
 These flags specify attributes of the returned access port for the backend service. The meanings of each flag are as follows -
 
@@ -872,7 +1415,7 @@ PORT_TYPE_PROXY (0) | When set, it specifies that the access port is that of the
 PORT_TYPE_PORTF (1) | When set, it specifies that the access port is a locally available forwarded TCP port, representing transparent connectivity to the corresponding backend enterprise service coordinate. In this case, the API-client application would require to connect directly to this port, as if it is connecting to the backend enterprise service.
 
 
-## Service access - Port (structure)
+## Service access - Port (class/struct)
 
 Each access port structure consists of a bit-field corresponding to a bunch of boolean flags, and the actual TCP port number for the access port.
 
@@ -934,7 +1477,7 @@ isPrivacyEnabled | bit&nbsp;(boolean) | Specifies whether use of the REL-ID Priv
 portType | bit&nbsp;(boolean) | Specifies whether the port is of TYPE_PROXY (0) or TYPE_PORTF (1), refer ```e_port_type_t```
 port | integer | Specifies the actual TCP port number for this service access (could be Proxy or Forwarded Port)
 
-## Service access - Service (structure)
+## Service access - Service (class/struct)
 
 The service structure is unique for a given backend service, and specifies the unique logical name, target coordinates (hostname/IP and port number), access gateway details through which to access the service and access port details. It also specifies an opaque coordinate structure to be used when operating on the service using the ServiceAccess* API routines.
 
@@ -990,7 +1533,343 @@ accessServerName | null-terminated string | <b><u><i>Only in Core API</i></u></b
 serviceCtx | opaque-reference | <b><u><i>Only in Core API</i></u></b><br>Opaque context reference to be used when starting/stoping the ServiceAccess via the API routines
 portInfo | access port structure | The access port structure corresponding to the service provided
 
-# Basic API - Initialize-Terminate
+## RDNAChallenge (class/struct)
+
+As part of the user authentication process, the server throws one or more challenges to which the client needs to respond. These could either be individual challenges, or a set of challenges. The following table describes the individual elements represents the challenge struct/object.
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //...
+  public static class RDNAChallenge {
+    public final String name;
+    public final RDNAChallengeType type;
+    public final int index;
+    public final LinkedHashMap<String, String> info;
+    public final String[] prompts;
+    public final int attemptsLeft;
+    public final boolean shouldValidateResponse;
+    public final String[] responsePolicies;
+    public final int subChallengeIndex;
+    public String responseKey;
+    public Object responseValue;
+	public RDNAChallengeOpMode challengeOperation;
+  }
+}
+```
+
+```objective_c
+@interface RDNAChallenge : NSObject
+
+  @property (nonatomic, strong, readonly) NSString *name;
+  @property (nonatomic, assign, readonly) RDNAChallengePromptType type;
+  @property (nonatomic, assign, readonly) int index;
+  @property (nonatomic, strong, readonly) NSMutableArray *info;
+  @property (nonatomic, strong, readonly) NSArray *prompts;
+  @property (nonatomic, assign, readonly) int attemptsLeft;
+  @property (nonatomic, assign, readonly) BOOL shouldValidateResponse;
+  @property (nonatomic, strong, readonly) NSArray *responsePolicies;
+  @property (nonatomic, assign, readonly) int responseCount;
+  @property (nonatomic, strong)           NSString *responseKey;
+  @property (nonatomic, strong)           NSObject *responseValue;
+  @property (nonatomic, assign, readonly) RDNAChallengeOpMode challengeOperation;
+@end
+```
+
+```cpp
+typedef struct RDNAChallenge_s{
+  const std::string name;
+  RDNAChallengePromptType type;
+  const int index;
+  const vector<RDNAChallengeInfo> info;
+  const vector<std::string> prompts;
+  const int attemptsLeft;
+  const bool shouldValidateResponse;
+  const int responseCount;
+  const vector<std::string> responsePolicies;
+  const std::string chlngDetails;
+  std::string response;
+  const std::string responseKey;
+  std::string responseValue;
+  RDNAChallengeOpMode challengeOperation;
+} RDNAChallenge;
+```
+
+Member | Description
+------ | -----------
+<b>name</b> | This is the name of the challenge (secqa, username, password, access code, etc... )
+<b>prompts</b> | This field is an array of prompts.
+<b>type</b> | This is the type of the prompt. The possible prompt types are RDNA_PROMPT_BOOLEAN, RDNA_PROMPT_ONE_WAY and RDNA_PROMPT_TWO_WAY. RDNA_PROMPT_BOOLEAN represents a challenge, for which the response is a boolean type (true/1/yes or false/0/no).  
+<b>index</b> | This is the index of the challenge within the set of challenges being presented. This is used by the DNACore to make sure that the responses to the challenges are provided in the same sequence as the challenges.
+<b>info</b> | The ChallengeInfo struct/object contains data specific to the challenge, and is implementation specific. For instance, it may contain text describing the challenge, and could be useful as a tooltip for UI elements.
+<b>attemptsLeft</b> | Represents the number of valid attempts remaining before the user is either SUSPENDED or BLOCKED.
+<b>shouldValidateResponse</b> | This value represents whether the API client has to validate the user entered values at client end.
+<b>responsePolicies</b> | The policies to be applied on user entered values, these policies can be like regular expression to be applied on user input.
+<b>responseKey</b> | This represents the actual challenge shown to the user. The actual key depends on the type of the type of challenge being thrown. For instance, in case of activation, the ```responseKey``` field will contain the activation code, and the user is expected to provide the verification key as the value. In case of secret QA, the ```responseKey``` will represent the secret question, and the ```responseValue``` field should contain the secret answer. 
+<b>responseValue</b> | This should be set by the API client. This is the value which user enter for authentication.
+<b>challengeOperation</b> | This indicates if the challenge is thrown by the server for authenticating the user or the server asking the user to set the challenge for use in future  authentication attempts. 
+
+## RDNAChallengePromptType (Enumeration)
+
+The RDNAChallengeType is an enumeration of types of challenge prompts. A prompt represents a piece of information needed by the end user to respond to the challenge. <br><br>For instance, in the case of Secret QA (where the challenge name is secqa), there could either be a single prompt or multiple prompts, each prompt representing a secret question. For password challenge, the prompt array would be empty, since the user does not need any information to enter the password. 
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //...
+  public static enum RDNAChallengeType{
+    RDNA_PROMPT_BOOLEAN (0),
+    RDNA_PROMPT_ONE_WAY (1),
+    RDNA_PROMPT_TWO_WAY (2);
+
+    public final int intValue;
+
+    private RDNAChallengeType(int val) {
+      this.intValue = val;
+    }
+  }
+}
+```
+
+```objective_c
+typedef NS_ENUM(NSInteger, RDNAChallengePromptType) {
+  RDNA_PROMPT_BOOLEAN = 0,
+  RDNA_PROMPT_ONE_WAY,
+  RDNA_PROMPT_TWO_WAY,
+};
+```
+
+```cpp
+typedef enum{
+  RDNA_PROMPT_BOOLEAN = 0,
+  RDNA_PROMPT_ONE_WAY,
+  RDNA_PROMPT_TWO_WAY,
+} RDNAChallengePromptType;
+```
+
+PromptType | Description
+---------- | -----------
+<b>RDNA_PROMPT_BOOLEAN</b> | Represents a challenge where the user needs to respond with either a positive value (true/1/yes) or a negative response (false/0/no).<br><b>E.g. Setting the device binding as temporary or permanent.</b>
+<b>RDNA_PROMPT_ONE_WAY</b> | Represents a challenge where the user needs to respond to the challenge and this response is independent of any additional information provided.<br><b>E.g. A challenge asking for the username or the challenge asking for the password<b>.
+<b>RDNA_PROMPT_TWO_WAY</b> | Represents a challenge where the ISA would provide some information to the client (represented by an array of prompts), and the user response to the challenge depends on the provided information.<br><b>E.g. A challenge where the user is expected to set the secret question and the secret answer.</b>
+
+
+## RDNAChallengeStatusCode (Enumeration)
+
+The ```RDNAChallengeStatusCode``` represents the result of the previous ```CheckChallengeResponse``` or ```UpdateChallenge``` API.  
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //...
+  public static enum RDNAChallengeStatusCode {
+    RDNA_CHLNG_STATUS_SUCCESS(0),
+    RDNA_CHLNG_STATUS_NO_SUCH_USER)(1),
+    RDNA_CHLNG_STATUS_USER_SUSPENDED(2),
+    RDNA_CHLNG_STATUS_USER_BLOCKED(3),
+    RDNA_CHLNG_STATUS_USER_ALREADY_ACTIVATED(4),
+    RDNA_CHLNG_STATUS_INVALID_ACT_CODE(5),
+    RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED(6),
+    RDNA_CHLNG_STATUS_CHALLENGE_RESPONSE_VALIDATION_FAILED(7),
+    RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED(8),
+    RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST(9),
+    RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR(10),
+    RDNA_CHLNG_STATUS_UNKNOWN_ERROR(11);
+  }
+}
+```
+
+```objective_c
+typedef NS_ENUM(NSInteger, RDNAChallengeStatusCode) {
+  RDNA_CHLNG_STATUS_SUCCESS = 0,
+  RDNA_CHLNG_STATUS_NO_SUCH_USER,
+  RDNA_CHLNG_STATUS_USER_SUSPENDED,
+  RDNA_CHLNG_STATUS_USER_BLOCKED,
+  RDNA_CHLNG_STATUS_USER_ALREADY_ACTIVATED,
+  RDNA_CHLNG_STATUS_INVALID_ACT_CODE,
+  RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED,
+  RDNA_CHLNG_STATUS_CHALLENGE_RESPONSE_VALIDATION_FAILED,
+  RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED,
+  RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST,
+  RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR,
+  RDNA_CHLNG_STATUS_UNKNOWN_ERROR
+};
+```
+
+```cpp
+typedef enum {
+  RDNA_CHLNG_STATUS_SUCCESS = 0,
+  RDNA_CHLNG_STATUS_NO_SUCH_USER,
+  RDNA_CHLNG_STATUS_USER_SUSPENDED,
+  RDNA_CHLNG_STATUS_USER_BLOCKED,
+  RDNA_CHLNG_STATUS_USER_ALREADY_ACTIVATED,
+  RDNA_CHLNG_STATUS_INVALID_ACT_CODE,
+  RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED,
+  RDNA_CHLNG_STATUS_CHALLENGE_RESPONSE_VALIDATION_FAILED,
+  RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED,
+  RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST,
+  RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR,
+  RDNA_CHLNG_STATUS_UNKNOWN_ERROR
+} RDNAChallengeStatusCode;
+```
+
+ChallengeStatus | Description
+--------------- | -----------
+<b>RDNA_CHLNG_STATUS_SUCCESS</b> | This status is returned when the response to the challenge has been deemed verified
+<b>RDNA_CHLNG_STATUS_NO_SUCH_USER</b> | This status is returned when the specified user does not exist. The client either needs to correct the username or enroll the username through the Gateway Manager.
+<b>RDNA_CHLNG_STATUS_USER_SUSPENDED</b> | This status is returned when the specified user is in a SUSPENDED state. The administrator needs to unblock the user before the authentication can proceed.
+<b>RDNA_CHLNG_STATUS_USER_BLOCKED</b> | This status is returned when the specified user is in a BLOCKED state. The administrator needs to unblock the user before the authentication can proceed.
+<b>RDNA_CHLNG_STATUS_USER_ALREADY_ACTIVATED</b> | This status is returned when the user specified in the challenge has already been activated, yet the system is attempting to activate the user. In this case client needs to restart the user authentication sequence.
+<b>RDNA_CHLNG_STATUS_INVALID_ACT_CODE</b> | This status is returned when the user has entered an invalid activation code. The user needs to enter the appropriate activation code for the authentication to proceed.
+<b>RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED</b> | This code is returned when the user has attempted to update the challenges, and server has failed to update them. 
+<b>RDNA_CHLNG_STATUS_RESPONSE_VALIDATION_FAILED</b> | This code is returned when the server has failed to verify the user's response to a challenge. The server will usually present the challenges once again and the user needs to reattempt to respond to the challenges.
+<b>RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED</b> | This status is returned when the device from which the user is attempting to authenticate himself has been rejected by the server based on some policy. 
+<b>RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST</b> |  This status is returned by the server when it recieves improper challenge response for that state. The usual solution for this would be to restart the authentication sequence.
+<b>RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR</b> | This status is returned when an internal server error has occurred. The only recourse is to contact the administrator.
+<b>RDNA_CHLNG_STATUS_UNKNOWN_ERROR</b> | This status is returned when an error or unknown origin has occurred. The only recourse is to contact the administrator.
+
+## RDNAChallengeOpMode (Enumeration)
+
+This enumeration is used to indicate to the user about the intended action for the challenge, namely whether this is a challenge verification operation or a challenge update operation. 
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //...
+  public static enum RDNAChallengeOpMode{
+    RDNA_CHALLENGE_OP_VERIFY (0),
+    RDNA_CHALLENGE_OP_SET (1);
+  }
+}
+```
+
+```objective_c
+typedef NS_ENUM(NSInteger, RDNAChallengeOpMode) {
+  RDNA_CHALLENGE_OP_VERIFY = 0,
+  RDNA_CHALLENGE_OP_SET
+};
+```
+
+```cpp
+typedef enum{
+  RDNA_CHALLENGE_OP_VERIFY = 0,
+  RDNA_CHALLENGE_OP_SET
+} RDNAChallengeOpMode;
+```
+
+ChallengeOpMode | Description
+--------------- | -----------
+<b>RDNA_CHALLENGE_OP_VERIFY</b> | This implies that the challenge response would be verified by the server against the known correct response. 
+<b>RDNA_CHALLENGE_OP_SET</b>    | This implies that the provided response would be marked by the server as the known correct response, and would be used to compare against the challenge response provided for the same challenge at a later point of time.
+
+## RDNAChallengeStatus
+
+This class defines the status of the response of previous challenge recieved by the server. The following are the members of the class :
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //...
+  public static class RDNAChallengeStatus{
+    public String message;
+    public RDNAChallengeStatusCode statusCode;
+
+	public RDNAChallengeStatus(String message, RDNAChallengeStatusCode statusCode) {
+      this.message = message;
+      this.statusCode = statusCode;
+    }
+  }
+}
+```
+
+```objective_c
+@interface RDNAChallengeStatus : NSObject
+  @property (nonatomic, strong) NSString *message;
+  @property (nonatomic, assign) RDNAChallengeStatusCode statusCode;
+@end
+```
+
+```cpp
+typedef struct RDNAChallengeStatus_s {
+  std::string message;
+  RDNAChallengeStatusCode statusCode;
+  RDNAChallengeStatus_s () : message(""), statusCode(RDNA_CHLNG_STATUS_SUCCESS)
+  {}
+} RDNAChallengeStatus;
+```
+
+Member | Description
+------ | -----------
+<b>message</b> | This is a string representation of the error that occurred. This would be implementation specific.
+<b>statusCode</b> | This is the statusCode representing the error that occurred during the processing of the challenge response.
+
+## DeviceStatus (Enumeration)
+Following enums are defined for the device management feature, which will provide the device details of a specific device, for example the device status and device binding 
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //...
+  public static enum RDNADeviceStatus {
+    RDNA_DEVSTATUS_ACTIVE(0),
+    RDNA_DEVSTATUS_UPDATE(1),
+    RDNA_DEVSTATUS_DELETE(2),
+    RDNA_DEVSTATUS_BLOCKED(3),
+    RDNA_DEVSTATUS_SUSPEND(4),
+  }
+
+  public static enum RDNADeviceBinding {
+    RDNA_PERMENANT(0),
+    RDNA_TEMPORARY(1),
+  }
+  //...
+}	
+```
+
+```objective_c
+typedef NS_ENUM(NSInteger, RDNADeviceStatus) {
+  RDNA_DEVSTATUS_ACTIVE = 0,
+  RDNA_DEVSTATUS_UPDATE,
+  RDNA_DEVSTATUS_DELETE,
+  RDNA_DEVSTATUS_BLOCKED,
+  RDNA_DEVSTATUS_SUSPEND,
+};
+
+typedef NS_ENUM(NSInteger, RDNADeviceBinding) {
+  RDNA_PERMENANT = 0,
+  RDNA_TEMPORARY,
+};
+```
+
+```cpp
+enum RDNADeviceStatus {
+  RDNA_DEVSTATUS_ACTIVE,
+  RDNA_DEVSTATUS_UPDATE,
+  RDNA_DEVSTATUS_DELETE,
+  RDNA_DEVSTATUS_BLOCKED,
+  RDNA_DEVSTATUS_SUSPEND,
+};
+
+enum RDNADeviceBinding {
+  RDNA_PERMENANT,
+  RDNA_TEMPORARY
+};
+```
+
+
+# API - Initialize-Terminate
 
 ## Initialize Routine
 
@@ -1120,7 +1999,7 @@ Routine | Description
 ------- | -----------
 <b>Terminate</b> | API runtime shutdown is initiated - including freeing up memory and other resources, and stopping of the DNA.
 
-# Basic API - Sessions
+# API - Sessions
 
 The REL-ID Session is issued to the client-side as an opaque ticket from the REL-ID backend. This ticket is subsequently used by the client-side API-runtime to gain access to backend enterprise services. 
 
@@ -1219,7 +2098,7 @@ This routine notifies the REL-ID backend that the user (SECONDARY) session prese
 <aside class="notice"><b><u>Note</u></b> that at this point, since there is no user (SECONDARY) session present in the API-runtime, the API-client may only access backend services that are accessible by virtue of the application (PRIMARY) session present in the API-runtime context.
 </aside>
 
-# Basic API - Service Access
+# API - Service Access
 
 These routines enable the API-client applications to retrieve the service structure for the backend enterprise service it requires to interact with, and use that information to safely interact with them.
  * The first 2 ```GetService...``` routines help retrieve the service information for the service - one of them looks it up using a logical unique name of the backend service and the other retrieves all available services for the current context
@@ -1372,7 +2251,7 @@ Routine&nbsp;Name | Description
 <b>ServiceAccessStart</b> | Access to the service (i.e. the corresponding backend enterprise service) via the access port for the ```Service``` is started<li>In case of ```TYPE_PROXY``` port, the proxy facade of the DNA in the API-runtime listening on that port will start <i>tunneling</i> requests/data to the corresponding backend service.<li>In case of ```TYPE_PORTF``` port, the corresponding forwarded TCP port is started in the DNA in the API-runtime, and made ready to accept connections from which data will be transparently forwarded to the corresponding backend service.
 <b>ServiceAccessStop</b> | Access to the service (i.e. the corresponding backend enterprise service) via the access port for the ```Service``` is stopped<li>In case of ```TYPE_PROXY``` port, the proxy facade of the DNA in the API-runtime listening on that port will stop <i>tunneling</i> requests/data to the corresponding backend service and it will revert with an appropriate HTTP Proxy error code for further access to this service<li>In case of ```TYPE_PORTF``` port, the corresponding forwarded TCP port is shutdown and closed in the DNA in the API-runtime, and connections to that port will no longer be accepted.
 
-# Basic API - Data Privacy
+# API - Data Privacy
 
 The data privacy provided to the API-client application, is delivered at different scopes - each scope sets how the privacy (encryption) keys are generated and used. Further, 3 types of encryption/decryption functionality is provided - across all supported privacy scopes -
  # Raw Data Packets: Encryption and decryption of raw data packets
@@ -1938,7 +2817,7 @@ Routine | Description
 <br>When used with session scope, the API-Client should use the default CipherSpec/Salt so that service provider can make use of the encrypted data (remember?)
 </aside>
 
-# Basic API - Pause-Resume
+# API - Pause-Resume
 
 The pause and resume routines make it possible to persist the <i>in-session</i> state of the API runtime and restore the runtime from the previously persisted state.
 
@@ -2016,7 +2895,7 @@ Routine | Description
 
 <aside class="notice"><b>It is recommended that the API-client application further encrypt this information before storing it for later retrieval and restoration into the API-runtime</b></aside>
 
-# Basic API - Information Getters
+# API - Information Getters
 
 ```c
 const char*
@@ -2046,22 +2925,12 @@ coreGetDeviceID
 ```java
 public abstract class RDNA {
   //..
-  public static
-    String
-    getSDKVersion();
-  public static
-    RDNAErrorID
-    getErrorInfo
-      (int errorCode);
-  public abstract
-    RDNAStatus<String>
-    getSessionID();
-  public abstract
-    RDNAStatus<String>
-    getAgentID();
-  public abstract
-    RDNAStatus<String>
-    getDeviceID();
+  public static String getSDKVersion();
+  public static RDNAErrorID getErrorInfo(int errorCode);
+  public abstract RDNAStatus<String> getSessionID();
+  public abstract RDNAStatus<String> getAgentID();
+  public abstract RDNAStatus<String> getDeviceID();
+  public abstract int getConfig(String userID);
   //..
 }
 ```
@@ -2074,6 +2943,7 @@ public abstract class RDNA {
   - (int)getSessionID:(NSMutableString **)sessionID;
   - (int)getAgentID:(NSMutableString **)agentID;
   - (int)getDeviceID:(NSMutableString **)deviceID;
+  - (int)getConfig:(NSString *)userID;
   //..
 @end
 ```
@@ -2088,6 +2958,7 @@ public:
   int getSessionID(std::string& sessionID);
   int getAgentID(std::string& agentID);
   int getDeviceID(std::string& deviceID);
+  int getConfig(std::string configRequest);
   //..
 }
 ```
@@ -2099,219 +2970,399 @@ Routine | Description
 <b>GetSessionID</b> | Get the session ID of the current initialized REL-ID session. Depending on the current state of the API-Runtime, the retrieved session ID will be either of the current application (PRIMARY) REL-ID session or of the current user (SECONDARY) REL-ID session.
 <b>GetAgentID</b> | Get the Agent ID using which the REL-ID session is initialized
 <b>GetDeviceID</b> | Get the device ID of the current device using which the REL-ID session is initialized
+<b>GetConfig</b> | Get the configuration data from the server. No assumption is made with regards to the structure or format of the configuration data, except that it should be an ASCII string. The parameter ```configRequest``` is a hint to the server to provide a subset of the config based on the value of ```configRequest```.
 
+# API - User authentication 
 
-# Advanced API
-
-
-The Advanced API, builds on top of the application (PRIMARY) REL-ID session, accomplishes end-user authentication, and further associates a mutually authenticated end-user to form the user (SECONDARY) REL-ID session.
+REL-ID APISDK provides a set of API for authenticating an end-user. The API builds on top of the application (PRIMARY) REL-ID session, perform end-user authentication, and further associate a mutually authenticated end-user to form the user (SECONDARY) REL-ID session.<br><br>The client-server interaction to transition the user from the application (PRIMARY) REL-ID session to the user (SECONDARY) REL-ID session is through the challenge-response mechanism. The server would present a initial set of challenges and when the API-client responds to these challenges, the server would either mark the client to have been authenticated, or would present the next set of challenges. After the server has successfully verified the responses to the challenges, it would create a (SECONDARY) REL-ID session, which is based on the user REL-ID (which is unique to that user).
+<br><br>Subsequently all the communication channels will be secured using the ```user REL-ID```.
 
 <aside class="notice">Note that all of the Advanced API routines may only be invoked once the Basic Initialization is successfully completed. This is because the primary function of the Advanced API is to perform end-user authentication on a previously established, valid 'PRIMARY' session</aside>
 
-<aside class="notice">These APIs is designed to allow complete flexibility to the API-client application to be able to specify/conduct its own method of user-authentication. <i><u>While the built-in behavior for these API routines in the REL-ID API-SDK and backend is specific albeit configurable, this behavior can be customized to the needs of the enterprise application</u></i>.</aside>
+<aside class="notice">These APIs are designed to allow complete flexibility to the API-client application to be able to specify/conduct its own method of user-authentication. <i><u>While the built-in behavior for these API routines in the REL-ID API-SDK and backend is specific albeit configurable, this behavior can be customized to the needs of the enterprise application</u></i>.</aside>
 
-Following API routines constitute the Advanced APIs of REL-ID API-SDK.
-
-## CheckCredential
-
-This routine submits one or more user credentials (username/userID, passwords, responses to challenges etc) with the REL-ID backend, to authenticate the end-user. This can be used to -
- * To check the user status - whether this user requires authentication on this device, what authentication to perform for this user, whether the user is blocked (on this device and/or app, or otherwise).
- * To check the username and password.
- * To check the additional authentication credentials such as secret answer, captcha, etc 
- 
-The result is one of the following - 
- * <b>FAILURE, &lt;reason&gt;</b>
- * <b>CHALLENGE, &lt;challenge&gt;</b>
- * <b>SUCCESS, &lt;eurelid&gt;</b>
-
-The result is informed to API-client via status update (core) / event notification (wrapper) callback routines. <br>Multiple successful invocations of this routine may be needed before receiving a <b>SUCCESS, &lt;eurelid&gt;</b> result from this routine, with the same challenge (retries) and/or different challenges (additional authentication).
-
+## CheckChallengeResponse
 
 ```c
-int coreCheckCredential
-(void* pvRuntimeCtx,
- char* pcCredData,
- int nCredDataLen);
 ```
 
 ```java
 public abstract class RDNA {
   //..
-  public abstract int checkCredential(String credData);
-  //..
+  public abstract int checkChallenges(RDNAChallenge[] challenges,String userID);
 }
 ```
 
 ```objective_c
-@interface RDNA : NSObject
-  //..
-  - (int)checkCredential:(NSString *)credData;
-  //..
+@interface RDNA
+  //...
+  - (int)checkChallengeResponse:(NSArray *)challenges forUserID:(NSString *)userID;
 @end
 ```
 
 ```cpp
-class RDNA
-{
-public:
-  //..
-  int checkCredential(std::string credData);
-  //..
+class RDNA {
+  //...
+  int checkChallengeResponse(vector<RDNAChallenge> challenges, std::string userID);
 }
 ```
 
-Argument&nbsp;[in/out] | Description
----------------------- | ---------------------
-API-Runtime Context [in] | Previously created and valid API runtime context reference
-Cred Data [in] | End-user identity or credential data supplied as a single opaque ASCII-encoded blob (base64/...)<br>In case of username/userID validation, the API-client application can take in user identity information, via one or more fields of input used to form a structured/unstructured end-user identity - for example, [<corporate-id>.]<user-id> (internet banking), or <sol-id>.<user-id> (Finacle CBS), or <user-id>@<fqdn> / <domain>\<user-id (corporate intranet Windows domain user), etc.
+As part of the API call sequence to authenticate an end-user, the API-client receives challenges in the form of RDNAChallenge objects/structs. The API-client would then receive the response to the challenge from the end-user, and use the ```checkChallengeResponse``` API to pass the challenge responses to the server. The response will be validated by the server. The server would then process the response and the API-client will receive a ```RDNAStatusCheckChallengesResponse``` object representing the result of processing the response for the challenge. The server response would indicate that whether the response was validate successfully or not.
+
+<aside class="notice">This API should only be called to authenticate an end-user, and post authentication this API should not be used. Please refer to <u><i>getPostLoginChallenges</i></u> API for getting the end-user to authenticate, post successful authentication in the same session</aside>
+
+## UpdateChallenges
 
 
-The following table explains the results of this API routine, which is notified to the API-client via the status update (core) / event notification (wrapper) callback routine.
 
-Result | Description
+```c
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int updateChallenges(RDNAChallenge[] challenges,String userID);
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+  - (int)updateChallenges:(NSArray *)challenges forUserID:(NSString *)userID;
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int updateChallenges(vector<RDNAChallenge> challenges, std::string userID);
+}
+```
+
+## LogOff
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int logOff(String userID);
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+  - (int)logOff:(NSString *)userID;
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int logOff(std::string userID);
+}
+```
+
+
+## ForgotPassword
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int forgotPassword(String userID);
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+  - (int)forgotPassword:(NSString *)userID;
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int forgotPassword(std::string userID);
+}
+```
+
+
+## GetAllChallenges
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int getAllChallenges(String userID);
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+  - (int)getAllChallenges:(NSString *)userID;
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int getAllChallenges(std::string userID);
+}
+```
+
+## ResetChallenge
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int resetChallenge();
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+  - (int)resetChallenge;
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int resetChallenge();
+}
+```
+
+## GetPostLoginChallenges
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int getPostLoginChallenges(String userID, String useCaseName);
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+  - (int)getPostLoginChallenges:(NSString *)userID withUseCaseName:(NSString *)useCaseName;
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int getPostLoginChallenges(std::string userID, std::string useCaseName);
+}
+```
+
+
+# API - Device Management
+
+## RDNADeviceDetails
+
+```c
+```
+
+```java
+public abstract class RDNA {
+	//..
+  public abstract static class RDNADeviceDetails{
+    protected String deviceUUID;
+    protected String deviceName;
+    protected final RDNADeviceBinding deviceBinding;
+    protected RDNADeviceStatus deviceStatus;
+    protected final String deviceRegistrationTime; 
+    protected final String lastAccessTime;
+    protected final String lastLoginStatus;
+					
+    public abstract void setNewDeviceName(String newDeviceName);
+    public abstract void deleteDevice();
+    public abstract RDNADeviceStatus getDeviceStatus();	
+    public abstract String getDeviceUUID();
+    public abstract String getDeviceName();
+    public abstract RDNADeviceBinding getDeviceBinding();
+    public abstract String getDeviceRegistrationTime();
+    public abstract String getLastAccessTime();
+    public abstract String getLastLoginStatus();
+  }
+}
+```
+
+```objective_c
+@interface RDNADeviceDetails : NSObject
+  @property (nonatomic, copy) NSString *deviceName;
+  @property (nonatomic, readonly) RDNADeviceBinding deviceBinding;
+  @property (nonatomic, readonly) RDNADeviceStatus deviceStatus;
+  @property (nonatomic, readonly, copy) NSString *deviceRegistrationTime;
+  @property (nonatomic, readonly, copy) NSString *lastAccessTime;
+  @property (nonatomic, readonly, copy) NSString *lastLoginStatus;
+
+  - (void)deleteDevice;
+@end
+```
+
+```cpp
+class RDNADeviceDetails {
+
+private:
+  RDNADeviceBinding deviceBinding;
+  RDNADeviceStatus deviceStatus;
+  std::string deviceName;
+  std::string lastAccessTime;
+  std::string deviceRegistrationTime;
+  std::string deviceUUID;
+  std::string lastLoginStatus;
+
+  RDNADeviceDetails(RDNADeviceBinding devBinding, RDNADeviceStatus devStatus, std::string devName,
+    std::string lastAccessTimeStamp, std::string devRegistrationTime, std::string devUUID, std::string lastLoginStatus)
+    :deviceBinding(devBinding),
+    deviceStatus(devStatus),
+    deviceName(devName),
+    lastAccessTime(lastAccessTimeStamp),
+    deviceRegistrationTime(devRegistrationTime),
+    deviceUUID(devUUID),
+    lastLoginStatus(lastLoginStatus)
+  {
+  }
+
+  friend class RDNA;
+public:
+  inline RDNADeviceBinding getDeviceBinding() { return deviceBinding; }
+  inline RDNADeviceStatus getDeviceStatus() { return deviceStatus; }
+  inline std::string getLastAccessTime() { return lastAccessTime; }
+  inline std::string getDeviceRegisterTime() { return deviceRegistrationTime; }
+  inline std::string getLastLoginStatusDevice() { return lastLoginStatus; }
+  inline std::string getDeviceName() { return deviceName; }
+  inline std::string getDeviceUUID() { return deviceUUID; }
+
+  inline void setNewDeviceName(std::string newDeviceName) { deviceName = newDeviceName; deviceStatus = RDNA_DEVSTATUS_UPDATE;}
+  inline void deleteDevice() { deviceStatus = RDNA_DEVSTATUS_DELETE; }
+};
+```
+
+The RDNADeviceDetails class provides the information of a device, this is to provide the feature of device management to the user. Object of this class defines a single device information such as device name, device registration time stamp etc.
+
+Member | Description
 ------ | -----------
-<b>FAILURE,&nbsp;&lt;reason&gt;</b> | <b>&lt;reason&gt;</b> refers an exception to be reported to the API-client.<br>For example, the system is down, disk is full, the user/dev/agent is blocked/invalid, some policy check failed, etc.
-<b>CHALLENGE,&nbsp;&lt;challenge&gt;</b> | <b>&lt;challenge&gt;</b> is a blob containing information that the API-client application knows to process -<br><li>by displaying an appropriate challenge to the end-user operating the API-client app, with an appropriate CAPTCHA probably,<li>by accepting credential(s) in response to the challenge, and<li>by packaging the accepted credential(s) into another single opaque ASCII blob to be sent back to the REL-ID backend in another invocation of ```CheckCredential``` API routine. Hence the API-Client must authenticate the response (credentials) received from the end-user, after having shown him/her the challenges received from the previous ```CheckCredential``` routine invocation until it gets SUCCESS.
-<b>SUCCESS,&nbsp;&lt;eurelid&gt;</b> | <b>&lt;eurelid&gt;</b> is a blob containing the '<u>encrypted User REL-ID</u>' for the end-user.<li>Upon receiving this, the API-Client must unpack the user REL-ID and call the ```AuthenticateUser``` routine.
+<b>deviceBinding</b> | This is a enum representation of device-binding of device. There are two binding states temporary or permanent
+<b>deviceStatus</b> | This is the enum representation of device status, for all binded devices the status would be the active, user can only have the option to delete the device.
+<b>deviceName</b> | This is string representation of the device name, a default devie name can be set by the RelID-core and even an option can be given to the user to set the specific name for a device.
+<b>lastAccessTime</b> | This is the string representation of the time stamp, when the device was accessed last time.
+<b>deviceRegistrationTime</b> | This is the string representation of the time stamp when the device was registred first time with the RelID-core
+<b>deviceUUID</b> | This is the string representation of the device unique identifier. This is for internal use only by the RelID-core.
+<b>lastLoginStatus</b> | This is the string representation of the status of login whether last login from this device was success or failed.
 
 
-## AuthenticateUser
+Method | Description
+------ | -----------
+<b>deleteDevice</b> | This will mark the device for deletion from the server's list of registered devices for the user.
+<b>setNewDeviceName</b> | This will rename the device.
 
-This routine accomplishes the end-user authentication, and further associates a mutually authenticated end-user to form the user (SECONDARY) REL-ID session. Upon receiving the <b>SUCCESS, &lt;eurelid&gt;</b> in the ```CheckCredential``` routine, the API-Client must unpack the user REL-ID and call the ```AuthenticateUser``` routine. Upon successful completion of this routine, 
- * a user REL-ID-authenticated session is established with the REL-ID platform backend, in a SECONDARY state 
- * the app session is subsided by saving its state, the services related to app session is shutdown
- * the services related to user session is started. 
+<aside class="notice">Any changes made the device details through the above described methods will only be reflected in the server, after the ```UpdateDeviceDetails``` API has been invoked with the updated device details. Until then, all changes made will be local and will not be persistent.</aside>
 
-The result of this routine is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+## UpdateDeviceDetails
 
 ```c
-int coreAuthenticateUser
-(void* pvRuntimeCtx,
- char* pcEuRelID,
- int nEuRelIDLen);
 ```
 
 ```java
 public abstract class RDNA {
   //..
-  public abstract int authenticateUser(String euRelID);
-  //..
+  public abstract int updateDeviceDetails(String userID,RDNADeviceDetails[] devices);
 }
 ```
 
 ```objective_c
-@interface RDNA : NSObject
-  //..
-  - (int)authenticateUser:(NSString *)euRelID;
-  //..
+@interface RDNA
+  //...
+  - (int)updateDeviceDetails:(NSString *)userID withDevices:(NSArray *)devices;
 @end
 ```
 
 ```cpp
-class RDNA
-{
-public:
-  //..
-  int authenticateUser(std::string euRelID);
-  //..
+class RDNA {
+  //...
+  int updateDeviceDetails(std::string userID, vector<RDNADeviceDetails> devices);
 }
 ```
 
-Argument&nbsp;[in/out] | Description
----------------------- | ---------------------
-API-Rumtime Context [in] | Previously created and valid API runtime context reference
-EuRelID [in] | Unpacked end-user REL-ID with which a user REL-ID-authenticated session can be established with the REL-ID platform backend.
+UpdateDeviceDetails API is to be used by the API-client to persist any changes made to the list of list of registered devices for that user.
 
-Similar to the result provided in the callback of ```Initialize``` routine, the callback of this routine as well provides the result of this routine and list of services started with respect to user (SECONDARY) REL-ID session.
+Parameter | Description
+--------- | -----------
+<b>userID</b> | The username or userID of the user, for whom the device details need to be updated.
+<b>devices</b> | The list of ```RDNADeviceDetails``` objects/structs. Any changes made to the details through the ```RDNADeviceDetails``` provided methods will only be reflected in the server upon the successful execution of this API method.
 
+## GetRegisteredDeviceDetails
 
-## UpdateCredential
-
-The purpose of this routine is to update one or more credentials of the end-user. This routine can only be invoked if ```AuthenticateUser``` routine has been successfully completed. Pretty much all the relevant credentials of the end-user - secret question(s) and answer(s), one-time-use access code generation seeds, primary password(s), device binding to user-app etc - may be updated using this routine.
-The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+This API fetches the list of devices registered to the user whose userID/username is provided as input parameter.
 
 ```c
-int coreUpdateCredential
-(void* pvRuntimeCtx,
- char* pcCredData,
- int nCredDataLen);
 ```
 
 ```java
 public abstract class RDNA {
   //..
-  public abstract int updateCredential(String credData);
-  //..
+  public abstract int getRegisteredDeviceDetails(String userID);
 }
 ```
 
 ```objective_c
-@interface RDNA : NSObject
-  //..
-  - (int)updateCredential:(NSString *)credData;
-  //..
+@interface RDNA
+  //...
+  - (int)getRegisteredDeviceDetails:(NSString *)userID;
 @end
 ```
 
 ```cpp
-class RDNA
-{
-public:
-  //..
-  int updateCredential(std::string credData);
-  //..
+class RDNA {
+  //...
+  int getRegisteredDeviceDetails(std::string userID);
 }
 ```
 
-Argument&nbsp;[in/out] | Description
----------------------- | ---------------------
-API-Rumtime Context [in] | Previously created and valid API runtime context reference
-Cred data [in] | End-user identity or credential data supplied as a single opaque ASCII-encoded blob (base64/...)<br>This could contain one or more credential to be updated.
+# API - Miscelleneous
 
-The result of this API routine is just a plain <b>SUCCESS</b> or <b>FAILURE, &lt;reason&gt;</b>.
-
-
-## GetConfig
-
-The purpose of this routine is to get the configuration (if any) needed for API-Client from the REL-ID backend server so that the behavior of the API-Client can be made configurable in some use cases. For example - password policy to be validated when password is set/changed, customization settings, other application/user level settings, etc. The result is informed to API-client via status update (core) / event notification (wrapper) callback routines.
+## SetDNSServers
 
 ```c
-int coreGetConfig
-(void* pvRuntimeCtx,
- char* pcConfigRequest,
- int nConfigRequestLen);
 ```
 
 ```java
 public abstract class RDNA {
   //..
-  public abstract int getConfig(String configRequest);
-  //..
+  public abstract int setDnsServer(String[] dnsServer);
 }
 ```
 
 ```objective_c
-@interface RDNA : NSObject
-  //..
-  - (int)getConfig:(NSString *)configRequest;
-  //..
+@interface RDNA
+  //...
+  - (int)setDNSServers:(NSArray *)DNSServers;
 @end
 ```
 
 ```cpp
-class RDNA
-{
-public:
-  //..
-  int getConfig(std::string configRequest);
-  //..
+class RDNA {
+  //...
+  int setDNSServers(vector<std::string> DNSServers);
 }
 ```
 
-Argument&nbsp;[in/out] | Description
----------------------- | ---------------------
-API-Rumtime Context [in] | Previously created and valid API runtime context reference
-Config Request [in] | The config request data supplied as a single opaque ASCII-encoded blob (base64/...)<br>This could contain the identity (agent, user, etc) and/or set of configuration key names for which the configuration request is made.
-
-The result of this API routine is just a plain <b>SUCCESS, &lt;configuration data&gt;</b> or <b>FAILURE, &lt;reason&gt;</b>.
-
+This API allows the API-client to explicitly add additional DNS servers, which the runtime will query when performing hostname resolution.
