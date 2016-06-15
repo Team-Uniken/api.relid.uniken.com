@@ -16,7 +16,7 @@ toc_footers:
 search: true
 ---
 
-# Introduction5
+# Introduction
 <aside class="notice"><b><u>Disclaimer</u></b> -
 <br>
 This specification is a <u>working pre-release draft</u>.
