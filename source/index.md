@@ -213,11 +213,49 @@ int
 (*fn_status_update_t)
 (core_status_t* pStatus);
 
+/* Callback invoked by core API runtime to retrieve 
+   device fingerprint identity information */
+typedef
+int
+(*fn_get_device_fingerprint_t)
+(char **psDeviceFingerprint, void* pvAppCtx);
+
+/* Callback invoked by core API runtime to 
+   get 401 credentials */
+typedef
+void
+(*fn_get_credentials_t)
+(void* pvAppCtx, char* psUrl, 
+char** psUserName, char** psPassword, 
+e_core_iwa_auth_status* status);
+
+/* Callback invoked by core API runtime 
+   get DNS server list if required */
+typedef
+int
+(*fn_get_dns_servers_t)
+(void* pvAppCtx, 
+char*** aDnsServerList);
+
+/* Callback invoked by core API runtime to retrieve
+   device token identity information */
+typedef
+int
+(*fn_get_device_token_t)
+(char **psDeviceToken, void* pvAppCtx);
+
 /* struct of callback pointers */
 typedef struct {
-  fn_status_update_t pfnStatusUpdate;
-  fn_get_device_fingerprint_t
-                     pfnGetDeviceFingerprint;
+  fn_status_update_t    
+                 pfnStatusUpdate;
+  fn_get_device_fingerprint_t   
+                 pfnGetDeviceFingerprint;
+  fn_get_credentials_t
+                 pfnGetCredentials;
+  fn_get_dns_servers_t
+                 pfnGetDnsServerList;
+  fn_get_device_token_t
+                 pfnGetDeviceToken;
 } core_callbacks_t;
 ```
 
@@ -231,17 +269,20 @@ public abstract class RDNA {
     public int onResumeRuntime(RDNAStatusResume status);
     public int onCheckChallengeResponseStatus(RDNAStatusCheckChallenge status);
     public int onLogOff(RDNAStatusLogOff status);
-	public int onForgotPasswordStatus(RDNAStatusForgotPassword status);
-	public int onUpdateChallengeStatus(RDNAStatusUpdateChallenge status);
-	public int onGetPostLoginChallenges(RDNAStatusGetPostLoginChallenges status);
-	public int onGetRegistredDeviceDetails(RDNAStatusGetRegisteredDeviceDetails status);
-	public int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);
-	
+    public int onForgotPasswordStatus(RDNAStatusForgotPassword status);
+    public int onUpdateChallengeStatus(RDNAStatusUpdateChallenge status);
+    public int onGetPostLoginChallenges(RDNAStatusGetPostLoginChallenges status);
+    public int onGetRegistredDeviceDetails(RDNAStatusGetRegisteredDeviceDetails status);
+    public int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);
+    public int onGetNotifications(RDNAStatusGetNotifications status);
+    public int onUpdateNotification(RDNAStatusUpdateNotification status);
+
     public Object getDeviceContext();
-    public String getApplicationName();		
+    public String getApplicationName();
     public String getApplicationVersion();
-	public RDNAIWACreds getCredentials(String domainUrl);
-	//...
+    public RDNAIWACreds getCredentials(String domainUrl);
+    public String getDeviceToken();
+    //...
   }
   //..
 }
@@ -268,8 +309,12 @@ public abstract class RDNA {
   - (int)onLogOff: (RDNAStatusLogOff *)status;
   - (int)onGetPostLoginAuthenticationResponseStatus:(RDNAStatusGetPostChallengeResponse *)status;
   - (int)onGetRegistredDeviceDetails:(RDNAStatusGetRegisteredDeviceDetails *)status;
-  - (int)onUpdateDeviceDetails:(RDNAStatusUpdateDeviceDetails *)status;  
+  - (int)onUpdateDeviceDetails:(RDNAStatusUpdateDeviceDetails *)status;
+  - (int)onGetNotifications:(RDNAStatusGetNotifications *)status;
+  - (int)onUpdateNotification:(RDNAStatusUpdateNotification *)status;
+
   - (RDAIWACreds *)getCredentials:(NSString *)domainUrl;
+  - (NSString*)getDeviceToken;
   //...
 @end
 ```
@@ -290,10 +335,13 @@ class RDNACallbacks
   virtual int onGetPostLoginChallenges(RDNAStatusGetPostLoginChallenges status);
   virtual int onGetRegistredDeviceDetails(RDNAStatusGetRegisteredDeviceDetails status);
   virtual int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);  
+  virtual int onGetNotifications(RDNAStatusGetNotifications status);
+  virtual int onUpdateNotification(RDNAStatusUpdateNotification status);
   
   virtual std::string getApplicationName();
   virtual std::string getApplicationVersion();
   virtual RDNAIWACreds getCredentials(std::string domainUrl);
+  virtual std::string getDeviceToken();
 };
 ```
 
@@ -305,6 +353,7 @@ Callback Routine | Description
 <b>getApplicationName</b> | Invoked by the API runtime when the runtime needs to retrieve the application name. The application name is used for blacklisting or whitelisting an application.
 <b>getApplicationVersion</b> | This is the callback invoked when the runtime needs to retrieve the application version. The application version is used for blacklisting or whitelisting an application.
 <b>getCredentials</b> | This is the callback invoked by the DNA, when it needs the HTTP authentication credentials for accessing a webpage. The parameter domainURL is of the form <<u>HNIP</u>:<u>Port</u>>, where HNIP represent the Hostname or IP address where the webpage is hosted, and the Port represents to the port number to which the connection is being made. The callaback implementation is expected to return an ```RDNAIWACreds``` object containing the relevant credentials. 
+<b>getDeviceToken</b> | Invoked by the API runtime during user session creation in order to retrieve the notification specific application device token. The callaback implementation is expected to return a unique device token of application which is registred with application notification servers
 
 Apart from the above callback routines, specific events have been called out as onThisHappened() and onThatHappened() callbacks, in the wrapper APIs. This is to make it simpler and clearer for the API-client to react to these events.
 
@@ -430,7 +479,7 @@ public abstract class RDNA {
     public Object pvtAppCtx;
     public int errCode;
     public RDNAMethodID methodID;
-    public RDNAChallengeStatus status;
+    public RDNAResponseStatus status;
     public RDNAChallenge[] challenges;
     public RDNAService services[];
     public RDNAPort pxyDetails;
@@ -442,7 +491,7 @@ public abstract class RDNA {
     public int errCode;
     public RDNAMethodID methodID;
     public RDNAChallenge[] challenges;
-    public RDNAChallengeStatus status;
+    public RDNAResponseStatus status;
   }
 
   public static class RDNAStatusGetAllChallenges {
@@ -451,7 +500,7 @@ public abstract class RDNA {
     public int errCode;
     public RDNAMethodID methodID;
     public RDNAChallenge[] challenges;
-    public RDNAChallengeStatus status;
+    public RDNAResponseStatus status;
   }
 
   public static class RDNAStatusLogOff {
@@ -468,7 +517,7 @@ public abstract class RDNA {
     public Object pvtAppCtx;
     public int errCode;
     public RDNAMethodID methodID;
-    public RDNAChallengeStatus status;
+    public RDNAResponseStatus status;
     public RDNAChallenge[] challenges;
   }
   
@@ -478,7 +527,7 @@ public abstract class RDNA {
     public int errCode;
     public RDNAMethodID methodID;
     public RDNADeviceDetails[] devices;
-    public RDNAChallengeStatus challengeStatus;
+    public RDNAResponseStatus challengeStatus;
   }
 
   public static class RDNAStatusUpdateDeviceDetails {	
@@ -486,9 +535,27 @@ public abstract class RDNA {
     public Object pvtAppCtx;
     public int errCode;
     public RDNAMethodID methodID;
-    public RDNAChallengeStatus challengeStatus;
+    public RDNAResponseStatus challengeStatus;
   }
   
+  public static class RDNAStatusGetNotifications {
+    public Object pvtRuntimeCtx;
+    public Object pvtAppCtx;
+    public int errCode;
+    public RDNAMethodID methodID;
+    public RDNAResponseStatus status;
+    public int totalNotifications;
+    public RDNANotification[] notifications;
+  }
+  
+  public static class RDNAStatusUpdateNotification {
+    public Object pvtRuntimeCtx;
+    public Object pvtAppCtx;
+    public int errCode;
+    public RDNAMethodID methodID;
+    public RDNAResponseStatus status;
+    public String notificationID;
+  }
   //..
 }
 ```
@@ -534,7 +601,7 @@ public abstract class RDNA {
   @property (nonatomic) int errCode;
   @property (nonatomic) RDNAMethodID methodID;
   @property (nonatomic) RDNAPort *pxyDetails;
-  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) RDNAResponseStatus *status;
   @property (nonatomic) NSArray *services;
   @property (nonatomic) NSArray *challenges;
 @end
@@ -544,7 +611,7 @@ public abstract class RDNA {
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
   @property (nonatomic) RDNAMethodID methodID;
-  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) RDNAResponseStatus *status;
   @property (nonatomic) NSArray *challenges;
 @end
 
@@ -553,7 +620,7 @@ public abstract class RDNA {
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
   @property (nonatomic) RDNAMethodID methodID;
-  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) RDNAResponseStatus *status;
   @property (nonatomic) NSArray *challenges;
 @end
 
@@ -562,7 +629,7 @@ public abstract class RDNA {
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
   @property (nonatomic) RDNAMethodID methodID;
-  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) RDNAResponseStatus *status;
   @property (nonatomic) NSArray *challenges;
 @end
 
@@ -573,7 +640,7 @@ public abstract class RDNA {
   @property (nonatomic) RDNAMethodID methodID;
   @property (nonatomic) NSArray *services;
   @property (nonatomic) RDNAPort *pxyDetails;
-  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) RDNAResponseStatus *status;
   @property (nonatomic) NSArray *challenges;
 @end
 
@@ -590,7 +657,7 @@ public abstract class RDNA {
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errorCode;
   @property (nonatomic) RDNAMethodID methodID;
-  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) RDNAResponseStatus *status;
 @end
  
 @interface RDNAStatusGetPostLoginChallengeResponse : NSObject
@@ -598,9 +665,31 @@ public abstract class RDNA {
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
   @property (nonatomic) RDNAMethodID methodID;
-  @property (nonatomic) RDNAChallengeStatus *status;
+  @property (nonatomic) RDNAResponseStatus *status;
   @property (nonatomic) NSArray *postLoginChallenges;
 @end
+
+@interface RDNAStatusGetNotifications : NSObject
+   @property (nonatomic) void *pvtRuntimeCtx;
+   @property (nonatomic) void *pvtAppCtx;
+   @property (nonatomic) int  errCode;
+   @property (nonatomic) int totalNotificationCount;
+   @property (nonatomic) int startIndex;
+   @property (nonatomic) int fetchedNotificationCount;
+   @property (nonatomic) RDNAMethodID methodID;
+   @property (nonatomic) RDNAResponseStatus *status;
+   @property (nonatomic,strong) NSArray<RDNANotification *> *notifications;
+@end
+
+@interface RDNAStatusUpdateNotification : NSObject
+   @property (nonatomic) void *pvtRuntimeCtx;
+   @property (nonatomic) void *pvtAppCtx;
+   @property (nonatomic) int  errCode;
+   @property (nonatomic) NSString *notificationID;
+   @property (nonatomic) RDNAMethodID methodID;
+   @property (nonatomic) RDNAResponseStatus *status;
+@end
+
 ```
 
 ```cpp
@@ -644,7 +733,7 @@ typedef struct RDNAStatusCheckChallengesResponse_s{
   int  errCode;
   RDNAMethodID methodID;
   RDNAPort pxyDetails;
-  RDNAChallengeStatus status;
+  RDNAResponseStatus status;
   vector<RDNAService> services;
   vector<RDNAChallenge> challenges;
   RDNAStatusCheckChallengesResponse_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
@@ -657,7 +746,7 @@ typedef struct RDNAStatusUpdateChallenges_s{
   void* pvtAppCtx;
   int  errCode;
   RDNAMethodID methodID;
-  RDNAChallengeStatus status;
+  RDNAResponseStatus status;
   vector<RDNAChallenge> challenges;
   RDNAStatusUpdateChallenges_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
                                   methodID(RDNA_METH_NONE)
@@ -669,7 +758,7 @@ typedef struct RDNAStatusGetAllChallenges_s{
   void* pvtAppCtx;
   int  errCode;
   RDNAMethodID methodID;
-  RDNAChallengeStatus status;
+  RDNAResponseStatus status;
   vector<RDNAChallenge> challenges;
   RDNAStatusGetAllChallenges_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
                                   methodID(RDNA_METH_NONE)
@@ -681,7 +770,7 @@ typedef struct RDNAStatusForgotPassword_s{
   void* pvtAppCtx;
   int  errCode;
   RDNAMethodID methodID;
-  RDNAChallengeStatus status;
+  RDNAResponseStatus status;
   vector<RDNAChallenge> challenges;
 
   RDNAStatusForgotPassword_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
@@ -695,7 +784,7 @@ typedef struct RDNAStatusLogOff_s {
   int  errCode;
   RDNAMethodID methodID;
   RDNAPort pxyDetails;
-  RDNAChallengeStatus status;
+  RDNAResponseStatus status;
   vector<RDNAService> services;
   vector<RDNAChallenge> challenges;
   RDNAStatusLogOff_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
@@ -719,7 +808,7 @@ typedef struct RDNAStatusUpdateDeviceDetails_s {
   void* pvtAppCtx;
   int  errCode;
   RDNAMethodID methodID;
-  RDNAChallengeStatus updateStatus;
+  RDNAResponseStatus updateStatus;
   RDNAStatusUpdateDeviceDetails_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
                          methodID(RDNA_METH_NONE)
   {}
@@ -730,12 +819,40 @@ typedef struct RDNAStatusGetPostLoginChallenges_s {
   void* pvtAppCtx;
   int  errCode;
   RDNAMethodID methodID;
-  RDNAChallengeStatus status;
+  RDNAResponseStatus status;
   vector<RDNAChallenge> challenges;
   RDNAStatusGetPostLoginChallenges_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
                        methodID(RDNA_METH_NONE)
   {}
 } RDNAStatusGetPostLoginChallenges;
+
+typedef struct RDNAStatusGetNotifications_s {
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  int totalNotificationCount;
+  int startIndex;
+  int fetchedNotificationCount;
+  RDNAMethodID methodID;
+  RDNAResponseStatus status;
+  vector<RDNANotification> notifications;
+  RDNAStatusGetNotifications_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                                  methodID(RDNA_METH_NONE)
+  {}
+}RDNAStatusGetNotifications;
+
+struct RDNAStatusUpdateNotification {
+  void* pvtRuntimeCtx;
+  void* pvtAppCtx;
+  int  errCode;
+  string notificationID;
+  RDNAMethodID methodID;
+  RDNAResponseStatus status;
+  RDNAStatusUpdateNotification () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+                                  methodID(RDNA_METH_NONE)
+  {}
+};
+
 ```
 
 Field | Description
@@ -748,6 +865,11 @@ Field | Description
 <b>Tunnel Proxy details</b> | ```pxyDetails``` <br> The tunnel proxy service listening port information and other details.
 <b>Array of Services </b> | ```services``` <br> Array of services, it will include the list of services which are tunneled.
 <b>Array of devices </b> | ```devices``` <br> All the registered devices list, for the specific user.
+<b>Array of notifications </b> | ```notifications``` <br> All the notifications received from the server
+<b>Number of notifications </b> | ```fetchedNotificationCount``` <br> The number of notification received currently
+<b>Start Index </b> | ```startIndex``` <br> The starting index of the current notifications received
+<b>Start Index </b> | ```totalNotificationCount``` <br> Total active notifications available at server for the user.
+<b>Notification ID </b> | ```notificationID``` <br> The notification Id which has been updated at server.
 
 The wrapper APIs written in high level languages provide similar information of status update in more specific callbacks and structures such as RDNAStatusInit, RDNAStatusPause, etc. This is to make it simpler and clearer for the API-client to react to these events.
 
@@ -964,7 +1086,9 @@ public abstract class RDNA {
     RDNA_ERR_USECASE_EMPTY(135),
     RDNA_ERR_DEVICE_DETAILS_EMPTY(136),
     RDNA_ERR_401_URL_EMPTY(137),
-    RDNA_ERR_PASSWORD_EMPTY(138);
+    RDNA_ERR_PASSWORD_EMPTY(138),
+    RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS(139),
+    RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION(140);
   }
   //..
 }
@@ -1044,6 +1168,8 @@ typedef NS_ENUM(NSInteger, RDNAErrorID) {
   RDNA_ERR_DEVICE_DETAILS_EMPTY,
   RDNA_ERR_401_URL_EMPTY,
   RDNA_ERR_PASSWORD_EMPTY,
+  RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS,
+  RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION,
 };
 ```
 
@@ -1120,7 +1246,9 @@ typedef enum {
   RDNA_ERR_USECASE_EMPTY,
   RDNA_ERR_DEVICE_DETAILS_EMPTY,
   RDNA_ERR_401_URL_EMPTY,
-  RDNA_ERR_PASSWORD_EMPTY,  
+  RDNA_ERR_PASSWORD_EMPTY,
+  RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS,
+  RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION,
 } RDNAErrorID;
 ```
 
@@ -1185,14 +1313,15 @@ RDNA_ERR_CHALLENGE_EMPTY | 128 | Challenge field is empty
 RDNA_ERR_FAILED_TO_SERIALIZE_JSON | 129 | Failed to serialize to internal representation
 RDNA_ERR_FAILED_TO_DESERIALIZE_JSON | 130 | Failed to deserialize from internal representation
 RDNA_ERR_INVALID_CHALLENGE_CONFIG | 131 | Invalid challenge configuration 
-RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES | Error while attempting to fetch post-login challenges
-RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | Error while attempting to get details of the registered devices of the user
-RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS | Failed to update device details of the user
-RDNA_ERR_USECASE_EMPTY | The input parameter to GetConfig API cannot be EMPTY or NULL.
-RDNA_ERR_DEVICE_DETAILS_EMPTY | Received empty device details list
-RDNA_ERR_401_URL_EMPTY | HTTP authentication credentials callback does not specify the URL or the URL is NULL 
-RDNA_ERR_PASSWORD_EMPTY |  Empty password in response is not allowed
-
+RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES | 132 | Error while attempting to fetch post-login challenges
+RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | 133 | Error while attempting to get details of the registered devices of the user
+RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS | 134 | Failed to update device details of the user
+RDNA_ERR_USECASE_EMPTY | 135 | The input parameter to GetConfig API cannot be EMPTY or NULL.
+RDNA_ERR_DEVICE_DETAILS_EMPTY | 136 | Received empty device details list
+RDNA_ERR_401_URL_EMPTY | 137 | HTTP authentication credentials callback does not specify the URL or the URL is NULL 
+RDNA_ERR_PASSWORD_EMPTY | 138 | Empty password in response is not allowed
+RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS | 139 | Failed to get the notifications from server
+RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION | 140 | Failed to update the notification
 
 Error ID | Value | Meaning
 -------- | ----- | -------
@@ -1255,14 +1384,15 @@ RDNA_ERR_CHALLENGE_EMPTY | 128 | Challenge field is empty
 RDNA_ERR_FAILED_TO_SERIALIZE_JSON | 129 | Failed to serialize to internal representation
 RDNA_ERR_FAILED_TO_DESERIALIZE_JSON | 130 | Failed to deserialize from internal representation
 RDNA_ERR_INVALID_CHALLENGE_CONFIG | 131 | Invalid challenge configuration 
-FAILED_TO_GET_POST_LOGIN_CHALLENGES | Error while attempting to fetch post-login challenges
-FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | Error while attempting to get details of the registered devices of the user
-FAILED_TO_UPDATE_DEVICE_DETAILS | Failed to update device details of the user
-RDNA_ERR_USECASE_EMPTY | The input parameter to GetConfig API cannot be EMPTY or NULL.
-RDNA_ERR_DEVICE_DETAILS_EMPTY | Received empty device details list
-RDNA_ERR_401_URL_EMPTY | HTTP authentication credentials callback does not specify the URL or the URL is NULL 
-RDNA_ERR_PASSWORD_EMPTY |  Empty password in response is not allowed
-
+FAILED_TO_GET_POST_LOGIN_CHALLENGES | 132 | Error while attempting to fetch post-login challenges
+FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | 133 | Error while attempting to get details of the registered devices of the user
+FAILED_TO_UPDATE_DEVICE_DETAILS | 134 | Failed to update device details of the user
+RDNA_ERR_USECASE_EMPTY | 135 | The input parameter to GetConfig API cannot be EMPTY or NULL.
+RDNA_ERR_DEVICE_DETAILS_EMPTY | 136 | Received empty device details list
+RDNA_ERR_401_URL_EMPTY | 137 | HTTP authentication credentials callback does not specify the URL or the URL is NULL 
+RDNA_ERR_PASSWORD_EMPTY | 138 | Empty password in response is not allowed
+RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS | 139 | Failed to get the notifications from server
+RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION | 140 | Failed to update the notification
 
 ## Method identifiers (enum)
 
@@ -1275,6 +1405,17 @@ typedef enum {
   CORE_METH_TERMINATE,
   CORE_METH_RESUME,
   CORE_METH_PAUSE,
+  CORE_METH_GET_CONFIG,
+  CORE_METH_CHECK_CHALLENGE,
+  CORE_METH_UPDATE_CHALLENGE,
+  CORE_METH_GET_ALL_CHALLENGES,
+  CORE_METH_LOGOFF,
+  CORE_METH_FORGOT_PASSWORD,
+  CORE_METH_GET_POST_LOGIN_CHALLENGES,
+  CORE_METH_GET_DEVICE_DETAILS,
+  CORE_METH_UPDATE_DEVICE_DETAILS,
+  CORE_METH_GET_NOTIFICATIONS,
+  CORE_METH_UPDATE_NOTIFICATION,
 } e_core_method_t;
 ```
 
@@ -1296,6 +1437,8 @@ public abstract class RDNA {
     RDNA_METH_GET_POST_LOGIN_CHALLENGES(11);
     RDNA_METH_GET_DEVICE_DETAILS(12),
     RDNA_METH_UPDATE_DEVICE_DETAILS(13),
+    RDNA_METH_GET_NOTIFICATIONS(14),
+    RDNA_METH_UPDATE_NOTIFICATION(15);
   }
   //..
 }
@@ -1317,6 +1460,8 @@ typedef NS_ENUM(NSInteger, RDNAMethodID) {
   RDNA_METH_GET_POST_LOGIN_CHALLENGES,
   RDNA_METH_GET_DEVICE_DETAILS,
   RDNA_METH_UPDATE_DEVICE_DETAILS,
+  RDNA_METH_GET_NOTIFICATIONS,
+  RDNA_METH_UPDATE_NOTIFICATION,
 };
 ```
 
@@ -1336,6 +1481,8 @@ typedef enum {
   RDNA_METH_GET_POST_LOGIN_CHALLENGES,
   RDNA_METH_GET_DEVICE_DETAILS,
   RDNA_METH_UPDATE_DEVICE_DETAILS,
+  RDNA_METH_GET_NOTIFICATIONS,
+  RDNA_METH_UPDATE_NOTIFICATION,
 } RDNAMethodID;
 ```
 
@@ -1353,6 +1500,8 @@ RDNA_METH_GET_ALL_CHALLENGES | GetAllChallenges runtime method
 RDNA_METH_LOGOFF | Logoff runtime method
 RDNA_METH_FORGOT_PASSWORD | ForgotPassword runtime method
 RDNA_METH_GET_POST_LOGIN_CHALLENGES | PostLoginChallenges runtime method
+RDNA_METH_GET_NOTIFICATIONS | Get notifications runtime method
+RDNA_METH_UPDATE_NOTIFICATION | Update notifications call back method
 
 ## Service access - Introduction
 
@@ -1658,9 +1807,9 @@ PromptType | Description
 <b>RDNA_PROMPT_TWO_WAY</b> | Represents a challenge where the ISA would provide some information to the client (represented by an array of prompts), and the user response to the challenge depends on the provided information.<br><b>E.g. A challenge where the user is expected to set the secret question and the secret answer.</b>
 
 
-## RDNAChallengeStatusCode (Enumeration)
+## RDNAResponseStatusCode (Enumeration)
 
-The ```RDNAChallengeStatusCode``` represents the result of the previous ```CheckChallengeResponse``` or ```UpdateChallenge``` API.  
+The ```RDNAResponseStatusCode``` represents the result of the previous API server response such as ```CheckChallengeResponse``` or ```UpdateChallenge``` ```getRegisteredDeviceDetails``` etc.  
 
 ```c
 ```
@@ -1668,55 +1817,65 @@ The ```RDNAChallengeStatusCode``` represents the result of the previous ```Check
 ```java
 public abstract class RDNA {
   //...
-  public static enum RDNAChallengeStatusCode {
-    RDNA_CHLNG_STATUS_SUCCESS(0),
-    RDNA_CHLNG_STATUS_NO_SUCH_USER)(1),
-    RDNA_CHLNG_STATUS_USER_SUSPENDED(2),
-    RDNA_CHLNG_STATUS_USER_BLOCKED(3),
-    RDNA_CHLNG_STATUS_USER_ALREADY_ACTIVATED(4),
-    RDNA_CHLNG_STATUS_INVALID_ACT_CODE(5),
-    RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED(6),
-    RDNA_CHLNG_STATUS_CHALLENGE_RESPONSE_VALIDATION_FAILED(7),
-    RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED(8),
-    RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST(9),
-    RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR(10),
-    RDNA_CHLNG_STATUS_UNKNOWN_ERROR(11);
+  public static enum RDNAResponseStatusCode {
+    RDNA_RESP_STATUS_SUCCESS(0),
+    RDNA_RESP_STATUS_NO_SUCH_USER(1),
+    RDNA_RESP_STATUS_USER_SUSPENDED(2),
+    RDNA_RESP_STATUS_USER_BLOCKED(3),
+    RDNA_RESP_STATUS_USER_ALREADY_ACTIVATED(4),
+    RDNA_RESP_STATUS_INVALID_ACT_CODE(5),
+    RDNA_RESP_STATUS_UPDATE_CHALLENGES_FAILED(6),
+    RDNA_RESP_STATUS_RESPONSE_VALIDATION_FAILED(7),
+    RDNA_RESP_STATUS_DEVICE_VALIDATION_FAILED(8),
+    RDNA_RESP_STATUS_INVALID_CHALLENGE_LIST(9),
+    RDNA_RESP_STATUS_INTERNAL_SERVER_ERROR(10),
+    RDNA_RESP_STATUS_FAILED_UPDATE_DEVICE_DETAILS(11),
+    RDNA_RESP_STATUS_NO_SUCH_USE_CASE_EXISTS(12),
+    RDNA_RESP_STATUS_ATTEMPTS_EXHAUSTED(13),
+    RDNA_RESP_STATUS_UNKNOWN_ERROR(14);
   }
 }
 ```
 
 ```objective_c
-typedef NS_ENUM(NSInteger, RDNAChallengeStatusCode) {
-  RDNA_CHLNG_STATUS_SUCCESS = 0,
-  RDNA_CHLNG_STATUS_NO_SUCH_USER,
-  RDNA_CHLNG_STATUS_USER_SUSPENDED,
-  RDNA_CHLNG_STATUS_USER_BLOCKED,
-  RDNA_CHLNG_STATUS_USER_ALREADY_ACTIVATED,
-  RDNA_CHLNG_STATUS_INVALID_ACT_CODE,
-  RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED,
-  RDNA_CHLNG_STATUS_CHALLENGE_RESPONSE_VALIDATION_FAILED,
-  RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED,
-  RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST,
-  RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR,
-  RDNA_CHLNG_STATUS_UNKNOWN_ERROR
+typedef NS_ENUM(NSInteger, RDNAResponseStatusCode) {
+  RDNA_RESP_STATUS_SUCCESS = 0,
+  RDNA_RESP_STATUS_NO_SUCH_USER,
+  RDNA_RESP_STATUS_USER_SUSPENDED,
+  RDNA_RESP_STATUS_USER_BLOCKED,
+  RDNA_RESP_STATUS_USER_ALREADY_ACTIVATED,
+  RDNA_RESP_STATUS_INVALID_ACT_CODE,
+  RDNA_RESP_STATUS_UPDATE_CHALLENGES_FAILED,
+  RDNA_RESP_STATUS_RESPONSE_VALIDATION_FAILED,
+  RDNA_RESP_STATUS_DEVICE_VALIDATION_FAILED,
+  RDNA_RESP_STATUS_INVALID_CHALLENGE_LIST,
+  RDNA_RESP_STATUS_INTERNAL_SERVER_ERROR,
+  RDNA_RESP_STATUS_FAILED_UPDATE_DEVICE_DETAILS,
+  RDNA_RESP_STATUS_NO_SUCH_USE_CASE_EXISTS,
+  RDNA_RESP_STATUS_ATTEMPTS_EXAUSTED,
+  RDNA_RESP_STATUS_UNKNOWN_ERROR
 };
 ```
 
 ```cpp
 typedef enum {
-  RDNA_CHLNG_STATUS_SUCCESS = 0,
-  RDNA_CHLNG_STATUS_NO_SUCH_USER,
-  RDNA_CHLNG_STATUS_USER_SUSPENDED,
-  RDNA_CHLNG_STATUS_USER_BLOCKED,
-  RDNA_CHLNG_STATUS_USER_ALREADY_ACTIVATED,
-  RDNA_CHLNG_STATUS_INVALID_ACT_CODE,
-  RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED,
-  RDNA_CHLNG_STATUS_CHALLENGE_RESPONSE_VALIDATION_FAILED,
-  RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED,
-  RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST,
-  RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR,
-  RDNA_CHLNG_STATUS_UNKNOWN_ERROR
-} RDNAChallengeStatusCode;
+  RDNA_RESP_STATUS_SUCCESS = 0,
+  RDNA_RESP_STATUS_NO_SUCH_USER,
+  RDNA_RESP_STATUS_USER_SUSPENDED,
+  RDNA_RESP_STATUS_USER_BLOCKED,
+  RDNA_RESP_STATUS_USER_ALREADY_ACTIVATED,
+  RDNA_RESP_STATUS_INVALID_ACT_CODE,
+  RDNA_RESP_STATUS_UPDATE_CHALLENGES_FAILED,
+  RDNA_RESP_STATUS_RESPONSE_VALIDATION_FAILED,
+  RDNA_RESP_STATUS_DEVICE_VALIDATION_FAILED,
+  RDNA_RESP_STATUS_INVALID_CHALLENGE_LIST,
+  RDNA_RESP_STATUS_INTERNAL_SERVER_ERROR,
+  RDNA_RESP_STATUS_FAILED_UPDATE_DEVICE_DETAILS,
+  RDNA_RESP_STATUS_NO_SUCH_USE_CASE_EXISTS,
+  RDNA_RESP_STATUS_ATTEMPTS_EXHAUSTED,
+  RDNA_RESP_STATUS_UNKNOWN_ERROR
+
+} RDNAResponseStatusCode;
 ```
 
 ChallengeStatus | Description
@@ -1732,6 +1891,9 @@ ChallengeStatus | Description
 <b>RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED</b> | This status is returned when the device from which the user is attempting to authenticate himself has been rejected by the server based on some policy. 
 <b>RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST</b> |  This status is returned by the server when it recieves improper challenge response for that state. The usual solution for this would be to restart the authentication sequence.
 <b>RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR</b> | This status is returned when an internal server error has occurred. The only recourse is to contact the administrator.
+<b>RDNA_RESP_STATUS_FAILED_UPDATE_DEVICE_DETAILS</b> | This status is returned when update the device details at server is failed
+<b>RDNA_RESP_STATUS_NO_SUCH_USE_CASE_EXISTS</b> | This status is returned when the use case specified in post login challenges is not configured in server
+<b>RDNA_RESP_STATUS_ATTEMPTS_EXHAUSTED</b> | This status is returned when all the Challenge attempts exhausted
 <b>RDNA_CHLNG_STATUS_UNKNOWN_ERROR</b> | This status is returned when an error or unknown origin has occurred. The only recourse is to contact the administrator.
 
 ## RDNAChallengeOpMode (Enumeration)
@@ -1770,7 +1932,7 @@ ChallengeOpMode | Description
 <b>RDNA_CHALLENGE_OP_VERIFY</b> | This implies that the challenge response would be verified by the server against the known correct response. 
 <b>RDNA_CHALLENGE_OP_SET</b>    | This implies that the provided response would be marked by the server as the known correct response, and would be used to compare against the challenge response provided for the same challenge at a later point of time.
 
-## RDNAChallengeStatus
+## RDNAResponseStatus
 
 This class defines the status of the response of previous challenge recieved by the server. The following are the members of the class :
 
@@ -1780,11 +1942,11 @@ This class defines the status of the response of previous challenge recieved by 
 ```java
 public abstract class RDNA {
   //...
-  public static class RDNAChallengeStatus{
+  public static class RDNAResponseStatus{
     public String message;
-    public RDNAChallengeStatusCode statusCode;
+    public RDNAResponseStatusCode statusCode;
 
-	public RDNAChallengeStatus(String message, RDNAChallengeStatusCode statusCode) {
+    public RDNAResponseStatus(String message, RDNAResponseStatusCode statusCode) {
       this.message = message;
       this.statusCode = statusCode;
     }
@@ -1793,19 +1955,19 @@ public abstract class RDNA {
 ```
 
 ```objective_c
-@interface RDNAChallengeStatus : NSObject
+@interface RDNAResponseStatus : NSObject
   @property (nonatomic, strong) NSString *message;
-  @property (nonatomic, assign) RDNAChallengeStatusCode statusCode;
+  @property (nonatomic, assign) RDNAResponseStatusCode statusCode;
 @end
 ```
 
 ```cpp
-typedef struct RDNAChallengeStatus_s {
+typedef struct RDNAResponseStatus_s {
   std::string message;
-  RDNAChallengeStatusCode statusCode;
-  RDNAChallengeStatus_s () : message(""), statusCode(RDNA_CHLNG_STATUS_SUCCESS)
+  RDNAResponseStatusCode statusCode;
+  RDNAResponseStatus_s () : message(""), statusCode(RDNA_RESP_STATUS_SUCCESS)
   {}
-} RDNAChallengeStatus;
+} RDNAResponseStatus;
 ```
 
 Member | Description
@@ -3337,6 +3499,189 @@ class RDNA {
 }
 ```
 
+# API - Notification Management
+
+## RDNANotification
+
+```c
+```
+
+```java
+public abstract class RDNA {
+
+    public static class RDNAExpectedResponse
+    {
+        public String responseLabel;
+        public String response;
+
+        RDNAExpectedResponse(String responseLabel, String response) {
+            this.responseLabel=responseLabel;
+            this.response=response;
+        }
+    };
+
+    //..
+    public static class RDNANotification {
+       public String notificationID;
+       public String subject;
+       public String notificationMessage;
+       public String notificationResponse;
+       public String notificationExpireTime;
+       public String enterpriseID;
+       public RDNAExpectedResponse[] expectedResponse;
+
+       RDNANotification(String notificationID,
+                        String subject,
+                        String notificationMessage,
+                        String notificationExpireTime,
+                        String enterpriseID,
+                        RDNAExpectedResponse[] expectedResponse)
+       {
+           this.notificationID = notificationID;
+           this.subject = subject;
+           this.notificationMessage = notificationMessage;
+           this.notificationExpireTime = notificationExpireTime;
+           this.enterpriseID = enterpriseID;
+           this.expectedResponse = expectedResponse;
+       }
+   }
+}
+```
+
+```objective_c
+
+@interface RDNAExpectedResponse : NSObject
+  @property (nonatomic,strong) NSString *responseLabel;     /* label of the expected response                         */
+  @property (nonatomic,strong) NSString *response;         /* Actual response value to be set for the notification   */
+@end
+
+@interface RDNANotification : NSObject
+  @property (nonatomic,strong) NSString *notificationID;
+  @property (nonatomic,strong) NSString *subject;
+  @property (nonatomic,strong) NSString *notificationMessage;
+  @property (nonatomic,strong) NSArray<RDNAExpectedResponse *> *expectedResponse;
+  @property (nonatomic,strong) NSString *notificationResponse;
+  @property (nonatomic,strong) NSString *notificationExpireTime;
+  @property (nonatomic,strong) NSString *enterpriseID;
+@end
+
+```
+
+```cpp
+
+struct RDNAExpectedResponse
+{
+  string responseLabel;
+  string response;
+};
+
+class RDNANotification 
+{
+public:
+  string notificationID;
+  string subject;
+  string notificationMessage;
+  string notificationResponse;
+  string notificationExpiryTime;
+  string enterpriseID;
+  vector<RDNAExpectedResponse> expectedResponse;
+};
+
+```
+
+The RDNANotification class provides the information of a single notification in a structured format, this is to provide the feature of Notification management to the user. Object of this class defines a notification information such as notification ID, notification message etc.
+
+###RDNAExpectedResponse
+
+Member | Description
+------ | -----------
+<b>responseLabel</b> | Label name of the action that can be performed on the notification
+<b>response</b> | The actual response value of the above response label, this value has to be provided while updating the notification
+
+###RDNANotification
+
+Member | Description
+------ | -----------
+<b>notificationID</b> | This is a string representation of unique notification ID.
+<b>subject</b> | This is string representation of notification subject, a message can have a subject such as the if a transaction notification then subject for the notification could be the Transaction.
+<b>notificationMessage</b> | This is string representation of the actual notification message.
+<b>notificationResponse</b> | This is the string representation of the response which user has provded after the notification is processed by the user. Note: Right now this not been used, this is added for future.
+<b>notificationExpiryTime</b> | This is the string representation of the expiry time stamp when notifiction wil be expired.
+<b>enterpriseID</b> | This is the string representation enterprise ID, this specifies that for which enterprise the notification is related to.
+
+## GetNotifications 
+
+This API fetches the list of notifications which are active. We can get the notifications for a specific enterprise also, Even we can specify the number of records to be fetched, and even we can specify the index number from which the records to be fetched to support the paging of notification. To get all the notifications from the server we should provide the recordCount value as 0 and server send all the active Notifications of the user.
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int getNotifications(int recordCount, 
+                                       int startRecord, 
+                                       String enterpriseID,
+                                       String startDate,
+                                       String endDate);
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+  - (int)getNotifications:(int)recordCount 
+                          withStartIndex:(int)startIndex 
+                          withEnterpriseID:(NSString*)enterpriseID 
+                          withStartDate:(NSString*)startDate 
+                          withEndDate:(NSString*)endDate;
+
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int getNotifications(int nRecordCount,
+                       int nStartRecord,
+                       string enterpriseID,
+                       string startDate,
+                       string endDate);
+}
+```
+
+## UpdateNotification
+
+This API is to update the notification response selected by the user. We can update the only one notification at a time, to update the multiple notifications application has to call this API multiple times.
+
+```c
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int updateNotifications(String notificationID,
+                                          String response);
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+  - (int)updateNotification:(NSString*)notificationID 
+                             withResponse:(NSString*)response;
+
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int updateNotification(string notificationID, 
+                         string response)
+}
+```
+
 # API - Miscelleneous
 
 ## SetDNSServers
@@ -3366,3 +3711,4 @@ class RDNA {
 ```
 
 This API allows the API-client to explicitly add additional DNS servers, which the runtime will query when performing hostname resolution.
+
