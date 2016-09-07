@@ -3551,15 +3551,16 @@ public abstract class RDNA {
 ```objective_c
 
 @interface RDNAExpectedResponse : NSObject
-  @property (nonatomic,strong) NSString *responseLabel;     /* label of the expected response                         */
-  @property (nonatomic,strong) NSString *response;         /* Actual response value to be set for the notification   */
+  @property (nonatomic,strong) NSString *responseLabel;
+  @property (nonatomic,strong) NSString *response;
 @end
 
 @interface RDNANotification : NSObject
   @property (nonatomic,strong) NSString *notificationID;
   @property (nonatomic,strong) NSString *subject;
   @property (nonatomic,strong) NSString *notificationMessage;
-  @property (nonatomic,strong) NSArray<RDNAExpectedResponse *> *expectedResponse;
+  @property (nonatomic,strong) NSArray<RDNAExpectedResponse *> 
+                                                  *expectedResponse;
   @property (nonatomic,strong) NSString *notificationResponse;
   @property (nonatomic,strong) NSString *notificationExpireTime;
   @property (nonatomic,strong) NSString *enterpriseID;
