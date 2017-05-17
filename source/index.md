@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Thursday, 12th May 2016, at 1330 IST</u>
+Last updated on <u>Wednesday, 17th May 2017, at 1130 IST</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -57,7 +57,7 @@ The protocol handshake that authenticates the REL-ID between 2 parties/entities 
 
 Every end-point computing device has a number of unique identities associated with it. This includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point device's fingerprint is created by collecting these various identities, and using them together to uniquely identify it. 
 
-The REL-ID platform's multi-factor authentication (MFA) is implemented by binding the devices fingerprint/identity with the REL-ID of the user/app, thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
+The REL-ID platform's multi-factor authentication (MFA) is implemented by binding the device?s fingerprint/identity with the REL-ID of the user/app, thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
 
 ## Access to backend enterprise services
 
@@ -411,6 +411,54 @@ Field | Description
 <b>ProxyPort</b> | Port number of the proxy server
 <b>ProxyUsername</b> | The username to use to authenticate with the proxy server. This is required only when the proxy server requires authentication.
 <b>ProxyPassword</b> | The password to use with the username, to authenticate with the proxy server. This too is required only when the proxy server requires authentication.
+
+## SSL Certificates (structure)
+
+This structure is supplied to the Initialize routine when the REL-ID Auth Gateway is accessible over SSL/TLS. It requires a certificate in a base64 encoded P12 format. The CA (certifying authority) provides certificates in P12 format. It is the responsibility of the APP developer to base64 encode this certificate and then pass it to the SSL certificate structure. 
+
+The SDK parse this SSL structure and sets up an internal SSL context which will be used further to perform SSL handshake for every communication made with REL-ID Gateway. For every new communication with the REL-ID Gateway, SSL handshake will be performed which is immediately followed by RMAK handshake.
+
+This structure is an optional input parameter to Initialize, and may not always require to be supplied. If specified as NULL, no SSL handshake will be performed while communicating with the REL-ID Gateway.
+
+At an abstract level, the pieces of information supplied by this data structure are:
+
+```c
+typedef struct
+{
+	char *p12Certificate;
+	char *password;
+} core_ssl_certificate;
+```
+
+```java
+public abstract class RDNA {
+  //...
+  public static class RDNASSLCerts {
+    public String p12Certificate;
+    public String password;
+  }
+  //...
+}
+```
+
+```objective_c
+@interface RDNASSLCerts  : NSObject
+  @property (nonatomic, copy) NSString *p12Certificate;
+  @property (nonatomic, copy) NSString *password;
+@end
+```
+
+```cpp
+typedef struct RDNASSLCerts_s {
+  std::string    p12Certificate;
+  std::string    password;
+} RDNASSLCerts;
+```
+
+Field | Description
+----- | -----------
+<b>P12 Certificate</b> | A base64-encoded P12 Certificate issued by the CA.
+<b>Password</b> | The password used while generating the P12 Certificate.
 
 ## Status update (structures)
 
@@ -2054,6 +2102,8 @@ coreInitialize
  char*  sCipherSalt,
  proxy_settings_t*
         pProxySettings,
+ core_ssl_certificate* 
+        pSSLCertificate,
  void*  pvAppCtx);
 ```
 
@@ -2072,6 +2122,7 @@ public abstract class RDNA {
       String cipherSalt,
       RDNAProxySettings
              proxySettings,
+	  RDNASSLCerts  sslCerts,
       Object appCtx);
   //..
 }
@@ -2087,6 +2138,7 @@ public abstract class RDNA {
          CipherSpec:(NSString *)cipherSpec
          CipherSalt:(NSString *)cipherSalt
       ProxySettings:(RDNAProxySettings *)proxySettings
+	SSLCertificates:(RDNASSLCerts *)sslCerts
          AppContext:(id)appCtx;
 @end
 ```
@@ -2106,6 +2158,7 @@ public:
    std::string    cipherSalt,
    RDNAProxySettings*
                   pProxySettings,
+   RDNASSLCerts*  sslCerts,			  
    void*          appCtx);
 }
 ```
@@ -2121,6 +2174,7 @@ Cipher&nbsp;Specs&nbsp;[in] | The cipher specifications (encryption algorithm, p
 Cipher&nbsp;Salt&nbsp;[in] | The salt/IV to be used as default salt/IV for this API-Runtime context. If passed as empty, then the default Cipher Salt of the API-SDK will be used as default.
 Application&nbsp;Context&nbsp;[in] | Opaque reference to API-client application context that is never interpreted/modified by the API-runtime. This reference is supplied with each callback invocation to the API-client.
 Proxy&nbsp;Settings&nbsp;[in] |Hostname/IPaddress and port-number for proxy to use when connecting to the Auth Gateway server. This is an optional parameter that may be null if it is not applicable
+SSL Certificates[in] | The SSL Certificates in P12 format (which is base64-encoded) and password used to generate the certificates is provided to enable SSL over RMAK. This is an optional parameter. If it is specified as NULL, the SDK will not perform SSL over RMAK.
 
 
 ## Terminate Routine
@@ -3712,4 +3766,3 @@ class RDNA {
 ```
 
 This API allows the API-client to explicitly add additional DNS servers, which the runtime will query when performing hostname resolution.
-
