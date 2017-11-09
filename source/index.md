@@ -8,7 +8,7 @@ language_tabs:
   - c: ANSI C
 
 toc_footers:
-  - <a href='http://www.uniken.com'>Uniken Website</a>
+  - <a href='http://www.uniken.com'><u>UNIKEN</u></a>
 
 <!--includes:
   - errors-->
@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Wednesday, 17th May 2017, at 1130 IST</u>
+Last updated on <u>Thursday, 9th November 2017</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -3736,33 +3736,3 @@ class RDNA {
                          string response)
 }
 ```
-
-# API - Miscelleneous
-
-## SetDNSServers
-
-```c
-```
-
-```java
-public abstract class RDNA {
-  //..
-  public abstract int setDnsServer(String[] dnsServer);
-}
-```
-
-```objective_c
-@interface RDNA
-  //...
-  - (int)setDNSServers:(NSArray *)DNSServers;
-@end
-```
-
-```cpp
-class RDNA {
-  //...
-  int setDNSServers(vector<std::string> DNSServers);
-}
-```
-
-This API allows the API-client to explicitly add additional DNS servers, which the runtime will query when performing hostname resolution.
