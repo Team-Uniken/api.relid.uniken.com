@@ -42,11 +42,11 @@ At a high level, the REL-ID API provides the following features that enable appl
 
 ## Mutual identity and authentication
 
-<u>Relative Identity</u> (or <u>REL-ID</u> for short) is a mutual identity that encapsulates/represents uniquely, the relationship between 2 parties/entities. This mutual identity is mathematically split in two, and one part each is distributed securely to the communicating parties. The identity of each end-point party/entity is thus relative to the identity of the other end-point party/entity. REL-ID can be used to represent the relationship between user and app, user and user, or app and other app, thus providing a holistic digital identity model
+<u>Relative Identity</u> (or <u>REL-ID</u> for short) is a mutual identity that encapsulates/represents uniquely, the relationship between 2 parties/entities. This mutual identity is mathematically split in two, and one part each is distributed securely to the communicating parties. The identity of each end-point party/entity is thus relative to the identity of the other end-point party/entity. REL-ID can be used to represent the relationship between user and app, user and user, or app and other app, thus providing a holistic digital identity model.
 
 The protocol handshake that authenticates the REL-ID between 2 parties/entities is RMAK which is short form for <b><u>R</u>EL-ID <u>M</u>utual <u>A</u>uthentication and <u>K</u>ey-exchange</b>. It is a unique and patented protocol handshake that enables MITM-resistant, true mutual authentication. As specified in the name, key-exchange is a by-product of a successful RMAK handshake and the exchanged keys are used for downstream privacy of communications over the authenticated channel.
 
-<aside class="notice"><i><b><u>Agent REL-ID</u></b> and <b><u>User REL-ID</u></b></i> -
+<aside class="notice"><i><b><u>Agent REL-ID</u></b> and <b><u>User REL-ID</u></b></i>
 <li>An <u><b>Agent REL-ID</b></u> is used to represent the relationship between software application and the REL-ID platform backend.
 <li>An <u><b>User REL-ID</b></u> is used to represent the relationship between end-user of the application and the REL-ID platform backend.
 <br>
@@ -55,9 +55,9 @@ The protocol handshake that authenticates the REL-ID between 2 parties/entities 
 
 ## Device fingerprinting and binding
 
-Every end-point computing device has a number of unique identities associated with it. This includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point device's fingerprint is created by collecting these various identities, and using them together to uniquely identify it. 
+Every end-point computing device has a number of unique identities associated with it. This includes hardware OEM identities, as well as software identities at both OS platform and application software level. The end-point device fingerprint is created by collecting these various identities, and using them together to uniquely identify it.
 
-The REL-ID platform's multi-factor authentication (MFA) is implemented by binding the device?s fingerprint/identity with the REL-ID of the user/app, thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
+The REL-ID platform's multi-factor authentication (MFA) is implemented by binding the device fingerprint/identity with the REL-ID of the user/app, thus ensuring that REL-ID-based access is provided only from whitelisted end-point devices (those with identities/fingerprints bound to the relevant REL-IDs).
 
 ## Access to backend enterprise services
 
@@ -70,8 +70,8 @@ The RDNA provides multiple mechanisms to enable this tunneling of traffic - a HT
 
 Facade | Description
 ------ | -----------
-HTTP&nbsp;Proxy | The API-client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on local loopback adapter (127.0.0.1/::1)
-Forwarded&nbsp;Port | The API client connects directly to a locally present port which represents the backend enterprise service coordinate
+HTTP&nbsp;Proxy | The API-client uses a standard HTTP library to make its HTTP requests, instructing the library to to make the request via the specified HTTP proxy running on local loopback adapter (127.0.0.1/::1).
+Forwarded&nbsp;Port | The API client connects directly to a locally present port which represents the backend enterprise service coordinate.
 
 ## Privacy of Data
 
@@ -97,12 +97,12 @@ Routine | Description
 
 ## Non-blocking API
 
-The API is written with non-blocking interactions in mind - none of the API routines will block for any kind of network I/O.
+The API is written with non-blocking(asynchronous) interactions in mind - none of the API routines will block for any kind of network I/O.
 
 When an API routine requires to perform network I/O with backend services in order to service the API-client, that I/O is delegated to the DNA which is part of the API runtime, and the results are communicated back via callback routines supplied by the API-client. The DNA itself uses non-blocking I/O for all the network communication it performs. 
 
- * Each API routine returns immediately without blocking on any network I/O
- * Where applicable, API call results are communicated asynchronously via API-client supplied callback routines
+ * Each API routine returns immediately without blocking on any network I/O.
+ * Where applicable, API call results are communicated asynchronously via API-client supplied callback routines.
 
 # Getting started
 
@@ -110,12 +110,12 @@ The following table lists and briefly describes the different interactions with 
 
 Interaction | Description
 ----------- | -----------
-<u>Initialization</u> | Initialize the API runtime by establishing a REL-ID session and setting up the API runtime, including a DNA instance
+<u>Initialization</u> | Initialize the API runtime by establishing a REL-ID session and setting up the API runtime, including a DNA instance.
 <u>User&nbsp;Identity</u> | Take the REL-ID session established during <u>Initialization</u> and take it through a bunch of states via this bunch of API routines, to the final SECONDARY (user REL-ID authenticated) state.
 <u>Access</u> | Provide the API-client application with connectivity to its backend enterprise services via the DNA in the API runtime - to those backend services the REL-ID session has access to.
 <u>Data&nbsp;Privacy</u> | Provide the API-client application with routines to encrypt and decrypt data, with keys at different scopes, without worrying about key-management.
-<u>Pause&nbsp;Resume</u> | Save API runtime state and shutdown runtime - subsequently restore runtime state and re-initialize the runtime
-<u>Terminate</u> | Clean shutdown of the API runtime
+<u>Pause&nbsp;Resume</u> | Pause saves the API runtime state and shuts down the API runtime. Subsequently, resume restores the runtime state and re-initialize the API runtime.
+<u>Terminate</u> | Clean shutdown of the API runtime.
 
 <aside class="notice"><i>The <b><u>User-Identity</u></b> interaction</i> -
 <br>
@@ -130,7 +130,7 @@ Most importantly, this is the phase when the <u>API runtime establishes an agent
 
 The following information is supplied by the API-client application to the initialization routine:
 
- * Agent information (available as a base64-encoded blob, upon provisioning a new agent REL-ID on a commercially licensed REL-ID Gateway Manager)
+ * Agent information (available as a base64-encoded blob, upon provisioning a new agent REL-ID on a commercially licensed REL-ID Gateway Manager along with an optional device threat policy)
  * Callback methods/functions that the API runtime will use to communicate with the API-client application (status/error notifications, device context/fingerprint retrieval)
  * Network coordinates of the REL-ID Authentication Gateway (hostname/IP address and port number)
  * Privacy (encryption) specifications for the Data Privacy APIs - includes cipher specs and salt to use
@@ -201,61 +201,98 @@ The following subsections list down and explain the different data structures an
 
 ## Callback routines (types, structures, interfaces)
 
-This structure is supplied to the Initialize routing containing API-client application callback routines. These callback routines are invoked by the API runtime at different points in its execution - for updating status, for requesting the API-client application to supply information etc.
-
-There are 3 primary callback routines that are provided - 2 of them are part of the Basic API and 1 of them is part of the Advanced API.
+This structure is supplied to the Initialize routine containing API-client application callback routines. These callback routines are invoked by the API runtime at different points in its execution - for updating status, for requesting the API-client application to supply information etc.
 
 ```c
-/* Invoked by core API runtime to update API-client
-   of state changes, exceptions and notifications */
+/* Callback invoked by core API runtime to update API-client of state changes,
+exceptions and notifications */
 typedef
-int 
+int
 (*fn_status_update_t)
 (core_status_t* pStatus);
 
-/* Callback invoked by core API runtime to retrieve 
-   device fingerprint identity information */
+/* Callback invoked by core API runtime to retrieve device fingerprint identity information */
 typedef
 int
 (*fn_get_device_fingerprint_t)
 (char **psDeviceFingerprint, void* pvAppCtx);
 
-/* Callback invoked by core API runtime to 
-   get 401 credentials */
+/* Callback invoked by core API runtime to get the 401 credentials*/
 typedef
 void
 (*fn_get_credentials_t)
-(void* pvAppCtx, char* psUrl, 
-char** psUserName, char** psPassword, 
-e_core_iwa_auth_status* status);
+(void* pvAppCtx, char* psUrl, char** psUserName, char** psPassword, e_core_iwa_auth_status* status);
 
-/* Callback invoked by core API runtime 
-   get DNS server list if required */
-typedef
-int
-(*fn_get_dns_servers_t)
-(void* pvAppCtx, 
-char*** aDnsServerList);
-
-/* Callback invoked by core API runtime to retrieve
-   device token identity information */
+/* Callback invoked by core API runtime to retrieve device token identity information */
 typedef
 int
 (*fn_get_device_token_t)
 (char **psDeviceToken, void* pvAppCtx);
 
+/* Callback invoked by core API runtime to give the http response */
+typedef
+void
+(*fn_http_response_cb_t)
+(void* pvAppCtx
+, int nTunnelRequestID
+, int statusCode
+, unsigned char *statusMessage
+, core_http_header **headers
+, unsigned int nHeaders
+, unsigned char *sBody
+, unsigned int bodyLength
+, unsigned int nErrorCode);
+
+/* Callback invoked by core API runtime to update API-client of state changes,
+exceptions and notifications */
+typedef
+void
+(*fn_session_timeout_cb_t)
+(core_status_t* pStatus);
+
+/* Callback invoked by core API runtime to perform better sdk related
+device security checks
+@return E_NO_ERROR on success, otherwise failure*/
+typedef
+int
+(*fn_threat_check_cb_t)
+(char *pcThreatPolicy
+, void *pvAppCtx);
+
+/* Callback invoked by core API runtime whenever device threat policy check has failed */
+typedef
+void
+(*fn_threat_check_status_cb_t)
+(void* pvAppCtx);
+
+/* Callback involed by the core API runtime whenever reporting sdk logs for the provided log level*/
+typedef
+void
+(*fn_sdk_log_cb_t)
+(void* pvAppCtx,
+int eLogLevel,
+char* pcLogData);
+
 /* struct of callback pointers */
 typedef struct {
-  fn_status_update_t    
-                 pfnStatusUpdate;
-  fn_get_device_fingerprint_t   
-                 pfnGetDeviceFingerprint;
-  fn_get_credentials_t
-                 pfnGetCredentials;
-  fn_get_dns_servers_t
-                 pfnGetDnsServerList;
-  fn_get_device_token_t
-                 pfnGetDeviceToken;
+fn_status_update_t
+                pfnStatusUpdate;
+fn_get_device_fingerprint_t
+                pfnGetDeviceFingerprint;
+fn_get_credentials_t
+                pfnGetCredentials;
+fn_get_device_token_t
+                pfnGetDeviceToken;
+fn_http_response_cb_t
+                pfnHttpResponse;
+fn_session_timeout_cb_t
+                pfnSessionTimeout;
+fn_threat_check_cb_t
+                pfnDeviceSecurityCheck;
+fn_threat_check_status_cb_t
+                pfnDeviceThreatStatus;
+fn_sdk_log_cb_t
+                pfnPostSdkLog;
 } core_callbacks_t;
 ```
 
@@ -322,11 +359,12 @@ public abstract class RDNA {
 ```cpp
 class RDNACallbacks
 {
-  public:
+public:
   virtual int onInitializeCompleted(RDNAStatusInit status) = 0;
   virtual int onTerminate(RDNAStatusTerminate status);
   virtual int onPauseRuntime(RDNAStatusPause status);
   virtual int onResumeRuntime(RDNAStatusResume status);
+  virtual int onConfigReceived(RDNAStatusGetConfig status);
   virtual int onCheckChallengeResponseStatus(RDNAStatusCheckChallengeResponse status);
   virtual int onGetAllChallengeStatus(RDNAStatusGetAllChallenges status);
   virtual int onUpdateChallengeStatus(RDNAStatusUpdateChallenges status);
@@ -334,13 +372,15 @@ class RDNACallbacks
   virtual int onLogOff(RDNAStatusLogOff status);
   virtual int onGetPostLoginChallenges(RDNAStatusGetPostLoginChallenges status);
   virtual int onGetRegistredDeviceDetails(RDNAStatusGetRegisteredDeviceDetails status);
-  virtual int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);  
+  virtual int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);
   virtual int onGetNotifications(RDNAStatusGetNotifications status);
   virtual int onUpdateNotification(RDNAStatusUpdateNotification status);
+  virtual void onSessionTimeout(void* pvAppCtx);
+  virtual void onRdnaLogs(void* pvAppCtx, RDNALoggingLevel eLevel, std::string sLogData);
   
+  virtual RDNAIWACreds getCredentials(std::string domainUrl);
   virtual std::string getApplicationName();
   virtual std::string getApplicationVersion();
-  virtual RDNAIWACreds getCredentials(std::string domainUrl);
   virtual std::string getDeviceToken();
 };
 ```
@@ -352,8 +392,9 @@ Callback Routine | Description
 <b>getLocationManager</b> | Invoked by the API runtime during initialization for the purpose of computing the location attributes of the device.<br><b><u>This callback routine is specific to iOS platform</u></b>
 <b>getApplicationName</b> | Invoked by the API runtime when the runtime needs to retrieve the application name. The application name is used for blacklisting or whitelisting an application.
 <b>getApplicationVersion</b> | This is the callback invoked when the runtime needs to retrieve the application version. The application version is used for blacklisting or whitelisting an application.
-<b>getCredentials</b> | This is the callback invoked by the DNA, when it needs the HTTP authentication credentials for accessing a webpage. The parameter domainURL is of the form <<u>HNIP</u>:<u>Port</u>>, where HNIP represent the Hostname or IP address where the webpage is hosted, and the Port represents to the port number to which the connection is being made. The callaback implementation is expected to return an ```RDNAIWACreds``` object containing the relevant credentials. 
-<b>getDeviceToken</b> | Invoked by the API runtime during user session creation in order to retrieve the notification specific application device token. The callaback implementation is expected to return a unique device token of application which is registred with application notification servers
+<b>getDeviceFingerprint</b> | This is the callback invoked by the core API runtime to retrieve device fingerprint identity information. The information is used for device fingerprinting.
+<b>getCredentials</b> | This is the callback invoked by the DNA, when it needs the HTTP authentication credentials for accessing a webpage. The parameter domainURL is of the form <<u>HNIP</u>:<u>Port</u>>, where HNIP represent the Hostname or IP address where the webpage is hosted, and the Port represents to the port number to which the connection is being made. The callback implementation is expected to return an ```RDNAIWACreds``` object containing the relevant credentials.
+<b>getDeviceToken</b> | Invoked by the API runtime during user session creation in order to retrieve the notification system specific application device token. The callback implementation is expected to return a unique device token of application which is registered with application notification servers
 
 Apart from the above callback routines, specific events have been called out as onThisHappened() and onThatHappened() callbacks, in the wrapper APIs. This is to make it simpler and clearer for the API-client to react to these events.
 
@@ -371,6 +412,7 @@ typedef struct {
   int   nProxyPort;
   char* sUsername;
   char* sPassword;
+  char** sProxyExceptionList;
 } proxy_settings_t;
 ```
 
@@ -402,6 +444,7 @@ typedef struct RDNAProxySettings_s {
   unsigned short proxyPort;
   std::string    username;
   std::string    password;
+  vector<std::string> proxyExceptionList;
 } RDNAProxySettings;
 ```
 
@@ -411,6 +454,7 @@ Field | Description
 <b>ProxyPort</b> | Port number of the proxy server
 <b>ProxyUsername</b> | The username to use to authenticate with the proxy server. This is required only when the proxy server requires authentication.
 <b>ProxyPassword</b> | The password to use with the username, to authenticate with the proxy server. This too is required only when the proxy server requires authentication.
+<b>ProxyExceptionList</b> | The list speciifes to not use proxy server for addressess in the exception list.
 
 ## SSL Certificates (structure)
 
@@ -1223,80 +1267,77 @@ typedef NS_ENUM(NSInteger, RDNAErrorID) {
 
 ```cpp
 typedef enum {
-  RDNA_ERR_NONE = 0,
-
-  RDNA_ERR_NOT_INITIALIZED = 1,
-  RDNA_ERR_GENERIC_ERROR,
-  RDNA_ERR_INVALID_VERSION,
-  RDNA_ERR_INVALID_ARGS,
-  RDNA_ERR_INVALID_CONTEXT,
-
-  RDNA_ERR_FAILED_TO_CONNECT_VIA_PROXY = 21,
-  RDNA_ERR_NULL_CALLBACKS,
-  RDNA_ERR_INVALID_HOST,
-  RDNA_ERR_INVALID_PORTNUM,
-  RDNA_ERR_INVALID_AGENT_INFO,
-  RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER,
-  RDNA_ERR_FAILED_TO_AUTHENTICATE,
-  RDNA_ERR_INVALID_SAVED_CONTEXT,
-  RDNA_ERR_INVALID_HTTP_REQUEST,
-  RDNA_ERR_INVALID_HTTP_RESPONSE,
-
-  RDNA_ERR_INVALID_CIPHERSPECS = 42,
-  RDNA_ERR_PLAINTEXT_EMPTY,
-  RDNA_ERR_PLAINTEXT_LENGTH_INVALID,
-  RDNA_ERR_CIPHERTEXT_EMPTY,
-  RDNA_ERR_CIPHERTEXT_LENGTH_INVALID,
-
-  RDNA_ERR_SERVICE_NOT_SUPPORTED = 61,
-  RDNA_ERR_INVALID_SERVICE_NAME,
-
-  RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE = 81,
-  RDNA_ERR_FAILED_TO_GET_STREAM_TYPE,
-  RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM,
-  RDNA_ERR_FAILED_TO_END_STREAM,
-  RDNA_ERR_FAILED_TO_DESTROY_STREAM,
-
-  RDNA_ERR_FAILED_TO_INITIALIZE = 101,
-  RDNA_ERR_FAILED_TO_PAUSERUNTIME,
-  RDNA_ERR_FAILED_TO_RESUMERUNTIME,
-  RDNA_ERR_FAILED_TO_TERMINATE,
-  RDNA_ERR_FAILED_TO_GET_CIPHERSALT,
-  RDNA_ERR_FAILED_TO_GET_CIPHERSPECS,
-  RDNA_ERR_FAILED_TO_GET_AGENT_ID,
-  RDNA_ERR_FAILED_TO_GET_SESSION_ID,
-  RDNA_ERR_FAILED_TO_GET_DEVICE_ID,
-  RDNA_ERR_FAILED_TO_GET_SERVICE,
-  RDNA_ERR_FAILED_TO_START_SERVICE,
-  RDNA_ERR_FAILED_TO_STOP_SERVICE,
-  RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET,
-  RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET,
-  RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST,
-  RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE,
-  RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM,
-  RDNA_ERR_FAILED_TO_CHECK_CHALLENGE,
-  RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE,
-  RDNA_ERR_FAILED_TO_GET_CONFIG,
-  RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES,
-  RDNA_ERR_FAILED_TO_LOGOFF,
-  RDNA_ERR_FAILED_TO_RESET_CHALLENGE,
-  RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD,
-  RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS,
-  RDNA_ERR_FAILED_TO_SET_DNS_SERVER,
-  RDNA_ERR_USERID_EMPTY,
-  RDNA_ERR_CHALLENGE_EMPTY,
-  RDNA_ERR_FAILED_TO_SERIALIZE_JSON,
-  RDNA_ERR_FAILED_TO_DESERIALIZE_JSON,
-  RDNA_ERR_INVALID_CHALLENGE_CONFIG,
-  RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES,
-  RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS,
-  RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS,
-  RDNA_ERR_USECASE_EMPTY,
-  RDNA_ERR_DEVICE_DETAILS_EMPTY,
-  RDNA_ERR_401_URL_EMPTY,
-  RDNA_ERR_PASSWORD_EMPTY,
-  RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS,
-  RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION,
+    RDNA_ERR_NONE = 0,
+    RDNA_ERR_NOT_INITIALIZED,
+    RDNA_ERR_GENERIC_ERROR,
+    RDNA_ERR_INVALID_VERSION,
+    RDNA_ERR_INVALID_ARGS,
+    RDNA_ERR_SESSION_EXPIRED,
+    RDNA_ERR_PARENT_PROXY_CONNECT_FAILED,
+    RDNA_ERR_NULL_CALLBACKS,
+    RDNA_ERR_INVALID_HOST,
+    RDNA_ERR_INVALID_PORTNUM,
+    RDNA_ERR_INVALID_AGENT_INFO,
+    RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER,
+    RDNA_ERR_INVALID_SAVED_CONTEXT,
+    RDNA_ERR_INVALID_HTTP_REQUEST,
+    RDNA_ERR_INVALID_HTTP_RESPONSE,
+    RDNA_ERR_INVALID_CIPHERSPECS,
+    RDNA_ERR_SERVICE_NOT_SUPPORTED,
+    RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE,
+    RDNA_ERR_FAILED_TO_GET_STREAM_TYPE,
+    RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM,
+    RDNA_ERR_FAILED_TO_END_STREAM,
+    RDNA_ERR_FAILED_TO_DESTROY_STREAM,
+    RDNA_ERR_FAILED_TO_INITIALIZE,
+    RDNA_ERR_FAILED_TO_PAUSERUNTIME,
+    RDNA_ERR_FAILED_TO_RESUMERUNTIME,
+    RDNA_ERR_FAILED_TO_TERMINATE,
+    RDNA_ERR_FAILED_TO_GET_CIPHERSALT,
+    RDNA_ERR_FAILED_TO_GET_CIPHERSPECS,
+    RDNA_ERR_FAILED_TO_GET_AGENT_ID,
+    RDNA_ERR_FAILED_TO_GET_SESSION_ID,
+    RDNA_ERR_FAILED_TO_GET_DEVICE_ID,
+    RDNA_ERR_FAILED_TO_GET_SERVICE,
+    RDNA_ERR_FAILED_TO_START_SERVICE,
+    RDNA_ERR_FAILED_TO_STOP_SERVICE,
+    RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET,
+    RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET,
+    RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST,
+    RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE,
+    RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM,
+    RDNA_ERR_FAILED_TO_CHECK_CHALLENGE,
+    RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE,
+    RDNA_ERR_FAILED_TO_GET_CONFIG,
+    RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES,
+    RDNA_ERR_FAILED_TO_LOGOFF,
+    RDNA_ERR_FAILED_TO_RESET_CHALLENGE,
+    RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD,
+    RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES,
+    RDNA_ERR_FAILED_TO_GET_REGISTERD_DEVICE_DETAILS,
+    RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS,
+    RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS,
+    RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION,
+    RDNA_ERR_FAILED_TO_OPEN_HTTP_CONNECTION,
+    RDNA_ERR_SSL_INIT_FAILED,
+    RDNA_ERR_SSL_ACTIVITY_FAILED,
+    RDNA_ERR_DNS_FAILED,
+    RDNA_ERR_NET_DOWN,
+    RDNA_ERR_SOCK_TIMEDOUT,
+    RDNA_ERR_DNA_INTERNAL,
+    RDNA_ERR_FAILED_TO_PARSE_DEVICES,
+    RDNA_ERR_INVALID_CHALLENGE_CONFIG,
+    RDNA_ERR_INVALID_HTTP_API_REQ_URL,
+    RDNA_ERR_NO_MEMORY,
+    RDNA_ERR_INVALID_CONTEXT,
+    RDNA_ERR_CIPHERTEXT_LENGTH_INVALID,
+    RDNA_ERR_CIPHERTEXT_EMPTY,
+    RDNA_ERR_PLAINTEXT_EMPTY,
+    RDNA_ERR_PLAINTEXT_LENGTH_INVALID,
+    RDNA_ERR_USERID_EMPTY,
+    RDNA_ERR_CHALLENGE_EMPTY,
+    RDNA_ERR_FAILED_TO_SERIALIZE_JSON,
+    RDNA_ERR_USECASE_EMPTY
 } RDNAErrorID;
 ```
 
@@ -1307,140 +1348,72 @@ RDNA_ERR_NOT_INITIALIZED | 1 | The API Runtime is not initialized
 RDNA_ERR_GENERIC_ERROR | 2 | Generic error has occured
 RDNA_ERR_INVALID_VERSION | 3 | The SDK Version is invalid or unsupported
 RDNA_ERR_INVALID_ARGS | 4 | The argument(s) passed to the API is invalid
-RDNA_ERR_INVALID_CONTEXT| 5 | The context passed to the API is invalid
-RDNA_ERR_FAILED_TO_CONNECT_VIA_PROXY | 21 | Failed to connect to REL-ID Gateway Server via proxy.
-RDNA_ERR_NULL_CALLBACKS | 22 | The callback/ptr passed in is null
-RDNA_ERR_INVALID_HOST | 23 | The hostname/IP is null or empty
-RDNA_ERR_INVALID_PORTNUM | 24 | The port number is invalid
-RDNA_ERR_INVALID_AGENT_INFO | 25 | The agent info is invalid (check the agent info blob received by Admin)
-RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER | 26 | Failed to connect to REL-ID Gateway Server
-RDNA_ERR_FAILED_TO_AUTHENTICATE | 27 | Failed to authenticate with REL-ID Gateway Server
-RDNA_ERR_INVALID_SAVED_CONTEXT | 28 | The saved context passed to Resume is invalid
-RDNA_ERR_INVALID_HTTP_REQUEST | 29 | The Http Request passed to Encrypt Http API is invalid
-RDNA_ERR_INVALID_HTTP_RESPONSE | 30 | The Http Request passed to Decrypt Http API is invalid
-RDNA_ERR_INVALID_CIPHERSPECS | 42 | The cipher spec passed in is invalid
-RDNA_ERR_PLAINTEXT_EMPTY | 43 | The plain text passed to Encrypt API is empty
-RDNA_ERR_PLAINTEXT_LENGTH_INVALID | 44 | The plain text length passed to Encrypt API is invalid
-RDNA_ERR_CIPHERTEXT_EMPTY | 45 | The cipher text passed to Decrypt API is empty
-RDNA_ERR_CIPHERTEXT_LENGTH_INVALID | 46 | The cipher text length passed to Decrypt API is invalid
-RDNA_ERR_SERVICE_NOT_SUPPORTED | 61 | The service provided is not supported
-RDNA_ERR_INVALID_SERVICE_NAME | 62 | The service name passed in is invalid
-RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE | 81 | Failed to get stream privacy scope
-RDNA_ERR_FAILED_TO_GET_STREAM_TYPE | 82 | Failed to get stream type
-RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM | 83 | Failed to write into privacy stream
-RDNA_ERR_FAILED_TO_END_STREAM | 84 | Failed to end privacy stream
-RDNA_ERR_FAILED_TO_DESTROY_STREAM | 85 | Failed to destroy privacy stream
-RDNA_ERR_FAILED_TO_INITIALIZE | 101 | Failed to initialize
-RDNA_ERR_FAILED_TO_PAUSERUNTIME | 102 | Failed to pause runtime
-RDNA_ERR_FAILED_TO_RESUMERUNTIME | 103 | Failed to resume runtime
-RDNA_ERR_FAILED_TO_TERMINATE | 104 | Failed to terminate
-RDNA_ERR_FAILED_TO_GET_CIPHERSALT | 105 | Failed to get cipher salt
-RDNA_ERR_FAILED_TO_GET_CIPHERSPECS | 106 | Failed to get cipherspecs
-RDNA_ERR_FAILED_TO_GET_AGENT_ID | 107 | Failed to get agent id
-RDNA_ERR_FAILED_TO_GET_SESSION_ID | 108 | Failed to get session id
-RDNA_ERR_FAILED_TO_GET_DEVICE_ID | 109 | Failed to get device id
-RDNA_ERR_FAILED_TO_GET_SERVICE | 110 | Failed to get service
-RDNA_ERR_FAILED_TO_START_SERVICE | 111 | Failed to start service
-RDNA_ERR_FAILED_TO_STOP_SERVICE | 112 | Failed to stop service
-RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET | 113 | Failed to encrypt data packet
-RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET | 114 | Failed to decrypt data packet
-RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST | 115 | Failed to encrypt HTTP request
-RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE | 116 | Failed to decrypt HTTP response
-RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM | 117 | Failed to create privacy stream
-RDNA_ERR_FAILED_TO_CHECK_CHALLENGE | 118 | Failed to check challenge response
-RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE | 119 | Failed to update challenge
-RDNA_ERR_FAILED_TO_GET_CONFIG | 120 | Failed to retrieve configuration 
-RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES | 121 | Failed to retrieve list of all challenges
-RDNA_ERR_FAILED_TO_LOGOFF | 122 | Failed to log off the user
-RDNA_ERR_FAILED_TO_RESET_CHALLENGE | 123 | Failed to reset challenge
-RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD | 124 | Failed to reset password via forgot password API
-RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS | 125 | Failed to send device details to the server
-RDNA_ERR_FAILED_TO_SET_DNS_SERVER | 126 | Failed to set DNS server
-RDNA_ERR_USERID_EMPTY | 127 | Userid field is empty
-RDNA_ERR_CHALLENGE_EMPTY | 128 | Challenge field is empty
-RDNA_ERR_FAILED_TO_SERIALIZE_JSON | 129 | Failed to serialize to internal representation
-RDNA_ERR_FAILED_TO_DESERIALIZE_JSON | 130 | Failed to deserialize from internal representation
-RDNA_ERR_INVALID_CHALLENGE_CONFIG | 131 | Invalid challenge configuration 
-RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES | 132 | Error while attempting to fetch post-login challenges
-RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | 133 | Error while attempting to get details of the registered devices of the user
-RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS | 134 | Failed to update device details of the user
-RDNA_ERR_USECASE_EMPTY | 135 | The input parameter to GetConfig API cannot be EMPTY or NULL.
-RDNA_ERR_DEVICE_DETAILS_EMPTY | 136 | Received empty device details list
-RDNA_ERR_401_URL_EMPTY | 137 | HTTP authentication credentials callback does not specify the URL or the URL is NULL 
-RDNA_ERR_PASSWORD_EMPTY | 138 | Empty password in response is not allowed
-RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS | 139 | Failed to get the notifications from server
-RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION | 140 | Failed to update the notification
-
-Error ID | Value | Meaning
--------- | ----- | -------
-NONE | 0  | The operation is successful and no error has occured
-NOT_INITIALIZED | 1 | The API Runtime is not initialized
-GENERIC_ERROR | 2 | Generic error has occured
-INVALID_VERSION | 3 | The SDK Version is invalid or unsupported
-INVALID_ARGS | 4 | The argument(s) passed to the API is invalid
-INVALID_CONTEXT| 5 | The context passed to the API is invalid
-FAILED_TO_CONNECT_VIA_PROXY | 21 | Failed to connect to REL-ID Gateway Server via proxy.
-NULL_CALLBACKS | 22 | The callback/ptr passed in is null
-INVALID_HOST | 23 | The hostname/IP is null or empty
-INVALID_PORTNUM | 24 | The port number is invalid
-INVALID_AGENT_INFO | 25 | The agent info is invalid (check the agent info blob received by Admin)
-FAILED_TO_CONNECT_TO_SERVER | 26 | Failed to connect to REL-ID Gateway Server
-FAILED_TO_AUTHENTICATE | 27 | Failed to authenticate with REL-ID Gateway Server
-INVALID_SAVED_CONTEXT | 28 | The saved context passed to Resume is invalid
-INVALID_HTTP_REQUEST | 29 | The Http Request passed to Encrypt Http API is invalid
-INVALID_HTTP_RESPONSE | 30 | The Http Request passed to Decrypt Http API is invalid
-INVALID_CIPHERSPECS | 42 | The cipher spec passed in is invalid
-RDNA_ERR_PLAINTEXT_EMPTY | 43 | The plain text passed to Encrypt API is empty
-RDNA_ERR_PLAINTEXT_LENGTH_INVALID | 44 | The plain text length passed to Encrypt API is invalid
-RDNA_ERR_CIPHERTEXT_EMPTY | 45 | The cipher text passed to Decrypt API is empty
-RDNA_ERR_CIPHERTEXT_LENGTH_INVALID | 46 | The cipher text length passed to Decrypt API is invalid
-RDNA_ERR_SERVICE_NOT_SUPPORTED | 61 | The service provided is not supported
-RDNA_ERR_INVALID_SERVICE_NAME | 62 | The service name passed in is invalid
-FAILED_TO_GET_STREAM_PRIVACYSCOPE | 81 | Failed to get stream privacy scope
-RDNA_ERR_FAILED_TO_GET_STREAM_TYPE | 82 | Failed to get stream type
-RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM | 83 | Failed to write into privacy stream
-RDNA_ERR_FAILED_TO_END_STREAM | 84 | Failed to end privacy stream
-RDNA_ERR_FAILED_TO_DESTROY_STREAM | 85 | Failed to destroy privacy stream
-RDNA_ERR_FAILED_TO_INITIALIZE | 101 | Failed to initialize
-RDNA_ERR_FAILED_TO_PAUSERUNTIME | 102 | Failed to pause runtime
-RDNA_ERR_FAILED_TO_RESUMERUNTIME | 103 | Failed to resume runtime
-RDNA_ERR_FAILED_TO_TERMINATE | 104 | Failed to terminate
-RDNA_ERR_FAILED_TO_GET_CIPHERSALT | 105 | Failed to get cipher salt
-RDNA_ERR_FAILED_TO_GET_CIPHERSPECS | 106 | Failed to get cipherspecs
-RDNA_ERR_FAILED_TO_GET_AGENT_ID | 107 | Failed to get agent id
-RDNA_ERR_FAILED_TO_GET_SESSION_ID | 108 | Failed to get session id
-RDNA_ERR_FAILED_TO_GET_DEVICE_ID | 109 | Failed to get device id
-RDNA_ERR_FAILED_TO_GET_SERVICE | 110 | Failed to get service
-RDNA_ERR_FAILED_TO_START_SERVICE | 111 | Failed to start service
-RDNA_ERR_FAILED_TO_STOP_SERVICE | 112 | Failed to stop service
-FAILED_TO_ENCRYPT_DATA_PACKET | 113 | Failed to encrypt data packet
-FAILED_TO_DECRYPT_DATA_PACKET | 114 | Failed to decrypt data packet
-FAILED_TO_ENCRYPT_HTTP_REQUEST | 115 | Failed to encrypt HTTP request
-FAILED_TO_DECRYPT_HTTP_RESPONSE | 116 | Failed to decrypt HTTP response
-FAILED_TO_CREATE_PRIVACY_STREAM | 117 | Failed to create privacy stream
-RDNA_ERR_FAILED_TO_CHECK_CHALLENGE | 118 | Failed to check challenge response
-RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE | 119 | Failed to update challenge
-RDNA_ERR_FAILED_TO_GET_CONFIG | 120 | Failed to retrieve configuration 
-FAILED_TO_GET_ALL_CHALLENGES | 121 | Failed to retrieve list of all challenges
-RDNA_ERR_FAILED_TO_LOGOFF | 122 | Failed to log off the user
-RDNA_ERR_FAILED_TO_RESET_CHALLENGE | 123 | Failed to reset challenge
-FAILED_TO_DO_FORGOT_PASSWORD | 124 | Failed to reset password via forgot password API
-RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS | 125 | Failed to send device details to the server
-RDNA_ERR_FAILED_TO_SET_DNS_SERVER | 126 | Failed to set DNS server
-RDNA_ERR_USERID_EMPTY | 127 | Userid field is empty
-RDNA_ERR_CHALLENGE_EMPTY | 128 | Challenge field is empty
-RDNA_ERR_FAILED_TO_SERIALIZE_JSON | 129 | Failed to serialize to internal representation
-RDNA_ERR_FAILED_TO_DESERIALIZE_JSON | 130 | Failed to deserialize from internal representation
-RDNA_ERR_INVALID_CHALLENGE_CONFIG | 131 | Invalid challenge configuration 
-FAILED_TO_GET_POST_LOGIN_CHALLENGES | 132 | Error while attempting to fetch post-login challenges
-FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | 133 | Error while attempting to get details of the registered devices of the user
-FAILED_TO_UPDATE_DEVICE_DETAILS | 134 | Failed to update device details of the user
-RDNA_ERR_USECASE_EMPTY | 135 | The input parameter to GetConfig API cannot be EMPTY or NULL.
-RDNA_ERR_DEVICE_DETAILS_EMPTY | 136 | Received empty device details list
-RDNA_ERR_401_URL_EMPTY | 137 | HTTP authentication credentials callback does not specify the URL or the URL is NULL 
-RDNA_ERR_PASSWORD_EMPTY | 138 | Empty password in response is not allowed
-RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS | 139 | Failed to get the notifications from server
-RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION | 140 | Failed to update the notification
+RDNA_ERR_SESSION_EXPIRED | 5 | The argument(s) passed to the API is invalid
+RDNA_ERR_PARENT_PROXY_CONNECT_FAILED  | 6 | Failed to connect to REL-ID Gateway Server via proxy.
+RDNA_ERR_NULL_CALLBACKS | 7 | The callback/ptr passed in is null
+RDNA_ERR_INVALID_HOST | 8 | The hostname/IP is null or empty
+RDNA_ERR_INVALID_PORTNUM | 9 | The port number is invalid
+RDNA_ERR_INVALID_AGENT_INFO | 10 | The agent info is invalid (check the agent info blob received by Admin)
+RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER | 11 | Failed to connect to REL-ID Gateway Server
+RDNA_ERR_INVALID_SAVED_CONTEXT | 12 | The saved context passed to Resume is invalid
+RDNA_ERR_INVALID_HTTP_REQUEST | 13 | The Http Request passed to Encrypt Http API is invalid
+RDNA_ERR_INVALID_HTTP_RESPONSE | 14 | The Http Request passed to Decrypt Http API is invalid
+RDNA_ERR_INVALID_CIPHERSPECS | 15 | The cipher spec passed in is invalid
+RDNA_ERR_SERVICE_NOT_SUPPORTED | 16 | The service provided is not supported
+RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE | 17 | Failed to get stream privacy scope
+RDNA_ERR_FAILED_TO_GET_STREAM_TYPE | 18 | Failed to get stream type
+RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM | 19 | Failed to write into privacy stream
+RDNA_ERR_FAILED_TO_END_STREAM | 20 | Failed to end privacy stream
+RDNA_ERR_FAILED_TO_DESTROY_STREAM | 21 | Failed to destroy privacy stream
+RDNA_ERR_FAILED_TO_INITIALIZE | 22 | Failed to initialize
+RDNA_ERR_FAILED_TO_PAUSERUNTIME | 23 | Failed to pause runtime
+RDNA_ERR_FAILED_TO_RESUMERUNTIME | 24 | Failed to resume runtime
+RDNA_ERR_FAILED_TO_TERMINATE | 25 | Failed to terminate
+RDNA_ERR_FAILED_TO_GET_CIPHERSALT | 26 | Failed to get cipher salt
+RDNA_ERR_FAILED_TO_GET_CIPHERSPECS | 27 | Failed to get cipherspecs
+RDNA_ERR_FAILED_TO_GET_AGENT_ID | 28 | Failed to get agent id
+RDNA_ERR_FAILED_TO_GET_SESSION_ID | 29 | Failed to get session id
+RDNA_ERR_FAILED_TO_GET_DEVICE_ID | 30 | Failed to get device id
+RDNA_ERR_FAILED_TO_GET_SERVICE | 31 | Failed to get service
+RDNA_ERR_FAILED_TO_START_SERVICE | 32 | Failed to start service
+RDNA_ERR_FAILED_TO_STOP_SERVICE | 33 | Failed to stop service
+RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET | 34 | Failed to encrypt data packet
+RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET | 35 | Failed to decrypt data packet
+RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST | 36 | Failed to encrypt HTTP request
+RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE | 37 | Failed to decrypt HTTP response
+RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM | 38 | Failed to create privacy stream
+RDNA_ERR_FAILED_TO_CHECK_CHALLENGE | 39 | Failed to check challenge response
+RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE | 40 | Failed to update challenge
+RDNA_ERR_FAILED_TO_GET_CONFIG | 41 | Failed to retrieve configuration
+RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES | 42 | Failed to retrieve list of all challenges
+RDNA_ERR_FAILED_TO_LOGOFF | 43 | Failed to log off the user
+RDNA_ERR_FAILED_TO_RESET_CHALLENGE | 44 | Failed to reset challenge
+RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD | 45 | Failed to reset password via forgot password API
+RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES | 46 | Error while attempting to fetch post-login challenges
+RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | 47 | Error while attempting to get details of the registered devices of the user
+RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS | 48 | Failed to update device details of the user
+RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS | 49 | Failed to get the notifications from server
+RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION | 50 | Failed to update the notification
+RDNA_ERR_FAILED_TO_OPEN_HTTP_CONNECTION | 51 | Failed to open HTTP api tunnel connection
+RDNA_ERR_SSL_INIT_FAILED | 52 | SSL initialization failed
+RDNA_ERR_SSL_ACTIVITY_FAILED | 53 | Error occurs while performing SSL related network operations
+RDNA_ERR_DNS_FAILED | 54 | Domain name resolution failed
+RDNA_ERR_NET_DOWN | 55 | Network is down
+RDNA_ERR_SOCK_TIMEDOUT | 56 | Connection timed out.
+RDNA_ERR_DNA_INTERNAL | 57 | Generic DNA (networking library) error
+RDNA_ERR_FAILED_TO_PARSE_DEVICES | 58 | Failure in parsing device details
+RDNA_ERR_INVALID_CHALLENGE_CONFIG | 59 | Misconfigured claange received
+RDNA_ERR_INVALID_HTTP_API_REQ_URL | 60 | Invalid URL was specified in the HTTP appi tunnel connection
+RDNA_ERR_NO_MEMORY| 61 | Device is running out of space
+RDNA_ERR_INVALID_CONTEXT| 62 | The context passed to the API is invalid
+RDNA_ERR_CIPHERTEXT_EMPTY | 63 | The cipher text passed to Decrypt API is empty
+RDNA_ERR_CIPHERTEXT_LENGTH_INVALID | 64 | The cipher text length passed to Decrypt API is invalid
+RDNA_ERR_PLAINTEXT_EMPTY | 65 | The plain text passed to Encrypt API is empty
+RDNA_ERR_PLAINTEXT_LENGTH_INVALID | 66 | The plain text length passed to Encrypt API is invalid
+RDNA_ERR_USERID_EMPTY | 67 | Userid field is empty
+RDNA_ERR_CHALLENGE_EMPTY | 68 | Challenge field is empty
+RDNA_ERR_FAILED_TO_SERIALIZE_JSON | 69 | Failed to serialize to internal representation
+RDNA_ERR_USECASE_EMPTY | 70 | The input parameter to GetConfig API cannot be EMPTY or NULL
 
 ## Method identifiers (enum)
 
