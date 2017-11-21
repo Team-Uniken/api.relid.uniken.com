@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Thursday, 9th November 2017</u>
+Last updated on <u>Thursday, 21st November 2017</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -1504,6 +1504,8 @@ typedef enum {
   RDNA_METH_UPDATE_DEVICE_DETAILS,
   RDNA_METH_GET_NOTIFICATIONS,
   RDNA_METH_UPDATE_NOTIFICATION,
+  RDNA_METH_GET_NOTIFICATION_HISTORY,
+  RDNA_METH_OPEN_HTTP_CONNECTION
 } RDNAMethodID;
 ```
 
@@ -1523,6 +1525,8 @@ RDNA_METH_FORGOT_PASSWORD | ForgotPassword runtime method
 RDNA_METH_GET_POST_LOGIN_CHALLENGES | PostLoginChallenges runtime method
 RDNA_METH_GET_NOTIFICATIONS | Get notifications runtime method
 RDNA_METH_UPDATE_NOTIFICATION | Update notifications call back method
+RDNA_METH_GET_NOTIFICATION_HISTORY | Get notification history runtime method
+RDNA_METH_OPEN_HTTP_CONNECTION | Open http tunnel (same as rest api) connection method
 
 ## Service access - Introduction
 
@@ -2056,9 +2060,9 @@ enum RDNADeviceBinding {
 
 ## Initialize Routine
 
-This is the first routine that must be called to bootstrap the REL-ID API runtime up. The arguments to this routine are described in the below table.
+This is the first routine that must be called to bootstrap the REL-ID API runtime. The arguments to this routine are described in the below table.
 
-This routine starts up the API runtime (including a DNA - <i>Digital Network Adapter</i> - instance), and in the process registers the API-client supplied callback routines with the API runtime context. This is a non-blocking routine, and when it returns, it will have initiated the process of creation of a REL-ID session in PRIMARY state, using the supplied <i>agent information</i> - the progress of this operation is notified to the API-client application via the status update (core API), and event notification (wrapper API), callback routines supplied.
+This routine starts up the API runtime (including a DNA - <i>Digital Network Adapter</i> - instance), and in the process registers the API-client supplied callback routines with the API runtime context. This is a non-blocking routine, and when it returns, it will have initiated the process of creation of a REL-ID session in PRIMARY state, using the supplied <i>agent information</i> - the progress of this operation is notified to the API-client application via the status update (core API), and event notification (wrapper API) callback routines provided in the initialize routine.
 
 A reference to the context of the newly created API runtime is returned to the API-client.
 
@@ -2122,32 +2126,35 @@ class RDNA
 public:
   static int
   initialize
-  (RDNA**         ppRuntimeCtx,
-   std::string    agentInfo,
-   RDNACallbacks* callbacks,
-   std::string    authGatewayHNIP,
-   unsigned short authGatewayPORT,
-   std::string    cipherSpec,
-   std::string    cipherSalt,
-   RDNAProxySettings*
-                  pProxySettings,
-   RDNASSLCerts*  sslCerts,			  
-   void*          appCtx);
+  (RDNA**             ppRuntimeCtx,
+   std::string        agentInfo,
+   RDNACallbacks*     callbacks,
+   std::string        authGatewayHNIP,
+   unsigned short     authGatewayPORT,
+   std::string        cipherSpec,
+   std::string        cipherSalt,
+   RDNAProxySettings* proxySettings,
+   RDNASSLCerts*      sslCerts,
+   vector<std::string> DNSServers,
+   RDNALoggingLevel   eLogLevel,
+   void*              appCtx);
 }
-```
-
+``` 
+ 
 Argument&nbsp;[in/out] | Description
 ---------------------- | -----------
-API&nbsp;Context&nbsp;[out] | The newly created API runtime context.<br>In Java, an instance of ```RDNA``` is returned in an ```RDNAStatus<RDNA>``` object.<br>In Core, Objective-C and C++, an out parameter is populated.
-Agent&nbsp;Info&nbsp;[in] | Software identity information for the API-runtime to authenticate and establish primary session connectivity with the REL-ID platform backend
-Callbacks&nbsp;[in] | Callback routines supplied by the API-client application. These are invoked by the API-runtime.
-Auth&nbsp;Gateway&nbsp;HNIP&nbsp;[in] | <b>H</b>ost<b>N</b>ame/<b>IP</b>-address of the REL-ID Authentication Gateway against which the API-runtime must establish mutual authenticated connectivity (on behalf of the API-client application)
-Auth&nbsp;Gateway&nbsp;PORT&nbsp;[in] | <b>PORT</b>-number at ```AuthGatewayHNIP```, on which the REL-ID Authentication Gateway is accessible (accepting connections)
-Cipher&nbsp;Specs&nbsp;[in] | The cipher specifications (encryption algorithm, padding scheme and cipher-mode) to be used as a default for this API-Runtime context. If passed as empty, then the default Cipher Spec of the API-SDK will be used as default.
-Cipher&nbsp;Salt&nbsp;[in] | The salt/IV to be used as default salt/IV for this API-Runtime context. If passed as empty, then the default Cipher Salt of the API-SDK will be used as default.
-Application&nbsp;Context&nbsp;[in] | Opaque reference to API-client application context that is never interpreted/modified by the API-runtime. This reference is supplied with each callback invocation to the API-client.
-Proxy&nbsp;Settings&nbsp;[in] |Hostname/IPaddress and port-number for proxy to use when connecting to the Auth Gateway server. This is an optional parameter that may be null if it is not applicable
+API Context [out] | The newly created API runtime context.<br>In Java, an instance of ```RDNA``` is returned in an ```RDNAStatus<RDNA>``` object.<br>In Core, Objective-C and C++, an out parameter is populated.
+Agent Info [in] | Software identity information for the API-runtime to authenticate and establish primary session connectivity with the REL-ID platform backend along with security threat policy to check for device threats.
+Callbacks [in] | Callback routines supplied by the API-client application. These are invoked by the API-runtime.
+Auth Gateway HNIP [in] | <b>H</b>ost<b>N</b>ame/<b>IP</b>-address of the REL-ID Authentication Gateway against which the API-runtime must establish mutual authenticated connectivity (on behalf of the API-client application).
+Auth Gateway PORT [in] | <b>PORT</b>-number at ```AuthGatewayHNIP```, on which the REL-ID Authentication Gateway is accessible (accepting connections).
+Cipher Specs [in] | The cipher specifications (encryption algorithm, padding scheme and cipher-mode) to be used as a default for this API-Runtime context. If passed as empty, then the default Cipher Spec of the API-SDK will be used as default.
+Cipher Salt [in] | The salt/IV to be used as default salt/IV for this API-Runtime context. If passed as empty, then the default Cipher Salt of the API-SDK will be used as default.
+Application Context [in] | Opaque reference to API-client application context that is never interpreted/modified by the API-runtime. This reference is supplied with each callback invocation to the API-client.
+Proxy Settings [in] |Hostname/IPaddress and port-number for proxy to use when connecting to the Auth Gateway server. This is an optional parameter that may be null if it is not applicable
 SSL Certificates[in] | The SSL Certificates in P12 format (which is base64-encoded) and password used to generate the certificates is provided to enable SSL over RMAK. This is an optional parameter. If it is specified as NULL, the SDK will not perform SSL over RMAK.
+DNS Servers [in] | A list of IP address to perform DNS host name resolution for Hostname provided to the DNA.
+Log Level [in] | Enable / Disable SDK logs based on the provided log level.
 
 
 ## Terminate Routine
