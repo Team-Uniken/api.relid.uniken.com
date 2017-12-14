@@ -652,6 +652,16 @@ public abstract class RDNA {
     public RDNAResponseStatus status;
     public String notificationID;
   }
+
+  public static class RDNAStatusGetNotificationHistory {
+    public Object pvtRuntimeCtx;                                   
+    public Object pvtAppCtx;                                       
+    public int errCode;                                            
+    public RDNAMethodID methodID;                                 
+    public int totalNotificationCount;                            
+    public RDNAResponseStatus status;                              
+    RDNANotificationHistory[] notificationHistory;  
+  }
   //..
 }
 ```
@@ -949,6 +959,16 @@ struct RDNAStatusUpdateNotification {
   {}
 };
 
+typedef struct RDNAStatusGetNotificationHistory_s {
+  void* pvtRuntimeCtx;                            /* Context of API runtime                                */
+  void* pvtAppCtx;                                /* Context of API-client                                 */
+  int  errCode;                                   /* Error code return                                     */
+  int totalNotificationCount;                     /* Total notifications available in server side for user */
+  RDNAMethodID methodID;                          /* update for method                                     */
+  RDNAResponseStatus status;                      /* Response status information                           */
+  vector<RDNANotificationHistory> notifications;  /* Notification array                                    */
+}RDNAStatusGetNotificationHistory;
+
 ```
 
 Field | Description
@@ -964,7 +984,7 @@ Field | Description
 <b>Array of notifications </b> | ```notifications``` <br> All the notifications received from the server
 <b>Number of notifications </b> | ```fetchedNotificationCount``` <br> The number of notification received currently
 <b>Start Index </b> | ```startIndex``` <br> The starting index of the current notifications received
-<b>Start Index </b> | ```totalNotificationCount``` <br> Total active notifications available at server for the user.
+<b>Total Notification Count </b> | ```totalNotificationCount``` <br> Total active notifications available at server for the user.
 <b>Notification ID </b> | ```notificationID``` <br> The notification Id which has been updated at server.
 
 The wrapper APIs written in high level languages provide similar information of status update in more specific callbacks and structures such as RDNAStatusInit, RDNAStatusPause, etc. This is to make it simpler and clearer for the API-client to react to these events.
