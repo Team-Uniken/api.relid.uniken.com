@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Thursday, 21st November 2017</u>
+Last updated on <u>Thursday, 14th December 2017</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -99,7 +99,7 @@ Routine | Description
 
 The API is written with non-blocking(asynchronous) interactions in mind - none of the API routines will block for any kind of network I/O.
 
-When an API routine requires to perform network I/O with backend services in order to service the API-client, that I/O is delegated to the DNA which is part of the API runtime, and the results are communicated back via callback routines supplied by the API-client. The DNA itself uses non-blocking I/O for all the network communication it performs. 
+When an API routine requires to perform network I/O with backend services in order to service the API-client, that I/O is delegated to the DNA which is part of the API runtime, and the results are communicated back via callback routines supplied by the API-client. The DNA itself uses non-blocking I/O for all the network communication it performs.
 
  * Each API routine returns immediately without blocking on any network I/O.
  * Where applicable, API call results are communicated asynchronously via API-client supplied callback routines.
@@ -124,7 +124,7 @@ is applicable only when an API-client application uses the REL-ID API for the pu
 
 ## Initialization
 
-This interaction is governed by a single API routine (```Initialize```) invocation that sets the stage for all subsequent interactions. 
+This interaction is governed by a single API routine (```Initialize```) invocation that sets the stage for all subsequent interactions.
 
 Most importantly, this is the phase when the <u>API runtime establishes an agent-authenticated session with the REL-ID platform</u> backend and <u>bootstraps the DNA for subsequent connectivity with both REL-ID platform services as well as the configured backend enterprise services</u>
 
@@ -163,13 +163,13 @@ At this point the application access backend enterprise services in the context 
 
 ## Access
 
-Upon successful initialization/authentication, the ports and facades for the access to different backend enterprise services are provided to the API-runtime to setup the DNA for API-client. This information is returned to the API-runtime every time it creates a REL-ID session - which is after successful initialization (PRIMARY session) and after successful end-user authentication (SECONDARY session). 
+Upon successful initialization/authentication, the ports and facades for the access to different backend enterprise services are provided to the API-runtime to setup the DNA for API-client. This information is returned to the API-runtime every time it creates a REL-ID session - which is after successful initialization (PRIMARY session) and after successful end-user authentication (SECONDARY session).
 
 When the access configuration for a given session changes at the backend, the session is immediately invalidated. This triggers the API-runtime to either renew/recreate its session, causing it to update/refresh the access configuration.
 
 ## Data Privacy
 
-One of the important results of successful initialization of the API-runtime, is the distribution of privacy keys at different scopes/levels (Device, Agent, Session). User-level keys are shared with the API-runtime, upon successful end-user authentication. 
+One of the important results of successful initialization of the API-runtime, is the distribution of privacy keys at different scopes/levels (Device, Agent, Session). User-level keys are shared with the API-runtime, upon successful end-user authentication.
 
 These keys are not directly shared with the API-client application, but are available for use with encryption and decryption of application data, via a set of privacy routines.
 
@@ -299,28 +299,32 @@ fn_sdk_log_cb_t
 ```java
 public abstract class RDNA {
   //...
-  public interface RDNACallbacks {
+  public static interface RDNACallbacks {
     public int onInitializeCompleted(RDNAStatusInit status);
+    public int onGetNotifications(RDNAStatusGetNotifications status);
+    public int onUpdateNotification(RDNAStatusUpdateNotification status);
     public int onTerminate(RDNAStatusTerminate status);
     public int onPauseRuntime(RDNAStatusPause status);
     public int onResumeRuntime(RDNAStatusResume status);
-    public int onCheckChallengeResponseStatus(RDNAStatusCheckChallenge status);
-    public int onLogOff(RDNAStatusLogOff status);
+    public int onConfigReceived(RDNAStatusGetConfig status);
+    public int onCheckChallengeResponseStatus(RDNAStatusCheckChallengeResponse status);
+    public int onGetAllChallengeStatus(RDNAStatusGetAllChallenges status);
+    public int onUpdateChallengeStatus(RDNAStatusUpdateChallenges status);
     public int onForgotPasswordStatus(RDNAStatusForgotPassword status);
-    public int onUpdateChallengeStatus(RDNAStatusUpdateChallenge status);
     public int onGetPostLoginChallenges(RDNAStatusGetPostLoginChallenges status);
+    public int onLogOff(RDNAStatusLogOff status);
     public int onGetRegistredDeviceDetails(RDNAStatusGetRegisteredDeviceDetails status);
     public int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);
-    public int onGetNotifications(RDNAStatusGetNotifications status);
-    public int onUpdateNotification(RDNAStatusUpdateNotification status);
+    public int onGetNotificationsHistory(RDNAStatusGetNotificationHistory status);
+    public int onSessionTimeout(String status);
+    public int onSdkLogPrintRequest(RDNALoggingLevel level, String logData);
 
-    public Object getDeviceContext();
+    public RDNAIWACreds getCredentials(String domainUrl);
     public String getApplicationName();
     public String getApplicationVersion();
-    public RDNAIWACreds getCredentials(String domainUrl);
+    public Object getDeviceContext();
     public String getDeviceToken();
-    //...
-  }
+}
   //..
 }
 ```
@@ -377,7 +381,7 @@ public:
   virtual int onUpdateNotification(RDNAStatusUpdateNotification status);
   virtual void onSessionTimeout(void* pvAppCtx);
   virtual void onRdnaLogs(void* pvAppCtx, RDNALoggingLevel eLevel, std::string sLogData);
-  
+
   virtual RDNAIWACreds getCredentials(std::string domainUrl);
   virtual std::string getApplicationName();
   virtual std::string getApplicationVersion();
@@ -388,7 +392,7 @@ public:
 Callback Routine | Description
 ---------------- | -----------
 <b>Status Object and variants</b> | Invoked by the API runtime in order to update the API-client application of the progress of a previously invoked API routine, or state changes and exceptions encountered in general during the course of its execution.
-<b>GetDeviceContext</b> | Invoked by the API runtime during initialization (session creation) on Android (Java) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device.<br><br>The API-client must return the Android <u>ApplicationContext</u> of the application from this method's implementation.<br><b><u>This callback routine is specific to Android platform</u></b> 
+<b>GetDeviceContext</b> | Invoked by the API runtime during initialization (session creation) on Android (Java) in order to retrieve the device context reference to be able to determine the fingerprint identity of the end-point device.<br><br>The API-client must return the Android <u>ApplicationContext</u> of the application from this method's implementation.<br><b><u>This callback routine is specific to Android platform</u></b>
 <b>getLocationManager</b> | Invoked by the API runtime during initialization for the purpose of computing the location attributes of the device.<br><b><u>This callback routine is specific to iOS platform</u></b>
 <b>getApplicationName</b> | Invoked by the API runtime when the runtime needs to retrieve the application name. The application name is used for blacklisting or whitelisting an application.
 <b>getApplicationVersion</b> | This is the callback invoked when the runtime needs to retrieve the application version. The application version is used for blacklisting or whitelisting an application.
@@ -458,7 +462,7 @@ Field | Description
 
 ## SSL Certificates (structure)
 
-This structure is supplied to the Initialize routine when the REL-ID Auth Gateway is accessible over SSL/TLS. It requires a certificate in a base64 encoded P12 format. The CA (certifying authority) provides certificates in P12 format. It is the responsibility of the APP developer to base64 encode this certificate and then pass it to the SSL certificate structure. 
+This structure is supplied to the Initialize routine when the REL-ID Auth Gateway is accessible over SSL/TLS. It requires a certificate in a base64 encoded P12 format. The CA (certifying authority) provides certificates in P12 format. It is the responsibility of the APP developer to base64 encode this certificate and then pass it to the SSL certificate structure.
 
 The SDK parse this SSL structure and sets up an internal SSL context which will be used further to perform SSL handshake for every communication made with REL-ID Gateway. For every new communication with the REL-ID Gateway, SSL handshake will be performed which is immediately followed by RMAK handshake.
 
@@ -537,7 +541,7 @@ public abstract class RDNA {
     public Object pvtAppCtx;
     public int errCode;
     public RDNAMethodID methodID;
-    public RDNAService services[];	
+    public RDNAService services[];
     public RDNAPort pxyDetails;
     public RDNAChallenge[] challenges;
   }
@@ -565,7 +569,7 @@ public abstract class RDNA {
     public RDNAPort pxyDetails;
     public RDNAChallenge[] challenges;
   }
-  
+
   public static class RDNAStatusCheckChallengesResponse {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
@@ -612,7 +616,7 @@ public abstract class RDNA {
     public RDNAResponseStatus status;
     public RDNAChallenge[] challenges;
   }
-  
+
   public static class RDNAStatusGetRegisteredDeviceDetails {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
@@ -622,14 +626,14 @@ public abstract class RDNA {
     public RDNAResponseStatus challengeStatus;
   }
 
-  public static class RDNAStatusUpdateDeviceDetails {	
+  public static class RDNAStatusUpdateDeviceDetails {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
     public int errCode;
     public RDNAMethodID methodID;
     public RDNAResponseStatus challengeStatus;
   }
-  
+
   public static class RDNAStatusGetNotifications {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
@@ -639,7 +643,7 @@ public abstract class RDNA {
     public int totalNotifications;
     public RDNANotification[] notifications;
   }
-  
+
   public static class RDNAStatusUpdateNotification {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
@@ -743,15 +747,15 @@ public abstract class RDNA {
   @property (nonatomic) RDNAMethodID methodID;
   @property (nonatomic) NSArray *devices;
 @end
- 
-@interface RDNAStatusUpdateDeviceDetails : NSObject 
+
+@interface RDNAStatusUpdateDeviceDetails : NSObject
   @property (nonatomic) void *pvtRuntimeCtx;
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errorCode;
   @property (nonatomic) RDNAMethodID methodID;
   @property (nonatomic) RDNAResponseStatus *status;
 @end
- 
+
 @interface RDNAStatusGetPostLoginChallengeResponse : NSObject
   @property (nonatomic) void *pvtRuntimeCtx;
   @property (nonatomic) void *pvtAppCtx;
@@ -894,7 +898,7 @@ typedef struct RDNAStatusGetRegisteredDeviceDetails_s {
                          methodID(RDNA_METH_NONE)
   {}
 } RDNAStatusGetRegisteredDeviceDetails;
-  
+
 typedef struct RDNAStatusUpdateDeviceDetails_s {
   void* pvtRuntimeCtx;
   void* pvtAppCtx;
@@ -968,33 +972,33 @@ The wrapper APIs written in high level languages provide similar information of 
 
 ## HTTP Authentication related structures, interfaces, enumerations and callbacks
 
-For supporting HTTP based authentication, we provide the following 
+For supporting HTTP based authentication, we provide the following
 
 ```c
 ```
 
 ```java
 public abstract class RDNA {
-	
+
   public static class RDNAIWACreds {
     public String userName;
     public String userPassword;
     public RDNAIWAAuthStatus status;
 
     public RDNAIWACreds() {}
-	
+
 	public RDNAIWACreds(String userName,String userPassword,RDNAIWAAuthStatus status) {
       this.userName = userName;
       this.userPassword = userPassword;
       this.status = status;
 	}
   }
-  
+
   public enum RDNAIWAAuthStatus {
     AUTH_SUCCESS(0),
     AUTH_CANCELLED(1),
     AUTH_DEFERRED(2);
-		
+
     public int intVal;
 
     private RDNAIWAAuthStatus(int val) {
@@ -1083,7 +1087,7 @@ typedef enum {
   CORE_ERR_FAILED_TO_WRITE_INTO_STREAM,
   CORE_ERR_FAILED_TO_END_STREAM,
   CORE_ERR_FAILED_TO_DESTROY_STREAM,
-  
+
   CORE_ERR_FAILED_TO_INITIALIZE = 101,
   CORE_ERR_FAILED_TO_PAUSERUNTIME,
   CORE_ERR_FAILED_TO_RESUMERUNTIME,
@@ -1108,79 +1112,81 @@ typedef enum {
 public abstract class RDNA {
   //...
   public enum RDNAErrorID {
-    RDNA_ERR_NONE(0),
-    RDNA_ERR_NOT_INITIALIZED(1),
-    RDNA_ERR_GENERIC_ERROR(2),
-    RDNA_ERR_INVALID_VERSION(3),
-    RDNA_ERR_INVALID_ARGS(4),
-    RDNA_ERR_INVALID_CONTEXT(5),
-	
-    RDNA_ERR_FAILED_TO_CONNECT_VIA_PROXY (21),
-    RDNA_ERR_NULL_CALLBACKS(22),
-    RDNA_ERR_INVALID_HOST(23),
-    RDNA_ERR_INVALID_PORTNUM(24),
-    RDNA_ERR_INVALID_AGENT_INFO(25),
-    RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER(26),
-    RDNA_ERR_FAILED_TO_AUTHENTICATE(27),
-    RDNA_ERR_INVALID_SAVED_CONTEXT(28),
-    RDNA_ERR_INVALID_HTTP_REQUEST(29),
-    RDNA_ERR_INVALID_HTTP_RESPONSE(30),
-	
-    RDNA_ERR_INVALID_CIPHERSPECS(42),
-    RDNA_ERR_PLAINTEXT_EMPTY(43),
-    RDNA_ERR_PLAINTEXT_LENGTH_INVALID(44),
-    RDNA_ERR_CIPHERTEXT_EMPTY(45),
-    RDNA_ERR_CIPHERTEXT_LENGTH_INVALID(46),
-	
-    RDNA_ERR_SERVICE_NOT_SUPPORTED(61),
-    RDNA_ERR_INVALID_SERVICE_NAME(62),
-	
-    RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE(81),
-    RDNA_ERR_FAILED_TO_GET_STREAM_TYPE(82),
-    RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM(83),
-    RDNA_ERR_FAILED_TO_END_STREAM(84),
-    RDNA_ERR_FAILED_TO_DESTROY_STREAM(85),
-	
-    RDNA_ERR_FAILED_TO_INITIALIZE(101),
-    RDNA_ERR_FAILED_TO_PAUSERUNTIME(102),
-    RDNA_ERR_FAILED_TO_RESUMERUNTIME(103),
-    RDNA_ERR_FAILED_TO_TERMINATE(104),
-    RDNA_ERR_FAILED_TO_GET_CIPHERSALT(105),
-    RDNA_ERR_FAILED_TO_GET_CIPHERSPECS(106),
-    RDNA_ERR_FAILED_TO_GET_AGENT_ID(107),
-    RDNA_ERR_FAILED_TO_GET_SESSION_ID(108),
-    RDNA_ERR_FAILED_TO_GET_DEVICE_ID(109),
-    RDNA_ERR_FAILED_TO_GET_SERVICE(110),
-    RDNA_ERR_FAILED_TO_START_SERVICE(111),
-    RDNA_ERR_FAILED_TO_STOP_SERVICE(112),
-    RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET(113),
-    RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET(114),
-    RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST(115),
-    RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE(116),
-    RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM(117),
-    RDNA_ERR_FAILED_TO_CHECK_CHALLENGE(118),
-    RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE(119),
-    RDNA_ERR_FAILED_TO_GET_CONFIG(120),
-    RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES(121),
-    RDNA_ERR_FAILED_TO_LOGOFF(122),
-    RDNA_ERR_FAILED_TO_RESET_CHALLENGE(123),
-    RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD(124),
-    RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS(125),
-    RDNA_ERR_FAILED_TO_SET_DNS_SERVER(126),
-    RDNA_ERR_USERID_EMPTY(127),
-    RDNA_ERR_CHALLENGE_EMPTY(128),
-    RDNA_ERR_FAILED_TO_SERIALIZE_JSON(129),
-    RDNA_ERR_FAILED_TO_DESERIALIZE_JSON(130),
-    RDNA_ERR_INVALID_CHALLENGE_CONFIG(131),
-    RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES(132),
-    RDNA_ERR_FAILED_TO_GET_REGISTERD_DEVICE_DETAILS(133),
-    RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS(134),
-    RDNA_ERR_USECASE_EMPTY(135),
-    RDNA_ERR_DEVICE_DETAILS_EMPTY(136),
-    RDNA_ERR_401_URL_EMPTY(137),
-    RDNA_ERR_PASSWORD_EMPTY(138),
-    RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS(139),
-    RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION(140);
+    RDNA_ERR_NONE(0),                              
+    RDNA_ERR_NOT_INITIALIZED(1),                   
+    RDNA_ERR_GENERIC_ERROR(2),                     
+    RDNA_ERR_INVALID_VERSION(3),                   
+    RDNA_ERR_INVALID_ARGS(4),                      
+    RDNA_ERR_SESSION_EXPIRED(5),                   
+    RDNA_ERR_PARENT_PROXY_CONNECT_FAILED(6),       
+    RDNA_ERR_NULL_CALLBACKS(7),                    
+    RDNA_ERR_INVALID_HOST(8),                      
+    RDNA_ERR_INVALID_PORTNUM(9),                   
+    RDNA_ERR_INVALID_AGENT_INFO(10),                    
+    RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER(11),           
+    RDNA_ERR_INVALID_SAVED_CONTEXT(12),                 
+    RDNA_ERR_INVALID_HTTP_REQUEST(13),                  
+    RDNA_ERR_INVALID_HTTP_RESPONSE(14),                 
+    RDNA_ERR_INVALID_CIPHERSPECS(15),                   
+    RDNA_ERR_SERVICE_NOT_SUPPORTED(16),                 
+    RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE(17),     
+    RDNA_ERR_FAILED_TO_GET_STREAM_TYPE(18),             
+    RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM(19),           
+    RDNA_ERR_FAILED_TO_END_STREAM(20),                  
+    RDNA_ERR_FAILED_TO_DESTROY_STREAM(21),              
+    RDNA_ERR_FAILED_TO_INITIALIZE(22),                  
+    RDNA_ERR_FAILED_TO_PAUSERUNTIME(23),                
+    RDNA_ERR_FAILED_TO_RESUMERUNTIME(24),               
+    RDNA_ERR_FAILED_TO_TERMINATE(25),                   
+    RDNA_ERR_FAILED_TO_GET_CIPHERSALT(26),              
+    RDNA_ERR_FAILED_TO_GET_CIPHERSPECS(27),             
+    RDNA_ERR_FAILED_TO_GET_AGENT_ID(28),                
+    RDNA_ERR_FAILED_TO_GET_SESSION_ID(29),              
+    RDNA_ERR_FAILED_TO_GET_DEVICE_ID(30),               
+    RDNA_ERR_FAILED_TO_GET_SERVICE(31),                 
+    RDNA_ERR_FAILED_TO_START_SERVICE(32),               
+    RDNA_ERR_FAILED_TO_STOP_SERVICE(33),                
+    RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET(34),         
+    RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET(35),         
+    RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST(36),        
+    RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE(37),       
+    RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM(38),       
+    RDNA_ERR_FAILED_TO_CHECK_CHALLENGE(39),             
+    RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE(40),            
+    RDNA_ERR_FAILED_TO_GET_CONFIG(41),                  
+    RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES(42),          
+    RDNA_ERR_FAILED_TO_LOGOFF(43),                      
+    RDNA_ERR_FAILED_TO_RESET_CHALLENGE(44),             
+    RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD(45),          
+    RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES(46),   
+    RDNA_ERR_FAILED_TO_GET_REGISTERD_DEVICE_DETAILS(47),
+    RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS(48),       
+    RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS(49),           
+    RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION(50),         
+    RDNA_ERR_FAILED_TO_OPEN_HTTP_CONNECTION(51),        
+    RDNA_ERR_SSL_INIT_FAILED(52),                       
+    RDNA_ERR_SSL_ACTIVITY_FAILED(53),                   
+    RDNA_ERR_DNS_FAILED(54),                            
+    RDNA_ERR_NET_DOWN(55),                              
+    RDNA_ERR_SOCK_TIMEDOUT(56),                         
+    RDNA_ERR_DNA_INTERNAL(57),                          
+    RDNA_ERR_FAILED_TO_PARSE_DEVICES(58),               
+    RDNA_ERR_INVALID_CHALLENGE_CONFIG(59),              
+    RDNA_ERR_INVALID_HTTP_API_REQ_URL(60),              
+    RDNA_ERR_NO_MEMORY(61),
+    RDNA_ERR_INVALID_CONTEXT(62),
+    RDNA_ERR_CIPHERTEXT_LENGTH_INVALID(63),
+    RDNA_ERR_CIPHERTEXT_EMPTY(64),
+    RDNA_ERR_PLAINTEXT_EMPTY(65),
+    RDNA_ERR_PLAINTEXT_LENGTH_INVALID(66),
+    RDNA_ERR_USERID_EMPTY(67),
+    RDNA_ERR_CHALLENGE_EMPTY(68),
+    RDNA_ERR_FAILED_TO_SERIALIZE_JSON(69),
+    RDNA_ERR_USECASE_EMPTY(70),
+    RDNA_ERR_INVALID_SERVICE_NAME(71),
+    RDNA_ERR_DEVICE_DETAILS_EMPTY(72),
+    RDNA_ERR_FAILED_TO_DESERIALIZE_JSON(73),
+    RDNA_ERR_INVALID_CHALLENGE_JSON(74);
   }
   //..
 }
@@ -1444,22 +1450,24 @@ typedef enum {
 public abstract class RDNA {
   //..
   public enum RDNAMethodID {
-    RDNA_METH_NONE(0),
-    RDNA_METH_INITIALIZE(1),
-    RDNA_METH_TERMINATE(2),
-    RDNA_METH_RESUME(3),
-    RDNA_METH_PAUSE(4);
-    RDNA_METH_GET_CONFIG(5),
-    RDNA_METH_CHECK_CHALLENGE(6),
-    RDNA_METH_UPDATE_CHALLENGE(7),
-    RDNA_METH_GET_ALL_CHALLENGES(8),
-    RDNA_METH_LOGOFF(9),
-    RDNA_METH_FORGOT_PASSWORD(10),
-    RDNA_METH_GET_POST_LOGIN_CHALLENGES(11);
-    RDNA_METH_GET_DEVICE_DETAILS(12),
-    RDNA_METH_UPDATE_DEVICE_DETAILS(13),
-    RDNA_METH_GET_NOTIFICATIONS(14),
-    RDNA_METH_UPDATE_NOTIFICATION(15);
+    RDNA_METH_NONE(0),                            
+    RDNA_METH_INITIALIZE(1),                      
+    RDNA_METH_TERMINATE(2),                       
+    RDNA_METH_RESUME(3),                          
+    RDNA_METH_PAUSE(4),                           
+    RDNA_METH_GET_CONFIG(5),                      
+    RDNA_METH_CHECK_CHALLENGE(6),                 
+    RDNA_METH_UPDATE_CHALLENGE(7),                
+    RDNA_METH_GET_ALL_CHALLENGES(8),              
+    RDNA_METH_LOGOFF(9),                          
+    RDNA_METH_FORGOT_PASSWORD(10),                
+    RDNA_METH_GET_POST_LOGIN_CHALLENGES(11),      
+    RDNA_METH_GET_DEVICE_DETAILS(12),             
+    RDNA_METH_UPDATE_DEVICE_DETAILS(13),          
+    RDNA_METH_GET_NOTIFICATIONS(14),              
+    RDNA_METH_UPDATE_NOTIFICATION(15),            
+    RDNA_METH_GET_NOTIFICATION_HISTORY(16),
+    RDNA_METH_OPEN_HTTP_CONNECTION(17);
   }
   //..
 }
@@ -1718,19 +1726,19 @@ As part of the user authentication process, the server throws one or more challe
 public abstract class RDNA {
   //...
   public static class RDNAChallenge {
-    public final String name;
-    public final RDNAChallengeType type;
-    public final int index;
-    public final LinkedHashMap<String, String> info;
-    public final String[] prompts;
-    public final int attemptsLeft;
-    public final boolean shouldValidateResponse;
-    public final String[] responsePolicies;
-    public final int subChallengeIndex;
+    public String name;
+    public RDNA.RDNAChallengePromptType type;
+    public int index;
+    int subChallengeIndex;
+    public RDNA.RDNAChallengeInfo[] info;      
+    public String[] prompts;
+    public int attemptsLeft;
+    public boolean shouldValidateResponse;
+    public String[] responsePolicies;
     public String responseKey;
     public Object responseValue;
-	public RDNAChallengeOpMode challengeOperation;
-  }
+    public RDNA.RDNAChallengeOpMode challengeOperation;
+}
 }
 ```
 
@@ -1781,13 +1789,13 @@ Member | Description
 <b>attemptsLeft</b> | Represents the number of valid attempts remaining before the user is either SUSPENDED or BLOCKED.
 <b>shouldValidateResponse</b> | This value represents whether the API client has to validate the user entered values at client end.
 <b>responsePolicies</b> | The policies to be applied on user entered values, these policies can be like regular expression to be applied on user input.
-<b>responseKey</b> | This represents the actual challenge shown to the user. The actual key depends on the type of the type of challenge being thrown. For instance, in case of activation, the ```responseKey``` field will contain the activation code, and the user is expected to provide the verification key as the value. In case of secret QA, the ```responseKey``` will represent the secret question, and the ```responseValue``` field should contain the secret answer. 
+<b>responseKey</b> | This represents the actual challenge shown to the user. The actual key depends on the type of the type of challenge being thrown. For instance, in case of activation, the ```responseKey``` field will contain the activation code, and the user is expected to provide the verification key as the value. In case of secret QA, the ```responseKey``` will represent the secret question, and the ```responseValue``` field should contain the secret answer.
 <b>responseValue</b> | This should be set by the API client. This is the value which user enter for authentication.
-<b>challengeOperation</b> | This indicates if the challenge is thrown by the server for authenticating the user or the server asking the user to set the challenge for use in future  authentication attempts. 
+<b>challengeOperation</b> | This indicates if the challenge is thrown by the server for authenticating the user or the server asking the user to set the challenge for use in future  authentication attempts.
 
 ## RDNAChallengePromptType (Enumeration)
 
-The RDNAChallengeType is an enumeration of types of challenge prompts. A prompt represents a piece of information needed by the end user to respond to the challenge. <br><br>For instance, in the case of Secret QA (where the challenge name is secqa), there could either be a single prompt or multiple prompts, each prompt representing a secret question. For password challenge, the prompt array would be empty, since the user does not need any information to enter the password. 
+The RDNAChallengeType is an enumeration of types of challenge prompts. A prompt represents a piece of information needed by the end user to respond to the challenge. <br><br>For instance, in the case of Secret QA (where the challenge name is secqa), there could either be a single prompt or multiple prompts, each prompt representing a secret question. For password challenge, the prompt array would be empty, since the user does not need any information to enter the password.
 
 ```c
 ```
@@ -1911,9 +1919,9 @@ ChallengeStatus | Description
 <b>RDNA_CHLNG_STATUS_USER_BLOCKED</b> | This status is returned when the specified user is in a BLOCKED state. The administrator needs to unblock the user before the authentication can proceed.
 <b>RDNA_CHLNG_STATUS_USER_ALREADY_ACTIVATED</b> | This status is returned when the user specified in the challenge has already been activated, yet the system is attempting to activate the user. In this case client needs to restart the user authentication sequence.
 <b>RDNA_CHLNG_STATUS_INVALID_ACT_CODE</b> | This status is returned when the user has entered an invalid activation code. The user needs to enter the appropriate activation code for the authentication to proceed.
-<b>RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED</b> | This code is returned when the user has attempted to update the challenges, and server has failed to update them. 
+<b>RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED</b> | This code is returned when the user has attempted to update the challenges, and server has failed to update them.
 <b>RDNA_CHLNG_STATUS_RESPONSE_VALIDATION_FAILED</b> | This code is returned when the server has failed to verify the user's response to a challenge. The server will usually present the challenges once again and the user needs to reattempt to respond to the challenges.
-<b>RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED</b> | This status is returned when the device from which the user is attempting to authenticate himself has been rejected by the server based on some policy. 
+<b>RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED</b> | This status is returned when the device from which the user is attempting to authenticate himself has been rejected by the server based on some policy.
 <b>RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST</b> |  This status is returned by the server when it recieves improper challenge response for that state. The usual solution for this would be to restart the authentication sequence.
 <b>RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR</b> | This status is returned when an internal server error has occurred. The only recourse is to contact the administrator.
 <b>RDNA_RESP_STATUS_FAILED_UPDATE_DEVICE_DETAILS</b> | This status is returned when update the device details at server is failed
@@ -1923,7 +1931,7 @@ ChallengeStatus | Description
 
 ## RDNAChallengeOpMode (Enumeration)
 
-This enumeration is used to indicate to the user about the intended action for the challenge, namely whether this is a challenge verification operation or a challenge update operation. 
+This enumeration is used to indicate to the user about the intended action for the challenge, namely whether this is a challenge verification operation or a challenge update operation.
 
 ```c
 ```
@@ -1954,7 +1962,7 @@ typedef enum{
 
 ChallengeOpMode | Description
 --------------- | -----------
-<b>RDNA_CHALLENGE_OP_VERIFY</b> | This implies that the challenge response would be verified by the server against the known correct response. 
+<b>RDNA_CHALLENGE_OP_VERIFY</b> | This implies that the challenge response would be verified by the server against the known correct response.
 <b>RDNA_CHALLENGE_OP_SET</b>    | This implies that the provided response would be marked by the server as the known correct response, and would be used to compare against the challenge response provided for the same challenge at a later point of time.
 
 ## RDNAResponseStatus
@@ -2001,7 +2009,7 @@ Member | Description
 <b>statusCode</b> | This is the statusCode representing the error that occurred during the processing of the challenge response.
 
 ## DeviceStatus (Enumeration)
-Following enums are defined for the device management feature, which will provide the device details of a specific device, for example the device status and device binding 
+Following enums are defined for the device management feature, which will provide the device details of a specific device, for example the device status and device binding
 
 ```c
 ```
@@ -2022,7 +2030,7 @@ public abstract class RDNA {
     RDNA_TEMPORARY(1),
   }
   //...
-}	
+}
 ```
 
 ```objective_c
@@ -2079,7 +2087,7 @@ coreInitialize
  char*  sCipherSalt,
  proxy_settings_t*
         pProxySettings,
- core_ssl_certificate* 
+ core_ssl_certificate*
         pSSLCertificate,
  void*  pvAppCtx);
 ```
@@ -2088,19 +2096,18 @@ coreInitialize
 public abstract class RDNA {
   //..
   public static
-    RDNAStatus<RDNA>
-    initialize(
-      String agentInfo,
-      RDNACallbacks
-             callbacks,
-      String authGatewayHNIP,
-      int    authGatewayPORT,
-      String cipherSpecs,
-      String cipherSalt,
-      RDNAProxySettings
-             proxySettings,
-	  RDNASSLCerts  sslCerts,
-      Object appCtx);
+  RDNA.RDNAStatus<RDNA> Initialize
+        (String agentInfo,
+         RDNA.RDNACallbacks callbacks,
+         String authGatewayHNIP,
+         int authGatewayPORT,
+         String cipherSpecs,
+         String cipherSalt,
+         RDNA.RDNAProxySettings proxySettings,
+         RDNA.RDNASSLCertificate sslCertificate,
+         String[] dnsServer,
+         RDNA.RDNALoggingLevel loggingLevel,
+         Object appCtx);
   //..
 }
 ```
@@ -2139,8 +2146,8 @@ public:
    RDNALoggingLevel   eLogLevel,
    void*              appCtx);
 }
-``` 
- 
+```
+
 Argument&nbsp;[in/out] | Description
 ---------------------- | -----------
 API Context [out] | The newly created API runtime context.<br>In Java, an instance of ```RDNA``` is returned in an ```RDNAStatus<RDNA>``` object.<br>In Core, Objective-C and C++, an out parameter is populated.
@@ -2197,7 +2204,7 @@ Routine | Description
 
 # API - Sessions
 
-The REL-ID Session is issued to the client-side as an opaque ticket from the REL-ID backend. This ticket is subsequently used by the client-side API-runtime to gain access to backend enterprise services. 
+The REL-ID Session is issued to the client-side as an opaque ticket from the REL-ID backend. This ticket is subsequently used by the client-side API-runtime to gain access to backend enterprise services.
 
 There are 2 types of REL-ID sessions - PRIMARY and SECONDARY:
 
@@ -2507,8 +2514,8 @@ RDNA_PRIVACY_SCOPE_AGENT | Keys used are specific to the agent (i.e. the applica
 ## Cipher Specifications
 
 The cipher specification details contain the cipher algorithm to be used for encryption/decryption (along with its key length, mode and padding) and the digest algorithm to be used for generating HMAC (Hash-based message authentication code) of the encrypted data for data integrity check.
-The format for cipher specification is [CIPHER_ALGO_SPECS]:[DIGEST_ALGO_SPECS]. 
-For example: AES/256/CBC/PKCS7Padding:SHA-1, where "AES/256/CBC/PKCS7Padding" is the cipher algorithm specification and "SHA-1" is the HMAC digest specification (optional). 
+The format for cipher specification is [CIPHER_ALGO_SPECS]:[DIGEST_ALGO_SPECS].
+For example: AES/256/CBC/PKCS7Padding:SHA-1, where "AES/256/CBC/PKCS7Padding" is the cipher algorithm specification and "SHA-1" is the HMAC digest specification (optional).
 
 The API-Client can also choose to use default Cipher Spec ("AES/256/CFB/PKCS7Padding:SHA-256") and default Cipher Salt/IV available in the API-SDK. The API-Client can get the default Cipher Spec and Salt of the API-Runtime context using the GetDefaultCipherSpec and GetDefaultCipherSalt APIs. These default CipherSpec and CipherSalt can be overridden by passing these information in the ```Initialize``` API.
 
@@ -2645,7 +2652,7 @@ public abstract class RDNA {
   - (int)encryptDataPacket:(RDNAPrivacyScope)privacyScope
                 CipherSpec:(NSString *)cipherSpec
                 CipherSalt:(NSString *)cipherSalt
-                      From:(NSData *)plainText 
+                      From:(NSData *)plainText
                       Into:(NSMutableData **)cipherText;
 
   - (int)decryptDataPacket:(RDNAPrivacyScope)privacyScope
@@ -3017,7 +3024,7 @@ Routine | Description
 
 The pause and resume routines make it possible to persist the <i>in-session</i> state of the API runtime and restore the runtime from the previously persisted state.
 
-This is useful in case of limited configuration devices and platforms - such as smartphone device platforms like Android, iOS and WindowsPhone. In these platforms, a running application could be swapped out of memory due to 'crowding' by other running applications, only to be swapped back in when the user chooses to access that application again. 
+This is useful in case of limited configuration devices and platforms - such as smartphone device platforms like Android, iOS and WindowsPhone. In these platforms, a running application could be swapped out of memory due to 'crowding' by other running applications, only to be swapped back in when the user chooses to access that application again.
 
 ```c
 int
@@ -3078,7 +3085,7 @@ public:
   (RDNA**             ppRuntimeCtx,
    std::string        state,
    RDNACallbacks*     callbacks,
-   RDNAProxySettings* proxySettings, 
+   RDNAProxySettings* proxySettings,
    void*              appCtx);
   //..
 }
@@ -3168,7 +3175,7 @@ Routine | Description
 <b>GetDeviceID</b> | Get the device ID of the current device using which the REL-ID session is initialized
 <b>GetConfig</b> | Get the configuration data from the server. No assumption is made with regards to the structure or format of the configuration data, except that it should be an ASCII string. The parameter ```configRequest``` is a hint to the server to provide a subset of the config based on the value of ```configRequest```.
 
-# API - User authentication 
+# API - User authentication
 
 REL-ID APISDK provides a set of API for authenticating an end-user. The API builds on top of the application (PRIMARY) REL-ID session, perform end-user authentication, and further associate a mutually authenticated end-user to form the user (SECONDARY) REL-ID session.<br><br>The client-server interaction to transition the user from the application (PRIMARY) REL-ID session to the user (SECONDARY) REL-ID session is through the challenge-response mechanism. The server would present a initial set of challenges and when the API-client responds to these challenges, the server would either mark the client to have been authenticated, or would present the next set of challenges. After the server has successfully verified the responses to the challenges, it would create a (SECONDARY) REL-ID session, which is based on the user REL-ID (which is unique to that user).
 <br><br>Subsequently all the communication channels will be secured using the ```user REL-ID```.
@@ -3185,7 +3192,7 @@ REL-ID APISDK provides a set of API for authenticating an end-user. The API buil
 ```java
 public abstract class RDNA {
   //..
-  public abstract int checkChallenges(RDNAChallenge[] challenges,String userID);
+  public abstract int checkChallengeResponse(RDNAChallenge[] challenges,String userID);
 }
 ```
 
@@ -3383,13 +3390,13 @@ public abstract class RDNA {
     protected String deviceName;
     protected final RDNADeviceBinding deviceBinding;
     protected RDNADeviceStatus deviceStatus;
-    protected final String deviceRegistrationTime; 
+    protected final String deviceRegistrationTime;
     protected final String lastAccessTime;
     protected final String lastLoginStatus;
-					
+
     public abstract void setNewDeviceName(String newDeviceName);
     public abstract void deleteDevice();
-    public abstract RDNADeviceStatus getDeviceStatus();	
+    public abstract RDNADeviceStatus getDeviceStatus();
     public abstract String getDeviceUUID();
     public abstract String getDeviceName();
     public abstract RDNADeviceBinding getDeviceBinding();
@@ -3593,7 +3600,7 @@ public abstract class RDNA {
   @property (nonatomic,strong) NSString *notificationID;
   @property (nonatomic,strong) NSString *subject;
   @property (nonatomic,strong) NSString *notificationMessage;
-  @property (nonatomic,strong) NSArray<RDNAExpectedResponse *> 
+  @property (nonatomic,strong) NSArray<RDNAExpectedResponse *>
                                                   *expectedResponse;
   @property (nonatomic,strong) NSString *notificationResponse;
   @property (nonatomic,strong) NSString *notificationExpireTime;
@@ -3610,7 +3617,7 @@ struct RDNAExpectedResponse
   string response;
 };
 
-class RDNANotification 
+class RDNANotification
 {
 public:
   string notificationID;
@@ -3644,7 +3651,7 @@ Member | Description
 <b>notificationExpiryTime</b> | This is the string representation of the expiry time stamp when notifiction wil be expired.
 <b>enterpriseID</b> | This is the string representation enterprise ID, this specifies that for which enterprise the notification is related to.
 
-## GetNotifications 
+## GetNotifications
 
 This API fetches the list of notifications which are active. We can get the notifications for a specific enterprise also, Even we can specify the number of records to be fetched, and even we can specify the index number from which the records to be fetched to support the paging of notification. To get all the notifications from the server we should provide the recordCount value as 0 and server send all the active Notifications of the user.
 
@@ -3654,8 +3661,8 @@ This API fetches the list of notifications which are active. We can get the noti
 ```java
 public abstract class RDNA {
   //..
-  public abstract int getNotifications(int recordCount, 
-                                       int startRecord, 
+  public abstract int getNotifications(int recordCount,
+                                       int startRecord,
                                        String enterpriseID,
                                        String startDate,
                                        String endDate);
@@ -3665,10 +3672,10 @@ public abstract class RDNA {
 ```objective_c
 @interface RDNA
   //...
-  - (int)getNotifications:(int)recordCount 
-                          withStartIndex:(int)startIndex 
-                          withEnterpriseID:(NSString*)enterpriseID 
-                          withStartDate:(NSString*)startDate 
+  - (int)getNotifications:(int)recordCount
+                          withStartIndex:(int)startIndex
+                          withEnterpriseID:(NSString*)enterpriseID
+                          withStartDate:(NSString*)startDate
                           withEndDate:(NSString*)endDate;
 
 @end
@@ -3703,7 +3710,7 @@ public abstract class RDNA {
 ```objective_c
 @interface RDNA
   //...
-  - (int)updateNotification:(NSString*)notificationID 
+  - (int)updateNotification:(NSString*)notificationID
                              withResponse:(NSString*)response;
 
 @end
@@ -3712,7 +3719,7 @@ public abstract class RDNA {
 ```cpp
 class RDNA {
   //...
-  int updateNotification(string notificationID, 
+  int updateNotification(string notificationID,
                          string response)
 }
 ```
