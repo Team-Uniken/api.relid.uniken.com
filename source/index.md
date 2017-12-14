@@ -343,9 +343,9 @@ public abstract class RDNA {
   - (int)onPauseRuntime:(RDNAStatusPauseRuntime *)status;
   - (int)onResumeRuntime:(RDNAStatusResumeRuntime *)status;
   - (int)onLogOff:(RDNAStatusLogOff *)status;
-  - (int)onCheckChallengeResponseStatus:(RDNAStatusCheckChallengesResponse *) status;
+  - (int)onCheckChallengeResponseStatus:(RDNAStatusCheckChallengeResponse *) status;
   - (int)onGetAllChallengeStatus:(RDNAStatusGetAllChallenges *) status;
-  - (int)onUpdateChallengeStatus:(RDNAStatusUpdateChallenge *) status;
+  - (int)onUpdateChallengeStatus:(RDNAStatusUpdateChallenges *) status;
   - (int)onForgotPasswordStatus:(RDNAStatusForgotPassword *)status;
   - (int)onLogOff: (RDNAStatusLogOff *)status;
   - (int)onGetPostLoginAuthenticationResponseStatus:(RDNAStatusGetPostChallengeResponse *)status;
@@ -460,6 +460,44 @@ Field | Description
 <b>ProxyPassword</b> | The password to use with the username, to authenticate with the proxy server. This too is required only when the proxy server requires authentication.
 <b>ProxyExceptionList</b> | The list speciifes to not use proxy server for addressess in the exception list.
 
+## Log Levels (enum)
+
+```cpp
+typedef enum {
+  RDNA_NO_LOGS = 0,
+  RDNA_LOG_WARN,
+  RDNA_LOG_NOTIFY,
+  RDNA_LOG_NETWORK,
+  RDNA_LOG_DNA,
+  RDNA_LOG_DEBUG,
+  RDNA_LOG_VERBOSE
+} RDNALoggingLevel;
+```
+
+```java
+public static enum RDNALoggingLevel{
+    RDNA_NO_LOGS(0),
+    RDNA_LOG_WARN(1),
+    RDNA_LOG_NOTIFY(2),
+    RDNA_LOG_NETWORK(3),
+    RDNA_LOG_DNA(4),
+    RDNA_LOG_DEBUG(5),
+    RDNA_LOG_VERBOSE(6);
+}
+```
+
+This enum specifies the type of SDK logs that will be provided to the application.
+
+Enumeration | Description
+----------- | -----------
+<b>RDNA_NO_LOGS</b> |  Logging will be off
+<b>RDNA_LOG_WARN</b> | Used to log warning sort of messages
+<b>RDNA_LOG_NOTIFY</b> | Conditions that are not error conditions, but that may require special handling.
+<b>RDNA_LOG_NETWORK</b> | Socket level logs
+<b>RDNA_LOG_DNA</b> | Logs from the DNA library
+<b>RDNA_LOG_DEBUG</b> | Specifies Debug logs
+<b>RDNA_LOG_VERBOSE</b> | Specifies more detailed logs than debug level
+
 ## SSL Certificates (structure)
 
 This structure is supplied to the Initialize routine when the REL-ID Auth Gateway is accessible over SSL/TLS. It requires a certificate in a base64 encoded P12 format. The CA (certifying authority) provides certificates in P12 format. It is the responsibility of the APP developer to base64 encode this certificate and then pass it to the SSL certificate structure.
@@ -568,9 +606,18 @@ public abstract class RDNA {
     public RDNAService services[];
     public RDNAPort pxyDetails;
     public RDNAChallenge[] challenges;
+    public RDNAResponseStatus status;
   }
 
-  public static class RDNAStatusCheckChallengesResponse {
+  public static class RDNAStatusGetConfig {
+    public Object pvtRuntimeCtx;                         
+    public Object pvtAppCtx;                             
+    public int errCode;                                  
+    public RDNA.RDNAMethodID methodID;                   
+    public String responseData;
+  }
+
+  public static class RDNAStatusCheckChallengeResponse {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
     public int errCode;
@@ -581,7 +628,7 @@ public abstract class RDNA {
     public RDNAPort pxyDetails;
   }
 
-  public static class RDNAStatusUpdateChallenge {
+  public static class RDNAStatusUpdateChallenges {
     public Object pvtRuntimeCtx;
     public Object pvtAppCtx;
     public int errCode;
@@ -600,12 +647,14 @@ public abstract class RDNA {
   }
 
   public static class RDNAStatusLogOff {
-    public Object pvtRuntimeCtx;
-    public Object pvtAppCtx;
-    public int errCode;
-    public RDNAMethodID methodID;
-    public RDNAService services[];
-    public RDNAPort pxyDetails;
+    public Object pvtRuntimeCtx;                        
+    public Object pvtAppCtx;                            
+    public int errCode;                                 
+    public RDNA.RDNAMethodID methodID;                  
+    public RDNA.RDNAService services[];                 
+    public RDNA.RDNAPort pxyDetails;                    
+    public RDNA.RDNAChallenge[] challenges;             
+    public RDNA.RDNAResponseStatus status;
   }
 
   public static class RDNAStatusGetPostLoginChallenges{
@@ -623,7 +672,7 @@ public abstract class RDNA {
     public int errCode;
     public RDNAMethodID methodID;
     public RDNADeviceDetails[] devices;
-    public RDNAResponseStatus challengeStatus;
+    public RDNAResponseStatus status;
   }
 
   public static class RDNAStatusUpdateDeviceDetails {
@@ -631,17 +680,19 @@ public abstract class RDNA {
     public Object pvtAppCtx;
     public int errCode;
     public RDNAMethodID methodID;
-    public RDNAResponseStatus challengeStatus;
+    public RDNAResponseStatus status;
   }
 
   public static class RDNAStatusGetNotifications {
-    public Object pvtRuntimeCtx;
-    public Object pvtAppCtx;
-    public int errCode;
-    public RDNAMethodID methodID;
-    public RDNAResponseStatus status;
-    public int totalNotifications;
-    public RDNANotification[] notifications;
+    public Object pvtRuntimeCtx;                           
+    public Object pvtAppCtx;                               
+    public int errCode;                                    
+    public RDNA.RDNAMethodID methodID;                     
+    public RDNA.RDNAResponseStatus status;                 
+    public int totalNotificationCount;                     
+    public int startIndex;                                 
+    public int fetchedNotificationCount;                   
+    public RDNA.RDNANotification[] notifications;
   }
 
   public static class RDNAStatusUpdateNotification {
@@ -661,6 +712,15 @@ public abstract class RDNA {
     public int totalNotificationCount;                            
     public RDNAResponseStatus status;                              
     RDNANotificationHistory[] notificationHistory;  
+  }
+
+  public static class RDNAStatusForgotPassword {
+    public Object pvtRuntimeCtx;                         
+    public Object pvtAppCtx;                             
+    public int errCode;                                  
+    public RDNA.RDNAMethodID methodID;                   
+    public RDNA.RDNAResponseStatus status;               
+    public RDNA.RDNAChallenge[] challenges;
   }
   //..
 }
@@ -701,7 +761,7 @@ public abstract class RDNA {
   @property (nonatomic) NSArray *challenges;
 @end
 
-@interface RDNAStatusCheckChallengesResponse : NSObject
+@interface RDNAStatusCheckChallengeResponse : NSObject
   @property (nonatomic) void *pvtRuntimeCtx;
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
@@ -712,7 +772,7 @@ public abstract class RDNA {
   @property (nonatomic) NSArray *challenges;
 @end
 
-@interface RDNAStatusUpdateChallenge : NSObject
+@interface RDNAStatusUpdateChallenges : NSObject
   @property (nonatomic) void *pvtRuntimeCtx;
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
@@ -833,7 +893,7 @@ typedef struct {
   vector<RDNAChallenge> challenges;
 } RDNAStatusResume;
 
-typedef struct RDNAStatusCheckChallengesResponse_s{
+typedef struct RDNAStatusCheckChallengeResponse_s{
   void* pvtRuntimeCtx;
   void* pvtAppCtx;
   int  errCode;
@@ -842,7 +902,7 @@ typedef struct RDNAStatusCheckChallengesResponse_s{
   RDNAResponseStatus status;
   vector<RDNAService> services;
   vector<RDNAChallenge> challenges;
-  RDNAStatusCheckChallengesResponse_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
+  RDNAStatusCheckChallengeResponse_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
                                   methodID(RDNA_METH_NONE)
   {}
 }RDNAStatusCheckChallengeResponse;
@@ -3150,7 +3210,7 @@ class RDNA {
 }
 ```
 
-As part of the API call sequence to authenticate an end-user, the API-client receives challenges in the form of RDNAChallenge objects/structs. The API-client would then receive the response to the challenge from the end-user, and use the ```checkChallengeResponse``` API to pass the challenge responses to the server. The response will be validated by the server. The server would then process the response and the API-client will receive a ```RDNAStatusCheckChallengesResponse``` object representing the result of processing the response for the challenge. The server response would indicate that whether the response was validate successfully or not.
+As part of the API call sequence to authenticate an end-user, the API-client receives challenges in the form of RDNAChallenge objects/structs. The API-client would then receive the response to the challenge from the end-user, and use the ```checkChallengeResponse``` API to pass the challenge responses to the server. The response will be validated by the server. The server would then process the response and the API-client will receive a ```RDNAStatusCheckChallengeResponse``` object representing the result of processing the response for the challenge. The server response would indicate that whether the response was validate successfully or not.
 
 <aside class="notice">This API should only be called to authenticate an end-user, and post authentication this API should not be used. Please refer to <u><i>getPostLoginChallenges</i></u> API for getting the end-user to authenticate, post successful authentication in the same session</aside>
 
