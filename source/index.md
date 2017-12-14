@@ -2217,7 +2217,7 @@ There are 2 types of REL-ID sessions - PRIMARY and SECONDARY:
 The <b>PauseRuntime</b> routine returns the <i>in-session</i> state of the API-runtime includes the session tickets and their access configurations as well. This returned state may be persisted and reloaded into the API-runtime with the call to <b>ResumeRuntime</b>, to recreate the runtime state along with the session information required for accessing backend services.
 </aside>
 
-When an API-client application no longer requires a session, for example when the end-user logs of the enterprise application, it can invoke the ```InvalidateAppSession``` and/or ```InvalidateUserSession``` routines to notify the REL-ID backend that the session is no longer valid and is not to be entertained anymore.
+When an API-client application no longer requires a session, for example when the end-user logs of the enterprise application, it can invoke the ```logoff``` (to terminate user session) and/or ```terminate``` (to terminate the user and app session) routines to notify the REL-ID backend that the session is no longer valid and is not to be entertained anymore.
 
 After the formation of user session - the app session is subsided by saving its state, the services related to app session is shutdown and the services related to user session is started. Hence after the invalidation of user session, the app session is again restored and the services related to app session is started as per its last subsided state.
 
