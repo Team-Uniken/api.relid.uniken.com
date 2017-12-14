@@ -3643,3 +3643,124 @@ class RDNA {
                          string response)
 }
 ```
+
+# API - Notification History
+
+## RDNANotificationHistory
+
+The RDNANotificationHistory class provides history of a single notification in a structured format. Object of this class defines a notification information such as notification ID, action taken, notification message etc. A list of RDNANotificationHistory objects is returned as a part of query statement provided in the API - ```GetNotificationsHistory```.
+
+###RDNANotification
+
+```c
+```
+
+```java
+public static class RDNANotificationHistory {
+    public String notificationID;   
+    public String deliveryStatus;   
+    public String status;           
+    public String subject;          
+    public String message;          
+    public String actionPerformed;  
+    public String deviceUUID;       
+    public String deviceName;     
+    public String createdTime;    
+    public String updatedTime;      
+    public String expiredTime;    
+    public String enterpriseID;     
+}
+```
+
+```objective_c
+```
+
+```cpp
+class RDNANotificationHistory
+{
+public:
+  string notificationID;  //Unique ID for notifications
+  string status;          //<ACTIVE / EXPIRED / UPDATED>
+  string subject;         //Subject of the notification
+  string message;         //Notification Text to be displayed to user
+  string actionTaken;     //Notification action taken by user
+  string deviceName;      //Notification action taken on specific device
+  string createdTime;     //Notification generated time on server
+  string updatedTime;     //Notification action taken by user time
+  string expiredTime;     //Notification expired time
+  string enterpriseID;    //Enterprise ID which we have got while onboarding the enterprise application
+};
+```
+
+Member | Description
+------ | -----------
+<b>notificationID</b> | This is a string representation of unique notification ID.
+<b>deliveryStatus</b> | This specifies if the client has been notified about the notification. The values can be NOTIFIED / PARTIALLY_NOTIFIED / FAILED_TO_NOTIFY.
+<b>status</b> | This represents the status of the notification. It can have values as ACTIVE / EXPIRED / UPDATED.
+<b>subject</b> | This is string representation of notification subject. If a message is a transaction notification then subject for the notification could be Transaction.
+<b>message</b> | This is string representation of the actual notification message.
+<b>actionTaken</b> | This is string representation of the action taken by the user on the notification.
+<b>deviceName</b> | This is string representation of the device on which an action was performed by the user for the said notification.
+<b>createdTime</b> | This specifies the notification generated time on server.
+<b>updatedTime</b> | This specifies the time when the user performed an action on the notification
+<b>expiredTime</b> | This specifies the expiry time of the notification.
+<b>enterpriseID</b> | This is the string representation enterprise ID, this specifies that for which enterprise the notification is related to.
+
+## GetNotificationsHistory
+
+```c
+int coreGetNotificationHistory
+ (void* pvRuntimeCtx,
+  int nRecordCount,
+  char* pcEnterpriseID,
+  int nStartRecord,
+  char* pcStartDate,
+  char* pcEndDate,
+  char* pcStatus,
+  char* pcAction,
+  char* pcKeyword,
+  char* pcDevUUID);
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int getNotificationHistory
+        (int recordCount,
+         String enterpriseID,
+         int startIndex,
+         String startDate,
+         String endDate,
+         String notificationStatus,
+         String actionPerformed,
+         String keywordSearch,
+         String deviceID);
+
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+
+
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int getNotificationHistory
+   (int nRecordCount,
+    string pcEnterpriseID,
+    int nStartRecord,
+    string pcStartDate,
+    string pcEndDate,
+    string pcStatus,
+    string pcAction,
+    string pcKeyword,
+    string pcDevUUID);
+}
+```
+
+This API is used to fetch the notification history for a particular user. The fetch request can be optimized by various filters to get the very necessary data only. ```The history will not contain active notifications.```
