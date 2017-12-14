@@ -3851,3 +3851,175 @@ class RDNA {
 ```
 
 This API is used to fetch the notification history for a particular user. The fetch request can be optimized by various filters to get the very necessary data only. ```The history will not contain active notifications.```
+
+# API - HTTP Tunnel (Rest) connection
+
+The CORE SDK has the facility to provide secure access to any resource via the Rel-ID authenticated channel using HTTP, HTTPs and Port forwarding proxies. In addition to this proxies, there came a need to add an API which can handle similar such request but limited to a single request response (Similar to RESTful web services).
+
+## Structures
+
+HTTP tunnel connection api uses ```RDNAHTTPRequest``` to issue a request and gets a response from the SDK in the ```RDNAHTTPResponse``` structure. The SDK wraps the ```RDNAHTTPRequest``` and ```RDNAHTTPResponse``` together into ```RDNAHttpStatus``` as a part of the response.
+
+The requestID in the RDNAHttpStatus is a unique integer value to identify the RDNAHTTPRequest. The requestID is issued to the application as a part of the ```openHttpConnection``` api.
+
+```cpp
+typedef enum {
+  RDNA_HTTP_POST = 0,
+  RDNA_HTTP_GET,
+}RDNAHttpMethods;
+
+typedef struct RDNAHTTPRequest_s {
+  RDNAHttpMethods Method;
+  string URL;
+  std::map<string, string> Headers;
+  string Body;
+  RDNAHTTPRequest_s() : Method(RDNA_HTTP_GET), URL(""), Body("")
+  {}
+}RDNAHTTPRequest;
+
+typedef struct RDNAHTTPResponse_s{
+  string Version;
+  int StatusCode;
+  string StatusMessage;
+  std::map<string, string> Headers;
+  string Body;
+}RDNAHTTPResponse;
+
+typedef struct RDNAHttpStatus_s{
+  int errorCode;
+  int requestID;
+  RDNAHTTPRequest* request;
+  RDNAHTTPResponse* response;
+}RDNAHttpStatus;
+```
+
+```java
+public static enum RDNAHTTPMethods{
+	RDNA_HTTP_POST(0),
+	RDNA_HTTP_GET(1);
+}
+
+public static class RDNAHTTPRequest{
+	public RDNAHTTPMethods method;
+	public String url;
+	public HashMap<String,String> headers;
+	public byte[] body;
+}
+
+public static class RDNAHTTPResponse{
+	public String version;
+	public int statusCode;
+	public String statusMessage;
+	public HashMap<String,String> headers;
+	public byte[] body;
+}
+
+public static class RDNAHTTPStatus{
+	public int errorCode;
+	public int requestID;
+	public RDNAHTTPRequest request;
+	public RDNAHTTPResponse response;
+}
+```
+
+```objective_c
+```
+
+<br>
+<b>RDNAHttpMethods</b>
+
+Enumeration | Description
+----------- | -----------
+<b>RDNA_HTTP_POST</b> | HTTP Post method
+<b>RDNA_HTTP_GET</b> | HTTP Get method
+
+<br>
+<b>RDNAHTTPRequest</b>
+
+Members | Description
+------- | -----------
+<b>Method</b> | HTTP method
+<b>StatusCode</b> | URL whose web resource is to be fetched
+<b>Headers</b> | List of request headers
+<b>Body</b> | HTTP request body
+
+<br>
+<b>RDNAHTTPResponse</b>
+
+Members | Description
+------- | -----------
+<b>Version</b> | HTTP version
+<b>StatusCode</b> | HTTP status code
+<b>StatusMessage</b> | HTTP status message
+<b>Headers</b> | List of response headers
+<b>Body</b> | HTTP response body
+
+<br>
+<b>RDNAHttpStatus</b>
+
+Members | Description
+------- | -----------
+<b>errorCode</b> | SDK error code
+<b>requestID</b> | Unique integer to identify the RDNAHTTPRequest
+<b>request</b> | Object of type RDNAHTTPRequest
+<b>response</b> | Object of type RDNAHTTPResponse
+
+## Callbacks
+
+The callback will be invoked as part of the open http connection api for the provided tunnel request id. The SDK return RDNAHTTPStatus object which contains error id, tunnel request id, RDNAHTTPRequest and RDNAHTTPResponse.
+
+```cpp
+typedef int(*onHttpResponse)(RDNAHttpStatus* status);
+```
+
+```java
+public static interface RDNAHTTPCallbacks{
+	int onHttpResponse(RDNAHTTPStatus status);
+}
+```
+
+## OpenHttpConnection
+
+```c
+ int coreOpenHttpConnection
+   (void* pvRuntimeCtx,
+    void* pvAppCtx,
+    e_core_http_methods eMethod,
+    unsigned char* pcURL,
+    core_http_header** pcHeaders,
+    unsigned int nHeaderLen,
+    unsigned char* pcBody,
+    unsigned int nBodyLen,
+    int* nTunnelRequestID);
+```
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract
+  RDNAStatus<Integer>
+  openHttpConnection
+  (RDNAHTTPRequest request,
+   RDNAHTTPCallbacks callback);
+
+```
+
+```objective_c
+@interface RDNA
+  //...
+
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int openHttpConnection
+   (RDNAHTTPRequest* aHttpReq,
+    onHttpResponse respHandler,
+    int& nTunnelRequestID);
+```
+
+The API tunnels HTTP request data on a Rel-ID authenticated channel. This api can be used post session creation for light weight http calls via Rel-ID authenticated channels. The application needs to register a callback method each time it invokes the api. This makes it very easy for the application developer to handle http response for http request made using the api in a different manner.
+
+In case of java SDK, the tunnel request ID is provided as a part of return value, and for other SDK it is provided as part of out parameter.
