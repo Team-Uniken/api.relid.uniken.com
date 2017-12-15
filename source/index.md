@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Thursday, 14th December 2017</u>
+Last updated on <u>Thursday, 15th December 2017</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -322,7 +322,7 @@ public abstract class RDNA {
     public RDNAIWACreds getCredentials(String domainUrl);
     public String getApplicationName();
     public String getApplicationVersion();
-    public Object getDeviceContext();
+    public Context getDeviceContext();
     public String getDeviceToken();
 }
   //..
@@ -331,32 +331,32 @@ public abstract class RDNA {
 
 ```objective_c
 @protocol RDNACallbacks
-  @required
+
   - (int)onInitializeCompleted:(RDNAStatusInit *)status;
   - (CLLocationManager *)getLocationManager;
   - (NSString *)getApplicationVersion;
   - (NSString *)getApplicationName;
-  //...
-
-  @optional
   - (int)onTerminate:(RDNAStatusTerminate *)status;
   - (int)onPauseRuntime:(RDNAStatusPauseRuntime *)status;
   - (int)onResumeRuntime:(RDNAStatusResumeRuntime *)status;
-  - (int)onLogOff:(RDNAStatusLogOff *)status;
+  - (int)onConfigReceived:(RDNAStatusGetConfig *)status;
   - (int)onCheckChallengeResponseStatus:(RDNAStatusCheckChallengeResponse *) status;
   - (int)onGetAllChallengeStatus:(RDNAStatusGetAllChallenges *) status;
   - (int)onUpdateChallengeStatus:(RDNAStatusUpdateChallenges *) status;
   - (int)onForgotPasswordStatus:(RDNAStatusForgotPassword *)status;
   - (int)onLogOff: (RDNAStatusLogOff *)status;
-  - (int)onGetPostLoginAuthenticationResponseStatus:(RDNAStatusGetPostChallengeResponse *)status;
+  - (RDNAIWACreds *)getCredentials:(NSString *)domainUrl;
+  - (int)ShowLocationDailogue;
+  - (int)onGetPostLoginChallenges:(RDNAStatusGetPostLoginChallenges *)status;
   - (int)onGetRegistredDeviceDetails:(RDNAStatusGetRegisteredDeviceDetails *)status;
   - (int)onUpdateDeviceDetails:(RDNAStatusUpdateDeviceDetails *)status;
   - (int)onGetNotifications:(RDNAStatusGetNotifications *)status;
   - (int)onUpdateNotification:(RDNAStatusUpdateNotification *)status;
-
-  - (RDAIWACreds *)getCredentials:(NSString *)domainUrl;
   - (NSString*)getDeviceToken;
-  //...
+  - (int)onGetNotificationsHistory:(RDNAStatusGetNotificationHistory *)status;
+  - (int)onSessionTimeout:(NSString*)status;
+  - (int)onSecurityThreat:(NSString*)status;
+  - (int)onSdkLogPrintRequest:(RDNALoggingLevel)level andlogData:(NSString*)logData;
 @end
 ```
 
@@ -474,6 +474,18 @@ typedef enum {
 } RDNALoggingLevel;
 ```
 
+```objective_c
+typedef NS_ENUM(NSInteger, RDNALoggingLevel) {
+ RDNA_NO_LOGS = 0,
+ RDNA_LOG_WARN,
+ RDNA_LOG_NOTIFY,
+ RDNA_LOG_NETWORK,
+ RDNA_LOG_DNA,
+ RDNA_LOG_DEBUG,
+ RDNA_LOG_VERBOSE
+};
+```
+
 ```java
 public static enum RDNALoggingLevel{
     RDNA_NO_LOGS(0),
@@ -528,9 +540,9 @@ public abstract class RDNA {
 ```
 
 ```objective_c
-@interface RDNASSLCerts  : NSObject
-  @property (nonatomic, copy) NSString *p12Certificate;
-  @property (nonatomic, copy) NSString *password;
+@interface RDNASSLCertificate : NSObject
+  @property (nonatomic,strong) NSString* p12Certificate;
+  @property (nonatomic,strong) NSString* password;
 @end
 ```
 
@@ -727,6 +739,7 @@ public abstract class RDNA {
 ```
 
 ```objective_c
+
 @interface RDNAStatusInit : NSObject
   @property (nonatomic) void *pvtRuntimeCtx;
   @property (nonatomic) void *pvtAppCtx;
@@ -759,6 +772,7 @@ public abstract class RDNA {
   @property (nonatomic) RDNAPort *pxyDetails;
   @property (nonatomic) NSArray *services;
   @property (nonatomic) NSArray *challenges;
+  @property (nonatomic) RDNAResponseStatus *status;
 @end
 
 @interface RDNAStatusCheckChallengeResponse : NSObject
@@ -816,6 +830,7 @@ public abstract class RDNA {
   @property (nonatomic) int errorCode;
   @property (nonatomic) RDNAMethodID methodID;
   @property (nonatomic) NSArray *devices;
+  @property (nonatomic) RDNAResponseStatus *status;
 @end
 
 @interface RDNAStatusUpdateDeviceDetails : NSObject
@@ -826,13 +841,13 @@ public abstract class RDNA {
   @property (nonatomic) RDNAResponseStatus *status;
 @end
 
-@interface RDNAStatusGetPostLoginChallengeResponse : NSObject
+@interface RDNAStatusGetPostLoginChallenges : NSObject
   @property (nonatomic) void *pvtRuntimeCtx;
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
   @property (nonatomic) RDNAMethodID methodID;
   @property (nonatomic) RDNAResponseStatus *status;
-  @property (nonatomic) NSArray *postLoginChallenges;
+  @property (nonatomic) NSArray *challenges;
 @end
 
 @interface RDNAStatusGetNotifications : NSObject
@@ -856,6 +871,23 @@ public abstract class RDNA {
    @property (nonatomic) RDNAResponseStatus *status;
 @end
 
+@interface RDNAStatusGetNotificationHistory : NSObject
+    @property (nonatomic) void *pvtRuntimeCtx;
+    @property (nonatomic) void *pvtAppCtx;
+    @property (nonatomic) int errCode;
+    @property (nonatomic) RDNAMethodID methodID;
+    @property (nonatomic) int totalNotificationCount;
+    @property (nonatomic) RDNAResponseStatus *status;
+    @property (nonatomic,strong) NSArray<RDNANotificationHistory *> *notificationHistory;
+@end
+
+@interface RDNAStatusGetConfig : NSObject
+    @property (nonatomic) void *pvtRuntimeCtx;
+    @property (nonatomic) void *pvtAppCtx;
+    @property (nonatomic) int errCode;
+    @property (nonatomic) RDNAMethodID methodID;
+    @property (nonatomic) NSString *responseData;
+@end
 ```
 
 ```cpp
@@ -1279,80 +1311,78 @@ public abstract class RDNA {
 
 ```objective_c
 typedef NS_ENUM(NSInteger, RDNAErrorID) {
-  RDNA_ERR_NONE = 0,
-
-  RDNA_ERR_NOT_INITIALIZED = 1,
-  RDNA_ERR_GENERIC_ERROR,
-  RDNA_ERR_INVALID_VERSION,
-  RDNA_ERR_INVALID_ARGS,
-  RDNA_ERR_INVALID_CONTEXT,
-
-  RDNA_ERR_FAILED_TO_CONNECT_VIA_PROXY = 21,
-  RDNA_ERR_NULL_CALLBACKS,
-  RDNA_ERR_INVALID_HOST,
-  RDNA_ERR_INVALID_PORTNUM,
-  RDNA_ERR_INVALID_AGENT_INFO,
-  RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER,
-  RDNA_ERR_FAILED_TO_AUTHENTICATE,
-  RDNA_ERR_INVALID_SAVED_CONTEXT,
-  RDNA_ERR_INVALID_HTTP_REQUEST,
-  RDNA_ERR_INVALID_HTTP_RESPONSE,
-
-  RDNA_ERR_INVALID_CIPHERSPECS = 42,
-  RDNA_ERR_PLAINTEXT_EMPTY,
-  RDNA_ERR_PLAINTEXT_LENGTH_INVALID,
-  RDNA_ERR_CIPHERTEXT_EMPTY,
-  RDNA_ERR_CIPHERTEXT_LENGTH_INVALID,
-
-  RDNA_ERR_SERVICE_NOT_SUPPORTED = 61,
-  RDNA_ERR_INVALID_SERVICE_NAME,
-
-  RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE = 81,
-  RDNA_ERR_FAILED_TO_GET_STREAM_TYPE,
-  RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM,
-  RDNA_ERR_FAILED_TO_END_STREAM,
-  RDNA_ERR_FAILED_TO_DESTROY_STREAM,
-
-  RDNA_ERR_FAILED_TO_INITIALIZE = 101,
-  RDNA_ERR_FAILED_TO_PAUSERUNTIME,
-  RDNA_ERR_FAILED_TO_RESUMERUNTIME,
-  RDNA_ERR_FAILED_TO_TERMINATE,
-  RDNA_ERR_FAILED_TO_GET_CIPHERSALT,
-  RDNA_ERR_FAILED_TO_GET_CIPHERSPECS,
-  RDNA_ERR_FAILED_TO_GET_AGENT_INFO,
-  RDNA_ERR_FAILED_TO_GET_SESSION_ID,
-  RDNA_ERR_FAILED_TO_GET_DEVICE_ID,
-  RDNA_ERR_FAILED_TO_GET_SERVICE,
-  RDNA_ERR_FAILED_TO_START_SERVICE,
-  RDNA_ERR_FAILED_TO_STOP_SERVICE,
-  RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET,
-  RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET,
-  RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST,
-  RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE,
-  RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM,
-  RDNA_ERR_FAILED_TO_CHECK_CHALLENGE,
-  RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE,
-  RDNA_ERR_FAILED_TO_GET_CONFIG,
-  RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES,
-  RDNA_ERR_FAILED_TO_LOGOFF,
-  RDNA_ERR_FAILED_TO_RESET_CHALLENGE,
-  RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD,
-  RDNA_ERR_FAILED_TO_SEND_DEV_DETAILS,
-  RDNA_ERR_FAILED_TO_SET_DNS_SERVER,
-  RDNA_ERR_USERID_EMPTY,
-  RDNA_ERR_CHALLENGE_EMPTY,
-  RDNA_ERR_FAILED_TO_SERIALIZE_JSON,
-  RDNA_ERR_FAILED_TO_DESERIALIZE_JSON,
-  RDNA_ERR_INVALID_CHALLENGE_CONFIG,
-  RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES,
-  RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS,
-  RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS,
-  RDNA_ERR_USECASE_EMPTY,
-  RDNA_ERR_DEVICE_DETAILS_EMPTY,
-  RDNA_ERR_401_URL_EMPTY,
-  RDNA_ERR_PASSWORD_EMPTY,
-  RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS,
-  RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION,
+     RDNA_ERR_NONE = 0,                    
+     RDNA_ERR_NOT_INITIALIZED,                      
+     RDNA_ERR_GENERIC_ERROR,                        
+     RDNA_ERR_INVALID_VERSION,                      
+     RDNA_ERR_INVALID_ARGS,                         
+     RDNA_ERR_SESSION_EXPIRED,                      
+     RDNA_ERR_PARENT_PROXY_CONNECT_FAILED,          
+     RDNA_ERR_NULL_CALLBACKS,                       
+     RDNA_ERR_INVALID_HOST,                         
+     RDNA_ERR_INVALID_PORTNUM,                      
+     RDNA_ERR_INVALID_AGENT_INFO,                   
+     RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER,          
+     RDNA_ERR_INVALID_SAVED_CONTEXT,                
+     RDNA_ERR_INVALID_HTTP_REQUEST,                 
+     RDNA_ERR_INVALID_HTTP_RESPONSE,                
+     RDNA_ERR_INVALID_CIPHERSPECS,                  
+     RDNA_ERR_SERVICE_NOT_SUPPORTED,                
+     RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE,    
+     RDNA_ERR_FAILED_TO_GET_STREAM_TYPE,            
+     RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM,          
+     RDNA_ERR_FAILED_TO_END_STREAM,                 
+     RDNA_ERR_FAILED_TO_DESTROY_STREAM,             
+     RDNA_ERR_FAILED_TO_INITIALIZE,                 
+     RDNA_ERR_FAILED_TO_PAUSERUNTIME,               
+     RDNA_ERR_FAILED_TO_RESUMERUNTIME,              
+     RDNA_ERR_FAILED_TO_TERMINATE,                  
+     RDNA_ERR_FAILED_TO_GET_CIPHERSALT,             
+     RDNA_ERR_FAILED_TO_GET_CIPHERSPECS,            
+     RDNA_ERR_FAILED_TO_GET_AGENT_ID,               
+     RDNA_ERR_FAILED_TO_GET_SESSION_ID,             
+     RDNA_ERR_FAILED_TO_GET_DEVICE_ID,              
+     RDNA_ERR_FAILED_TO_GET_SERVICE,                
+     RDNA_ERR_FAILED_TO_START_SERVICE,              
+     RDNA_ERR_FAILED_TO_STOP_SERVICE,               
+     RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET,        
+     RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET,        
+     RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST,       
+     RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE,      
+     RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM,      
+     RDNA_ERR_FAILED_TO_CHECK_CHALLENGE,            
+     RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE,           
+     RDNA_ERR_FAILED_TO_GET_CONFIG,                 
+     RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES,         
+     RDNA_ERR_FAILED_TO_LOGOFF,                     
+     RDNA_ERR_FAILED_TO_RESET_CHALLENGE,            
+     RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD,         
+     RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES,  
+     RDNA_ERR_FAILED_TO_GET_REGISTERD_DEVICE_DETAILS
+     RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS,      
+     RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS,          
+     RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION,        
+     RDNA_ERR_FAILED_TO_OPEN_HTTP_CONNECTION,       
+     RDNA_ERR_SSL_INIT_FAILED,                      
+     RDNA_ERR_SSL_ACTIVITY_FAILED,                  
+     RDNA_ERR_DNS_FAILED,                           
+     RDNA_ERR_NET_DOWN,                             
+     RDNA_ERR_SOCK_TIMEDOUT,                        
+     RDNA_ERR_DNA_INTERNAL,                         
+     RDNA_ERR_FAILED_TO_PARSE_DEVICES,              
+     RDNA_ERR_INVALID_CHALLENGE_CONFIG,             
+     RDNA_ERR_INVALID_HTTP_API_REQ_URL,             
+     RDNA_ERR_NO_MEMORY,
+     RDNA_ERR_INVALID_CONTEXT,
+     RDNA_ERR_CIPHERTEXT_LENGTH_INVALID,
+     RDNA_ERR_CIPHERTEXT_EMPTY,
+     RDNA_ERR_PLAINTEXT_EMPTY,
+     RDNA_ERR_PLAINTEXT_LENGTH_INVALID,
+     RDNA_ERR_USERID_EMPTY,
+     RDNA_ERR_CHALLENGE_EMPTY,
+     RDNA_ERR_FAILED_TO_SERIALIZE_JSON,
+     RDNA_ERR_USECASE_EMPTY,
+     RDNA_ERR_INVALID_SERVICE_NAME,
 };
 ```
 
@@ -1562,22 +1592,24 @@ public abstract class RDNA {
 
 ```objective_c
 typedef NS_ENUM(NSInteger, RDNAMethodID) {
-  RDNA_METH_NONE = 0,
-  RDNA_METH_INITIALIZE,
-  RDNA_METH_TERMINATE,
-  RDNA_METH_RESUME,
-  RDNA_METH_PAUSE,
-  RDNA_METH_GET_CONFIG,
-  RDNA_METH_CHECK_CHALLENGE,
-  RDNA_METH_UPDATE_CHALLENGE,
-  RDNA_METH_GET_ALL_CHALLENGES,
-  RDNA_METH_LOGOFF,
-  RDNA_METH_FORGOT_PASSWORD,
-  RDNA_METH_GET_POST_LOGIN_CHALLENGES,
-  RDNA_METH_GET_DEVICE_DETAILS,
-  RDNA_METH_UPDATE_DEVICE_DETAILS,
-  RDNA_METH_GET_NOTIFICATIONS,
-  RDNA_METH_UPDATE_NOTIFICATION,
+   RDNA_METH_NONE = 0,                      
+   RDNA_METH_INITIALIZE,                    
+   RDNA_METH_TERMINATE,                     
+   RDNA_METH_RESUME,                        
+   RDNA_METH_PAUSE,                         
+   RDNA_METH_GET_CONFIG,                    
+   RDNA_METH_CHECK_CHALLENGE,               
+   RDNA_METH_UPDATE_CHALLENGE,              
+   RDNA_METH_GET_ALL_CHALLENGES,            
+   RDNA_METH_LOGOFF,                        
+   RDNA_METH_FORGOT_PASSWORD,               
+   RDNA_METH_GET_POST_LOGIN_CHALLENGES,     
+   RDNA_METH_GET_DEVICE_DETAILS,            
+   RDNA_METH_UPDATE_DEVICE_DETAILS,         
+   RDNA_METH_GET_NOTIFICATIONS,             
+   RDNA_METH_UPDATE_NOTIFICATION,           
+   RDNA_METH_GET_NOTIFICATION_HISTORY,      
+   RDNA_METH_OPEN_HTTP_CONNECTION,          
 };
 ```
 
@@ -1832,18 +1864,19 @@ public abstract class RDNA {
 ```objective_c
 @interface RDNAChallenge : NSObject
 
-  @property (nonatomic, strong, readonly) NSString *name;
-  @property (nonatomic, assign, readonly) RDNAChallengePromptType type;
-  @property (nonatomic, assign, readonly) int index;
-  @property (nonatomic, strong, readonly) NSMutableArray *info;
-  @property (nonatomic, strong, readonly) NSArray *prompts;
-  @property (nonatomic, assign, readonly) int attemptsLeft;
-  @property (nonatomic, assign, readonly) BOOL shouldValidateResponse;
-  @property (nonatomic, strong, readonly) NSArray *responsePolicies;
-  @property (nonatomic, assign, readonly) int responseCount;
-  @property (nonatomic, strong)           NSString *responseKey;
-  @property (nonatomic, strong)           NSObject *responseValue;
-  @property (nonatomic, assign, readonly) RDNAChallengeOpMode challengeOperation;
+    @property (nonatomic, strong, readonly) NSString *name;
+    @property (nonatomic, assign, readonly) RDNAChallengePromptType type;
+    @property (nonatomic, assign, readonly) int index;
+    @property (nonatomic, assign, readonly) int subChallengeIndex;
+    @property (nonatomic, strong, readonly) NSMutableArray<RDNAChallengeInfo *> *info;
+    @property (nonatomic, strong, readonly) NSArray *prompts;
+    @property (nonatomic, assign, readonly) int attemptsLeft;
+    @property (nonatomic, assign, readonly) BOOL shouldValidateResponse;
+    @property (nonatomic, strong, readonly) NSArray *responsePolicies;
+    @property (nonatomic, strong) NSString *responseKey;
+    @property (nonatomic, strong) NSObject *responseValue;
+    @property (nonatomic) RDNAChallengeOpMode challengeOperation;
+
 @end
 ```
 
@@ -2209,7 +2242,10 @@ public abstract class RDNA {
          CipherSpec:(NSString *)cipherSpec
          CipherSalt:(NSString *)cipherSalt
       ProxySettings:(RDNAProxySettings *)proxySettings
-	SSLCertificates:(RDNASSLCerts *)sslCerts
+ RDNASSLCertificate:(RDNASSLCertificate*)rdnaSSLCertificate
+      DNSServerList:(NSArray<NSString*>*)dnsServerList
+  RDNALoggingLevel :(RDNALoggingLevel)loggingLevel
+
          AppContext:(id)appCtx;
 @end
 ```
@@ -3057,9 +3093,13 @@ public abstract class RDNA {
   //..
   public abstract RDNAStatus<byte[]> pauseRuntime();
 
-  public static RDNAStatus<RDNA> resumeRuntime(
-         byte[] state, RDNACallbacks callbacks,
-         RDNAProxySettings proxySettings, Object appCtx);
+  public static RDNAStatus<RDNA>
+    resumeRuntime
+    (byte[] state,
+    RDNACallbacks callbacks,
+    RDNAProxySettings proxySettings,  
+    RDNALoggingLevel loggingLevel,
+    Object appCtx);
   //..
 }
 ```
@@ -3073,6 +3113,7 @@ public abstract class RDNA {
             SavedState:(NSData *)state
              Callbacks:(id<RDNACallbacks>)callbacks
          ProxySettings:(RDNAProxySettings *)proxySettings
+     RDNALoggingLevel :(RDNALoggingLevel)loggingLevel
             AppContext:(id)appCtx;
   //..
 @end
@@ -3416,14 +3457,18 @@ public abstract class RDNA {
 
 ```objective_c
 @interface RDNADeviceDetails : NSObject
-  @property (nonatomic, copy) NSString *deviceName;
-  @property (nonatomic, readonly) RDNADeviceBinding deviceBinding;
-  @property (nonatomic, readonly) RDNADeviceStatus deviceStatus;
-  @property (nonatomic, readonly, copy) NSString *deviceRegistrationTime;
-  @property (nonatomic, readonly, copy) NSString *lastAccessTime;
-  @property (nonatomic, readonly, copy) NSString *lastLoginStatus;
 
-  - (void)deleteDevice;
+    @property (nonatomic, readonly, copy) NSString *deviceUUID;
+    @property (nonatomic, copy) NSString *deviceName;
+    @property (nonatomic, readonly) RDNADeviceBinding deviceBinding;
+    @property (nonatomic, readonly) RDNADeviceStatus deviceStatus;
+    @property (nonatomic, readonly, copy) NSString *deviceRegistrationTime;
+    @property (nonatomic, readonly, copy) NSString *lastAccessTime;
+    @property (nonatomic, readonly, copy) NSString *lastLoginStatus;
+
+    - (void)deleteDevice;                                                  
+    - (void)setDeviceName:(NSString *)deviceName;                          
+
 @end
 ```
 
@@ -3760,6 +3805,22 @@ public static class RDNANotificationHistory {
 ```
 
 ```objective_c
+@interface RDNANotificationHistory : NSObject
+
+  @property (nonatomic,strong) NSString *notificationID;  
+  @property (nonatomic,strong) NSString *deliveryStatus;  
+  @property (nonatomic,strong) NSString *status;          
+  @property (nonatomic,strong) NSString *subject;         
+  @property (nonatomic,strong) NSString *message;         
+  @property (nonatomic,strong) NSString *actionPerformed;
+  @property (nonatomic,strong) NSString *deviceUUID;      
+  @property (nonatomic,strong) NSString *deviceName;      
+  @property (nonatomic,strong) NSString *createdTime;     
+  @property (nonatomic,strong) NSString *updatedTime;     
+  @property (nonatomic,strong) NSString *expiredTime;     
+  @property (nonatomic,strong) NSString *enterpriseID;    
+
+@end
 ```
 
 ```cpp
@@ -3829,7 +3890,15 @@ public abstract class RDNA {
 ```objective_c
 @interface RDNA
   //...
-
+  - (int)getNotificationHistory:(int)recordCount
+                 withStartIndex:(int)startIndex
+               withEnterpriseID:(NSString*)enterpriseID
+                  withStartDate:(NSString*)startDate
+                    withEndDate:(NSString*)endDate
+         withNotificationStatus:(NSString*)notificationStatus
+            withActionPerformed:(NSString*)actionPerformed
+              withKeywordSearch:(NSString*)keywordSearch
+                   withDeviceID:(NSString*)deviceID;
 
 @end
 ```
@@ -3923,6 +3992,32 @@ public static class RDNAHTTPStatus{
 ```
 
 ```objective_c
+typedef NS_ENUM(NSInteger,RDNAHttpMethods) {
+ RDNA_HTTP_POST = 0,
+ RDNA_HTTP_GET,
+};
+
+@interface RDNAHTTPRequest : NSObject
+  @property (nonatomic,assign) RDNAHttpMethods method;
+  @property (nonatomic,strong) NSString* url;
+  @property (nonatomic,strong) NSDictionary* headers;
+  @property (nonatomic,strong) NSData* body;
+@end
+
+@interface RDNAHTTPResponse : NSObject
+  @property (nonatomic,readonly) NSString* version;
+  @property (nonatomic,assign) int statusCode;
+  @property (nonatomic,strong) NSString* statusMessage;
+  @property (nonatomic,strong) NSDictionary* headers;
+  @property (nonatomic,strong) NSData* body;
+@end
+
+@interface RDNAHTTPStatus : NSObject
+  @property (nonatomic,assign) int errorCode;
+  @property (nonatomic,assign) int requestID;
+  @property (nonatomic,strong) RDNAHTTPRequest* request;
+  @property (nonatomic,strong) RDNAHTTPResponse* response;
+@end
 ```
 
 <br>
@@ -3978,6 +4073,13 @@ public static interface RDNAHTTPCallbacks{
 }
 ```
 
+```objective_c
+@protocol RDNAHTTPCallbacks
+  @required
+    -(int)onHttpResponse:(RDNAHTTPStatus*) status;
+@end
+```
+
 ## OpenHttpConnection
 
 ```c
@@ -4007,7 +4109,9 @@ public abstract class RDNA {
 ```objective_c
 @interface RDNA
   //...
-
+  -(int)openHttpConnection:(RDNAHTTPRequest*)request
+                 Callbacks:(id<RDNAHTTPCallbacks>)callbacks
+             httpRequestID:(int*)httpRequestID;
 @end
 ```
 
