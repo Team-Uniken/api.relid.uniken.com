@@ -318,6 +318,7 @@ public abstract class RDNA {
     public int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);
     public int onGetNotificationsHistory(RDNAStatusGetNotificationHistory status);
     public int onSessionTimeout(String status);
+	public int onSecurityThreat(String status);
     public int onSdkLogPrintRequest(RDNALoggingLevel level, String logData);
 
     public RDNAIWACreds getCredentials(String domainUrl);
@@ -334,9 +335,6 @@ public abstract class RDNA {
 @protocol RDNACallbacks
 
   - (int)onInitializeCompleted:(RDNAStatusInit *)status;
-  - (CLLocationManager *)getLocationManager;
-  - (NSString *)getApplicationVersion;
-  - (NSString *)getApplicationName;
   - (int)onTerminate:(RDNAStatusTerminate *)status;
   - (int)onPauseRuntime:(RDNAStatusPauseRuntime *)status;
   - (int)onResumeRuntime:(RDNAStatusResumeRuntime *)status;
@@ -345,18 +343,22 @@ public abstract class RDNA {
   - (int)onGetAllChallengeStatus:(RDNAStatusGetAllChallenges *) status;
   - (int)onUpdateChallengeStatus:(RDNAStatusUpdateChallenges *) status;
   - (int)onLogOff: (RDNAStatusLogOff *)status;
-  - (RDNAIWACreds *)getCredentials:(NSString *)domainUrl;
-  - (int)ShowLocationDailogue;
   - (int)onGetPostLoginChallenges:(RDNAStatusGetPostLoginChallenges *)status;
   - (int)onGetRegistredDeviceDetails:(RDNAStatusGetRegisteredDeviceDetails *)status;
   - (int)onUpdateDeviceDetails:(RDNAStatusUpdateDeviceDetails *)status;
   - (int)onGetNotifications:(RDNAStatusGetNotifications *)status;
   - (int)onUpdateNotification:(RDNAStatusUpdateNotification *)status;
-  - (NSString*)getDeviceToken;
   - (int)onGetNotificationsHistory:(RDNAStatusGetNotificationHistory *)status;
   - (int)onSessionTimeout:(NSString*)status;
   - (int)onSecurityThreat:(NSString*)status;
   - (int)onSdkLogPrintRequest:(RDNALoggingLevel)level andlogData:(NSString*)logData;
+  
+  - (RDNAIWACreds *)getCredentials:(NSString *)domainUrl;
+  - (NSString *)getApplicationName;
+  - (NSString *)getApplicationVersion;
+  - (NSString*)getDeviceToken;
+  - (int)ShowLocationDailogue;
+  - (CLLocationManager *)getLocationManager;
 @end
 ```
 
