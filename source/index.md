@@ -203,6 +203,7 @@ The following subsections list down and explain the different data structures an
 
 This structure is supplied to the Initialize routine containing API-client application callback routines. These callback routines are invoked by the API runtime at different points in its execution - for updating status, for requesting the API-client application to supply information etc.
 
+<!--
 ```c
 /* Callback invoked by core API runtime to update API-client of state changes,
 exceptions and notifications */
@@ -295,6 +296,7 @@ fn_sdk_log_cb_t
                 pfnPostSdkLog;
 } core_callbacks_t;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -407,6 +409,7 @@ Hence this structure is an optional input parameter to Initialize, and may not a
 
 At an abstract level, the pieces of information supplied by this data structure are:
 
+<!--
 ```c
 typedef struct {
   char* sProxyHNIP;
@@ -416,6 +419,7 @@ typedef struct {
   char** sProxyExceptionList;
 } proxy_settings_t;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -517,6 +521,7 @@ This structure is an optional input parameter to Initialize, and may not always 
 
 At an abstract level, the pieces of information supplied by this data structure are:
 
+<!--
 ```c
 typedef struct
 {
@@ -524,6 +529,7 @@ typedef struct
 	char *password;
 } core_ssl_certificate;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -561,6 +567,7 @@ This structure is supplied to the API-client supplied ```StatusUpdate``` callbac
 
 At an abstract level, the pieces of information supplied by this data structure are:
 
+<!--
 ```c
 typedef struct {
   union {
@@ -579,6 +586,7 @@ typedef struct {
   core_args_t* pArgs;
 } core_status_t;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -1052,9 +1060,6 @@ The wrapper APIs written in high level languages provide similar information of 
 
 For supporting HTTP based authentication, we provide the following
 
-```c
-```
-
 ```java
 public abstract class RDNA {
 
@@ -1130,6 +1135,7 @@ RDNA_IWA_AUTH_DEFERRED | 2 | This represents the state where the API client has 
 
 ## Error codes (enum)
 
+<!--
 ```c
 typedef enum {
   CORE_ERR_NONE = 0,                         
@@ -1192,6 +1198,7 @@ typedef enum {
   CORE_ERR_DNA_INTERNAL = 57
 } e_core_error_t;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -1508,6 +1515,7 @@ RDNA_ERR_DEVICE_DETAILS_EMPTY | 72 | Returned if passed device details is empty 
 
 These identifiers are used to identify the routine when the ```StatusUpdate``` callback routine is invoked.
 
+<!--
 ```c
 typedef enum {
   CORE_METH_NONE = 0,
@@ -1527,6 +1535,7 @@ typedef enum {
   CORE_METH_UPDATE_NOTIFICATION,
 } e_core_method_t;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -1639,12 +1648,14 @@ These structures are used with the backend service access routines. They serve t
 
 These flags specify attributes of the returned access port for the backend service. The meanings of each flag are as follows -
 
+<!--
 ```c
 typedef enum {
   CORE_PORT_TYPE_PROXY = 0,
   CORE_PORT_TYPE_PORTF,
 } e_port_type_t;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -1683,6 +1694,7 @@ PORT_TYPE_PORTF (1) | When set, it specifies that the access port is a locally a
 
 Each access port structure consists of a bit-field corresponding to a bunch of boolean flags, and the actual TCP port number for the access port.
 
+<!--
 ```c
 typedef struct
 {
@@ -1694,6 +1706,7 @@ typedef struct
   int port;
 } core_port_t;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -1745,6 +1758,7 @@ port | integer | Specifies the actual TCP port number for this service access (c
 
 The service structure is unique for a given backend service, and specifies the unique logical name, target coordinates (hostname/IP and port number), access gateway details through which to access the service and access port details. It also specifies an opaque coordinate structure to be used when operating on the service using the ServiceAccess* API routines.
 
+<!--
 ```c
 typedef struct
 {
@@ -1756,6 +1770,7 @@ typedef struct
   core_port_t portInfo;    /* port setting and info        */
 } core_service_t;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -1800,9 +1815,6 @@ portInfo | access port structure | The access port structure corresponding to th
 ## RDNAChallenge (class/struct)
 
 As part of the user authentication process, the server throws one or more challenges to which the client needs to respond. These could either be individual challenges, or a set of challenges. The following table describes the individual elements represents the challenge struct/object.
-
-```c
-```
 
 ```java
 public abstract class RDNA {
@@ -1880,9 +1892,6 @@ Member | Description
 
 The RDNAChallengeType is an enumeration of types of challenge prompts. A prompt represents a piece of information needed by the end user to respond to the challenge. <br><br>For instance, in the case of Secret QA (where the challenge name is secqa), there could either be a single prompt or multiple prompts, each prompt representing a secret question. For password challenge, the prompt array would be empty, since the user does not need any information to enter the password.
 
-```c
-```
-
 ```java
 public abstract class RDNA {
   //...
@@ -1926,9 +1935,6 @@ PromptType | Description
 ## RDNAResponseStatusCode (Enumeration)
 
 The ```RDNAResponseStatusCode``` represents the result of the previous API server response such as ```CheckChallengeResponse``` or ```UpdateChallenge``` ```getRegisteredDeviceDetails``` etc.  
-
-```c
-```
 
 ```java
 public abstract class RDNA {
@@ -2016,9 +2022,6 @@ ChallengeStatus | Description
 
 This enumeration is used to indicate to the user about the intended action for the challenge, namely whether this is a challenge verification operation or a challenge update operation.
 
-```c
-```
-
 ```java
 public abstract class RDNA {
   //...
@@ -2051,9 +2054,6 @@ ChallengeOpMode | Description
 ## RDNAResponseStatus
 
 This class defines the status of the response of previous challenge recieved by the server. The following are the members of the class :
-
-```c
-```
 
 ```java
 public abstract class RDNA {
@@ -2093,9 +2093,6 @@ Member | Description
 
 ## DeviceStatus (Enumeration)
 Following enums are defined for the device management feature, which will provide the device details of a specific device, for example the device status and device binding
-
-```c
-```
 
 ```java
 public abstract class RDNA {
@@ -2157,6 +2154,7 @@ This routine starts up the API runtime (including a DNA - <i>Digital Network Ada
 
 A reference to the context of the newly created API runtime is returned to the API-client.
 
+<!--
 ```c
 int
 coreInitialize
@@ -2174,6 +2172,7 @@ coreInitialize
         pSSLCertificate,
  void*  pvAppCtx);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -2252,11 +2251,13 @@ Log Level [in] | Enable / Disable SDK logs based on the provided log level.
 
 ## Terminate Routine
 
+<!--
 ```c
 int
 coreTerminate
 (void*  pvRuntimeCtx);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -2315,6 +2316,7 @@ These routines enable the API-client applications to retrieve the service struct
 
 ## Information Retrieval
 
+<!--
 ```c
 int
 coreGetServiceByServiceName
@@ -2337,6 +2339,7 @@ coreGetAllServices
  core_service_t***
         ppServices);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -2402,6 +2405,7 @@ Routine&nbsp;Name | Description
 
 ## Start/Stop Access
 
+<!--
 ```c
 int
 coreServiceAccessStart
@@ -2423,6 +2427,7 @@ int
 coreServiceAccessStopAll
 (void*  pvRuntimeCtx);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -2469,6 +2474,7 @@ The data privacy provided to the API-client application, is delivered at differe
 
 ## Scopes/Levels
 
+<!--
 ```c
 typedef enum {
   CORE_PRIVACY_SCOPE_SESSION = 0x01, /* use session-specific keys */
@@ -2477,6 +2483,7 @@ typedef enum {
   CORE_PRIVACY_SCOPE_AGENT   = 0x04, /* use agent-specific keys   */
 } e_core_privacy_scope_t;
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -2537,7 +2544,7 @@ The way in which session-scope privacy works is as follows:
 <li>Hence the API-Client should make sure that it either sends empty or same CipherSpec/Salt as the default so that service provider can make use of the encrypted data. The DNA will use the default cipher details (can be overridden by the supplied details in the <u>Initialize</u> routine).
 </aside>
 
-
+<!--
 ```c
 int
 coreGetDefaultCipherSpec
@@ -2549,6 +2556,7 @@ coreGetDefaultCipherSalt
 (void*  pvRuntimeCtx,
  char*  sDefCipherSalt);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -2603,6 +2611,7 @@ List of supported digest algorithm -
 
 ## Raw Data (in packets)
 
+<!--
 ```c
 int
 coreEncryptDataPacket
@@ -2628,6 +2637,7 @@ coreDecryptDataPacket
  void** plainText,
  int*   plainTextLen);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -2712,6 +2722,7 @@ Routine | Description
 
 ## HTTP Requests/Responses
 
+<!--
 ```c
 int
 coreEncryptHttpRequest
@@ -2737,6 +2748,7 @@ coreDecryptHttpResponse
  char** response,
  int*   responseLen);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -2821,6 +2833,7 @@ Routine | Description
 
 ## Privacy Streams
 
+<!--
 ```c
 typedef enum {
   RDNA_STREAM_TYPE_ENCRYPT = 0x00, /* Encrypts input data */
@@ -2874,6 +2887,7 @@ int
 coreStreamDestroy
 (void*  pvStream);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -3032,6 +3046,7 @@ The pause and resume routines make it possible to persist the <i>in-session</i> 
 
 This is useful in case of limited configuration devices and platforms - such as smartphone device platforms like Android, iOS and WindowsPhone. In these platforms, a running application could be swapped out of memory due to 'crowding' by other running applications, only to be swapped back in when the user chooses to access that application again.
 
+<!--
 ```c
 int
 corePauseRuntime
@@ -3050,6 +3065,7 @@ coreResumeRuntime
         pProxySettings,
  void*  pvAppCtx);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -3111,6 +3127,7 @@ Routine | Description
 
 # API - Information Getters
 
+<!--
 ```c
 const char*
 coreGetSdkVersion
@@ -3135,6 +3152,7 @@ coreGetDeviceID
 (void*  pvRuntimeCtx,
  char** ppcDeviceID);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -3197,9 +3215,6 @@ REL-ID APISDK provides a set of API for authenticating an end-user. The API buil
 
 ## CheckChallengeResponse
 
-```c
-```
-
 ```java
 public abstract class RDNA {
   //..
@@ -3227,11 +3242,6 @@ As part of the API call sequence to authenticate an end-user, the API-client rec
 
 ## UpdateChallenges
 
-
-
-```c
-```
-
 ```java
 public abstract class RDNA {
   //..
@@ -3254,9 +3264,6 @@ class RDNA {
 ```
 
 ## LogOff
-
-```c
-```
 
 ```java
 public abstract class RDNA {
@@ -3282,9 +3289,6 @@ class RDNA {
 
 ## GetAllChallenges
 
-```c
-```
-
 ```java
 public abstract class RDNA {
   //..
@@ -3308,9 +3312,6 @@ class RDNA {
 
 ## ResetChallenge
 
-```c
-```
-
 ```java
 public abstract class RDNA {
   //..
@@ -3333,9 +3334,6 @@ class RDNA {
 ```
 
 ## GetPostLoginChallenges
-
-```c
-```
 
 ```java
 public abstract class RDNA {
@@ -3362,9 +3360,6 @@ class RDNA {
 # API - Device Management
 
 ## RDNADeviceDetails
-
-```c
-```
 
 ```java
 public abstract class RDNA {
@@ -3469,9 +3464,6 @@ Method | Description
 
 ## UpdateDeviceDetails
 
-```c
-```
-
 ```java
 public abstract class RDNA {
   //..
@@ -3504,9 +3496,6 @@ Parameter | Description
 
 This API fetches the list of devices registered to the user whose userID/username is provided as input parameter.
 
-```c
-```
-
 ```java
 public abstract class RDNA {
   //..
@@ -3531,9 +3520,6 @@ class RDNA {
 # API - Notification Management
 
 ## RDNANotification
-
-```c
-```
 
 ```java
 public abstract class RDNA {
@@ -3643,9 +3629,6 @@ Member | Description
 
 This API fetches the list of notifications which are active. We can get the notifications for a specific enterprise also, Even we can specify the number of records to be fetched, and even we can specify the index number from which the records to be fetched to support the paging of notification. To get all the notifications from the server we should provide the recordCount value as 0 and server send all the active Notifications of the user.
 
-```c
-```
-
 ```java
 public abstract class RDNA {
   //..
@@ -3684,9 +3667,6 @@ class RDNA {
 
 This API is to update the notification response selected by the user. We can update the only one notification at a time, to update the multiple notifications application has to call this API multiple times.
 
-```c
-```
-
 ```java
 public abstract class RDNA {
   //..
@@ -3719,9 +3699,6 @@ class RDNA {
 The RDNANotificationHistory class provides history of a single notification in a structured format. Object of this class defines a notification information such as notification ID, action taken, notification message etc. A list of RDNANotificationHistory objects is returned as a part of query statement provided in the API - ```GetNotificationsHistory```.
 
 ###RDNANotification
-
-```c
-```
 
 ```java
 public static class RDNANotificationHistory {
@@ -3792,6 +3769,7 @@ Member | Description
 
 ## GetNotificationsHistory
 
+<!--
 ```c
 int coreGetNotificationHistory
  (void* pvRuntimeCtx,
@@ -3805,6 +3783,7 @@ int coreGetNotificationHistory
   char* pcKeyword,
   char* pcDevUUID);
 ```
+-->
 
 ```java
 public abstract class RDNA {
@@ -4018,6 +3997,7 @@ public static interface RDNAHTTPCallbacks{
 
 ## OpenHttpConnection
 
+<!--
 ```c
  int coreOpenHttpConnection
    (void* pvRuntimeCtx,
@@ -4030,6 +4010,7 @@ public static interface RDNAHTTPCallbacks{
     unsigned int nBodyLen,
     int* nTunnelRequestID);
 ```
+-->
 
 ```java
 public abstract class RDNA {
