@@ -310,7 +310,6 @@ public abstract class RDNA {
     public int onCheckChallengeResponseStatus(RDNAStatusCheckChallengeResponse status);
     public int onGetAllChallengeStatus(RDNAStatusGetAllChallenges status);
     public int onUpdateChallengeStatus(RDNAStatusUpdateChallenges status);
-    public int onForgotPasswordStatus(RDNAStatusForgotPassword status);
     public int onGetPostLoginChallenges(RDNAStatusGetPostLoginChallenges status);
     public int onLogOff(RDNAStatusLogOff status);
     public int onGetRegistredDeviceDetails(RDNAStatusGetRegisteredDeviceDetails status);
@@ -343,7 +342,6 @@ public abstract class RDNA {
   - (int)onCheckChallengeResponseStatus:(RDNAStatusCheckChallengeResponse *) status;
   - (int)onGetAllChallengeStatus:(RDNAStatusGetAllChallenges *) status;
   - (int)onUpdateChallengeStatus:(RDNAStatusUpdateChallenges *) status;
-  - (int)onForgotPasswordStatus:(RDNAStatusForgotPassword *)status;
   - (int)onLogOff: (RDNAStatusLogOff *)status;
   - (RDNAIWACreds *)getCredentials:(NSString *)domainUrl;
   - (int)ShowLocationDailogue;
@@ -372,7 +370,6 @@ public:
   virtual int onCheckChallengeResponseStatus(RDNAStatusCheckChallengeResponse status);
   virtual int onGetAllChallengeStatus(RDNAStatusGetAllChallenges status);
   virtual int onUpdateChallengeStatus(RDNAStatusUpdateChallenges status);
-  virtual int onForgotPasswordStatus(RDNAStatusForgotPassword status);
   virtual int onLogOff(RDNAStatusLogOff status);
   virtual int onGetPostLoginChallenges(RDNAStatusGetPostLoginChallenges status);
   virtual int onGetRegistredDeviceDetails(RDNAStatusGetRegisteredDeviceDetails status);
@@ -725,15 +722,6 @@ public abstract class RDNA {
     public RDNAResponseStatus status;                              
     RDNANotificationHistory[] notificationHistory;  
   }
-
-  public static class RDNAStatusForgotPassword {
-    public Object pvtRuntimeCtx;                         
-    public Object pvtAppCtx;                             
-    public int errCode;                                  
-    public RDNA.RDNAMethodID methodID;                   
-    public RDNA.RDNAResponseStatus status;               
-    public RDNA.RDNAChallenge[] challenges;
-  }
   //..
 }
 ```
@@ -796,15 +784,6 @@ public abstract class RDNA {
 @end
 
 @interface RDNAStatusGetAllChallenges : NSObject
-  @property (nonatomic) void *pvtRuntimeCtx;
-  @property (nonatomic) void *pvtAppCtx;
-  @property (nonatomic) int errCode;
-  @property (nonatomic) RDNAMethodID methodID;
-  @property (nonatomic) RDNAResponseStatus *status;
-  @property (nonatomic) NSArray *challenges;
-@end
-
-@interface RDNAStatusForgotPassword : NSObject
   @property (nonatomic) void *pvtRuntimeCtx;
   @property (nonatomic) void *pvtAppCtx;
   @property (nonatomic) int errCode;
@@ -962,19 +941,6 @@ typedef struct RDNAStatusGetAllChallenges_s{
                                   methodID(RDNA_METH_NONE)
   {}
 }RDNAStatusGetAllChallenges;
-
-typedef struct RDNAStatusForgotPassword_s{
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  RDNAMethodID methodID;
-  RDNAResponseStatus status;
-  vector<RDNAChallenge> challenges;
-
-  RDNAStatusForgotPassword_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                                  methodID(RDNA_METH_NONE)
-  {}
-}RDNAStatusForgotPassword;
 
 typedef struct RDNAStatusLogOff_s {
   void* pvtRuntimeCtx;
@@ -1554,7 +1520,6 @@ typedef enum {
   CORE_METH_UPDATE_CHALLENGE,
   CORE_METH_GET_ALL_CHALLENGES,
   CORE_METH_LOGOFF,
-  CORE_METH_FORGOT_PASSWORD,
   CORE_METH_GET_POST_LOGIN_CHALLENGES,
   CORE_METH_GET_DEVICE_DETAILS,
   CORE_METH_UPDATE_DEVICE_DETAILS,
@@ -1577,14 +1542,13 @@ public abstract class RDNA {
     RDNA_METH_UPDATE_CHALLENGE(7),                
     RDNA_METH_GET_ALL_CHALLENGES(8),              
     RDNA_METH_LOGOFF(9),                          
-    RDNA_METH_FORGOT_PASSWORD(10),                
-    RDNA_METH_GET_POST_LOGIN_CHALLENGES(11),      
-    RDNA_METH_GET_DEVICE_DETAILS(12),             
-    RDNA_METH_UPDATE_DEVICE_DETAILS(13),          
-    RDNA_METH_GET_NOTIFICATIONS(14),              
-    RDNA_METH_UPDATE_NOTIFICATION(15),            
-    RDNA_METH_GET_NOTIFICATION_HISTORY(16),
-    RDNA_METH_OPEN_HTTP_CONNECTION(17);
+    RDNA_METH_GET_POST_LOGIN_CHALLENGES(10),      
+    RDNA_METH_GET_DEVICE_DETAILS(11),             
+    RDNA_METH_UPDATE_DEVICE_DETAILS(12),          
+    RDNA_METH_GET_NOTIFICATIONS(13),              
+    RDNA_METH_UPDATE_NOTIFICATION(14),            
+    RDNA_METH_GET_NOTIFICATION_HISTORY(15)
+	RDNA_METH_OPEN_HTTP_CONNECTION(16);
   }
   //..
 }
@@ -1602,7 +1566,6 @@ typedef NS_ENUM(NSInteger, RDNAMethodID) {
    RDNA_METH_UPDATE_CHALLENGE,              
    RDNA_METH_GET_ALL_CHALLENGES,            
    RDNA_METH_LOGOFF,                        
-   RDNA_METH_FORGOT_PASSWORD,               
    RDNA_METH_GET_POST_LOGIN_CHALLENGES,     
    RDNA_METH_GET_DEVICE_DETAILS,            
    RDNA_METH_UPDATE_DEVICE_DETAILS,         
@@ -1625,7 +1588,6 @@ typedef enum {
   RDNA_METH_UPDATE_CHALLENGE,
   RDNA_METH_GET_ALL_CHALLENGES,
   RDNA_METH_LOGOFF,
-  RDNA_METH_FORGOT_PASSWORD,
   RDNA_METH_GET_POST_LOGIN_CHALLENGES,
   RDNA_METH_GET_DEVICE_DETAILS,
   RDNA_METH_UPDATE_DEVICE_DETAILS,
@@ -1648,8 +1610,9 @@ RDNA_METH_CHECK_CHALLENGE | CheckChallenges runtime method
 RDNA_METH_UPDATE_CHALLENGE | UpdateChallenges runtime method
 RDNA_METH_GET_ALL_CHALLENGES | GetAllChallenges runtime method
 RDNA_METH_LOGOFF | Logoff runtime method
-RDNA_METH_FORGOT_PASSWORD | ForgotPassword runtime method
 RDNA_METH_GET_POST_LOGIN_CHALLENGES | PostLoginChallenges runtime method
+RDNA_METH_GET_DEVICE_DETAILS | Self service device management runtime method
+RDNA_METH_UPDATE_DEVICE_DETAILS | Update device details runtime method
 RDNA_METH_GET_NOTIFICATIONS | Get notifications runtime method
 RDNA_METH_UPDATE_NOTIFICATION | Update notifications call back method
 RDNA_METH_GET_NOTIFICATION_HISTORY | Get notification history runtime method
@@ -3313,33 +3276,6 @@ public abstract class RDNA {
 class RDNA {
   //...
   int logOff(std::string userID);
-}
-```
-
-
-## ForgotPassword
-
-```c
-```
-
-```java
-public abstract class RDNA {
-  //..
-  public abstract int forgotPassword(String userID);
-}
-```
-
-```objective_c
-@interface RDNA
-  //...
-  - (int)forgotPassword:(NSString *)userID;
-@end
-```
-
-```cpp
-class RDNA {
-  //...
-  int forgotPassword(std::string userID);
 }
 ```
 
