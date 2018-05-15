@@ -5,7 +5,7 @@ language_tabs:
   - java: Java
   - objective_c: Objective C
   - cpp: C++
-  - c: ANSI C
+<!--  - c: ANSI C -->
 
 toc_footers:
   - <a href='http://www.uniken.com'><u>UNIKEN</u></a>
@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Thursday, 15th December 2017</u>
+Last updated on <u>Thursday, 15th May 2018</u>
 </aside>
 
 Welcome to the REL-ID API !
