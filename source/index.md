@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Thursday, 15th May 2018</u>
+Last updated on <u>Thursday, 16th May 2018</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -380,8 +380,9 @@ public:
   virtual int onUpdateDeviceDetails(RDNAStatusUpdateDeviceDetails status);
   virtual int onGetNotifications(RDNAStatusGetNotifications status);
   virtual int onUpdateNotification(RDNAStatusUpdateNotification status);
+  virtual int onGetNotificationHistory(RDNAStatusGetNotificationHistory status);
   virtual void onSessionTimeout(void* pvAppCtx);
-  virtual void onRdnaLogs(void* pvAppCtx, RDNALoggingLevel eLevel, std::string sLogData);
+  virtual void onSdkLogPrintRequest(void* pvAppCtx, RDNALoggingLevel eLevel, std::string sLogData);
 
   virtual RDNAIWACreds getCredentials(std::string domainUrl);
   virtual std::string getApplicationName();
@@ -881,151 +882,138 @@ public abstract class RDNA {
 
 ```cpp
 typedef struct {
-  void*        pvtRuntimeCtx;
-  void*        pvtAppCtx;
-  int          errCode;
-  RDNAMethodID methodID;
-  RDNAPort pxyDetails;
-  vector<RDNAService> services;
-  vector<RDNAChallenge> challenges;
+  void* pvtRuntimeCtx;                     /* context of API runtime        */
+  void* pvtAppCtx;                         /* context of API-client         */
+  int  errCode;                            /* error code return             */
+  RDNAMethodID methodID;                   /* update for method             */
+  RDNAPort pxyDetails;                     /* proxy details                 */
+  bool setGlobalSystemProxy;               /* global proxy setting switch   */
+  vector<RDNAService> services;            /* list of services              */
+  vector<RDNAChallenge> challenges;        /* Challenge array               */
 } RDNAStatusInit;
 
 typedef struct {
-  void*        pvtRuntimeCtx;
-  void*        pvtAppCtx;
-  int          errCode;
-  RDNAMethodID methodID;
-} RDNAStatusTerminate;
-
-typedef struct {
-  void*        pvtRuntimeCtx;
-  void*        pvtAppCtx;
-  int          errCode;
-  RDNAMethodID methodID;
+  void* pvtRuntimeCtx;          			/* context of API runtime */
+  void* pvtAppCtx;              			/* context of API-client  */
+  int  errCode;                 			/* error code return      */
+  RDNAMethodID methodID;        			/* update for method      */
+} RDNAStatusTerminate;			
+			
+typedef struct {			
+  void* pvtRuntimeCtx;          			/* context of API runtime */
+  void* pvtAppCtx;              			/* context of API-client  */
+  int  errCode;                 			/* error code return      */
+  RDNAMethodID methodID;        			/* update for method      */
 } RDNAStatusPause;
 
 typedef struct {
-  void*        pvtRuntimeCtx;
-  void*        pvtAppCtx;
-  int          errCode;
-  RDNAMethodID methodID;
-  RDNAPort pxyDetails;
-  vector<RDNAService> services;
-  vector<RDNAChallenge> challenges;
+  void* pvtRuntimeCtx;                     /* context of API runtime        */
+  void* pvtAppCtx;                         /* context of API-client         */
+  int  errCode;                            /* error code return             */
+  RDNAMethodID methodID;                   /* update for method             */
+  RDNAPort pxyDetails;                     /* proxy details                 */
+  bool setGlobalSystemProxy;               /* global proxy setting switch   */
+  RDNAResponseStatus status;               /* status code of challenge      */
+  vector<RDNAService> services;            /* list of services              */
+  vector<RDNAChallenge> challenges;        /* Challenge array               */
 } RDNAStatusResume;
 
-typedef struct RDNAStatusCheckChallengeResponse_s{
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  RDNAMethodID methodID;
-  RDNAPort pxyDetails;
-  RDNAResponseStatus status;
-  vector<RDNAService> services;
-  vector<RDNAChallenge> challenges;
-  RDNAStatusCheckChallengeResponse_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                                  methodID(RDNA_METH_NONE)
-  {}
+typedef struct RDNAStatusGetConfig_s{
+  void* pvtRuntimeCtx;          			 /* context of API runtime                 */
+  void* pvtAppCtx;              			 /* context of API-client                  */
+  int  errCode;                 			 /* error code return                      */
+  RDNAMethodID methodID;        			 /* update for method                      */
+  std::string responseData;     			 /* response data received from the server */
+} RDNAStatusGetConfig;
+
+typedef struct RDNAStatusCheckChallengesResponse_s{
+  void* pvtRuntimeCtx;                            /* context of API runtime        */
+  void* pvtAppCtx;                                /* context of API-client         */
+  int  errCode;                                   /* error code return             */
+  RDNAMethodID methodID;                          /* update for method             */
+  RDNAPort pxyDetails;                            /* proxy details                 */
+  bool setGlobalSystemProxy;                      /* global proxy setting switch   */
+  bool bIsADUser;                                 /* AD User*/
+  RDNAResponseStatus status;                      /* Response status information   */
+  vector<RDNAService> services;                   /* list of services              */
+  vector<RDNAChallenge> challenges;               /* Challenge array               */
 }RDNAStatusCheckChallengeResponse;
 
-typedef struct RDNAStatusUpdateChallenges_s{
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  RDNAMethodID methodID;
-  RDNAResponseStatus status;
-  vector<RDNAChallenge> challenges;
-  RDNAStatusUpdateChallenges_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                                  methodID(RDNA_METH_NONE)
-  {}
-}RDNAStatusUpdateChallenges;
-
 typedef struct RDNAStatusGetAllChallenges_s{
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  RDNAMethodID methodID;
-  RDNAResponseStatus status;
-  vector<RDNAChallenge> challenges;
-  RDNAStatusGetAllChallenges_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                                  methodID(RDNA_METH_NONE)
-  {}
+  void* pvtRuntimeCtx;                            /* context of API runtime        */
+  void* pvtAppCtx;                                /* context of API-client         */
+  int  errCode;                                   /* error code return             */
+  RDNAMethodID methodID;                          /* update for method             */
+  RDNAResponseStatus status;                     /* Challenge status information   */
+  vector<RDNAChallenge> challenges;               /* Challenge array               */
 }RDNAStatusGetAllChallenges;
 
+typedef struct RDNAStatusUpdateChallenges_s{
+  void* pvtRuntimeCtx;                            /* context of API runtime        */
+  void* pvtAppCtx;                                /* context of API-client         */
+  int  errCode;                                   /* error code return             */
+  RDNAMethodID methodID;                          /* update for method             */
+  RDNAResponseStatus status;                     /* Challenge status information   */
+  vector<RDNAChallenge> challenges;               /* Challenge array               */
+}RDNAStatusUpdateChallenges;
+
 typedef struct RDNAStatusLogOff_s {
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  RDNAMethodID methodID;
-  RDNAPort pxyDetails;
-  RDNAResponseStatus status;
-  vector<RDNAService> services;
-  vector<RDNAChallenge> challenges;
-  RDNAStatusLogOff_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                         methodID(RDNA_METH_NONE)
-  {}
+  void* pvtRuntimeCtx;                            /* context of API runtime        */
+  void* pvtAppCtx;                                /* context of API-client         */
+  int  errCode;                                   /* error code return             */
+  RDNAMethodID methodID;                          /* update for method             */
+  RDNAPort pxyDetails;                            /* proxy details                 */
+  bool setGlobalSystemProxy;                      /* global proxy setting switch   */
+  RDNAResponseStatus status;                     /* Challenge status information   */
+  vector<RDNAService> services;                   /* list of services              */
+  vector<RDNAChallenge> challenges;               /* Challenge array               */
 } RDNAStatusLogOff;
 
+typedef struct RDNAStatusGetPostLoginChallenges_s {
+  void* pvtRuntimeCtx;                              /* context of API runtime                 */
+  void* pvtAppCtx;                                  /* context of API-client                  */
+  int  errCode;                                     /* error code return                      */
+  RDNAMethodID methodID;                            /* update for method                      */
+  RDNAResponseStatus status;                        /* Challenge Response status information  */
+  vector<RDNAChallenge> challenges;                 /* Challenge array                        */
+} RDNAStatusGetPostLoginChallenges;
+
 typedef struct RDNAStatusGetRegisteredDeviceDetails_s {
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  RDNAMethodID methodID;
-  vector<RDNADeviceDetails> devices;
-  RDNAStatusGetRegisteredDeviceDetails_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                         methodID(RDNA_METH_NONE)
-  {}
+  void* pvtRuntimeCtx;                            /* context of API runtime                        */
+  void* pvtAppCtx;                                /* context of API-client                         */
+  int  errCode;                                   /* error code return                             */
+  RDNAMethodID methodID;                          /* update for method                             */
+  vector<RDNADeviceDetails> devices;              /* list of user's registred devices              */
 } RDNAStatusGetRegisteredDeviceDetails;
 
 typedef struct RDNAStatusUpdateDeviceDetails_s {
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  RDNAMethodID methodID;
-  RDNAResponseStatus updateStatus;
-  RDNAStatusUpdateDeviceDetails_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                         methodID(RDNA_METH_NONE)
-  {}
+  void* pvtRuntimeCtx;                            /* context of API runtime                        */
+  void* pvtAppCtx;                                /* context of API-client                         */
+  int  errCode;                                   /* error code return                             */
+  RDNAMethodID methodID;                          /* update for method                             */
+  RDNAResponseStatus updateStatus;                /* update device details status                  */
 } RDNAStatusUpdateDeviceDetails;
 
-typedef struct RDNAStatusGetPostLoginChallenges_s {
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  RDNAMethodID methodID;
-  RDNAResponseStatus status;
-  vector<RDNAChallenge> challenges;
-  RDNAStatusGetPostLoginChallenges_s() : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                       methodID(RDNA_METH_NONE)
-  {}
-} RDNAStatusGetPostLoginChallenges;
-
 typedef struct RDNAStatusGetNotifications_s {
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  int totalNotificationCount;
-  int startIndex;
-  int fetchedNotificationCount;
-  RDNAMethodID methodID;
-  RDNAResponseStatus status;
-  vector<RDNANotification> notifications;
-  RDNAStatusGetNotifications_s () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                                  methodID(RDNA_METH_NONE)
-  {}
+  void* pvtRuntimeCtx;                            /* Context of API runtime                                */
+  void* pvtAppCtx;                                /* Context of API-client                                 */
+  int  errCode;                                   /* Error code return                                     */
+  int totalNotificationCount;                     /* Total notifications available in server side for user */
+  int startIndex;                                 /* Index of the notifications from which records are fetched*/
+  int fetchedNotificationCount;                   /* Fetched notification count                            */
+  RDNAMethodID methodID;                          /* update for method                                     */
+  RDNAResponseStatus status;                      /* Response status information                           */
+  vector<RDNANotification> notifications;         /* Notification array                                    */
 }RDNAStatusGetNotifications;
 
-struct RDNAStatusUpdateNotification {
-  void* pvtRuntimeCtx;
-  void* pvtAppCtx;
-  int  errCode;
-  string notificationID;
-  RDNAMethodID methodID;
-  RDNAResponseStatus status;
-  RDNAStatusUpdateNotification () : pvtRuntimeCtx(NULL), pvtAppCtx(NULL), errCode(0),
-                                  methodID(RDNA_METH_NONE)
-  {}
-};
+typedef struct RDNAStatusUpdateNotification_s {
+  void* pvtRuntimeCtx;                            /* context of API runtime                           */
+  void* pvtAppCtx;                                /* context of API-client                            */
+  int  errCode;                                   /* error code return                                */
+  string notificationID;                          /* Notification ID for which the status is updated  */
+  RDNAMethodID methodID;                          /* update for method                                */
+  RDNAResponseStatus status;                      /* Response status information                      */
+}RDNAStatusUpdateNotification;
 
 typedef struct RDNAStatusGetNotificationHistory_s {
   void* pvtRuntimeCtx;                            /* Context of API runtime                                */
@@ -1421,6 +1409,10 @@ typedef enum {
     RDNA_ERR_NET_DOWN,
     RDNA_ERR_SOCK_TIMEDOUT,
     RDNA_ERR_DNA_INTERNAL,
+	RDNA_ERR_INVALID_USER_MR_STATE,
+	RDNA_ERR_NOTF_SIGN_INTERNAL_FAILURE,
+	//All above error enums are mapped to SDK error
+	
     RDNA_ERR_FAILED_TO_PARSE_DEVICES,
     RDNA_ERR_INVALID_CHALLENGE_CONFIG,
     RDNA_ERR_INVALID_HTTP_API_REQ_URL,
@@ -1982,43 +1974,44 @@ typedef NS_ENUM(NSInteger, RDNAResponseStatusCode) {
 ```
 
 ```cpp
-typedef enum {
-  RDNA_RESP_STATUS_SUCCESS = 0,
-  RDNA_RESP_STATUS_NO_SUCH_USER,
-  RDNA_RESP_STATUS_USER_SUSPENDED,
-  RDNA_RESP_STATUS_USER_BLOCKED,
-  RDNA_RESP_STATUS_USER_ALREADY_ACTIVATED,
-  RDNA_RESP_STATUS_INVALID_ACT_CODE,
-  RDNA_RESP_STATUS_UPDATE_CHALLENGES_FAILED,
-  RDNA_RESP_STATUS_RESPONSE_VALIDATION_FAILED,
-  RDNA_RESP_STATUS_DEVICE_VALIDATION_FAILED,
-  RDNA_RESP_STATUS_INVALID_CHALLENGE_LIST,
-  RDNA_RESP_STATUS_INTERNAL_SERVER_ERROR,
-  RDNA_RESP_STATUS_FAILED_UPDATE_DEVICE_DETAILS,
-  RDNA_RESP_STATUS_NO_SUCH_USE_CASE_EXISTS,
-  RDNA_RESP_STATUS_ATTEMPTS_EXHAUSTED,
-  RDNA_RESP_STATUS_UNKNOWN_ERROR
-
+typedef enum RDNAResponseStatusCode{
+  RDNA_RESP_STATUS_SUCCESS = 0,                                /* Success                                     */
+  RDNA_RESP_STATUS_NO_USER_ID,                                 /* No user Id.                                 */
+  RDNA_RESP_STATUS_AUTH_FAILED,                                /* Authentication failed                       */
+  RDNA_RESP_STATUS_SEC_QA_MATCH_FAILED,                        /* Sec QA match failed                         */
+  RDNA_RESP_STATUS_NO_SEC_QA_PRESENT,                          /* No Sec QA present                           */
+  RDNA_RESP_STATUS_PWD_UPDATE_FAILED,                          /* Password update failed                      */
+  RDNA_RESP_STATUS_OTP_MATCH_FAILED,                           /* OTP matching failed                         */
+  RDNA_RESP_STATUS_SECONDARY_SEC_QA_MATCH_FAILED,              /* Secondary Sec QA match failed               */
+  RDNA_RESP_STATUS_ACT_CODE_MATCH_FAILED,                      /* Activation code match failed                */
+  RDNA_RESP_STATUS_ACT_CODE_EXPIRED,                           /* Activation code expired                     */
+  RDNA_RESP_STATUS_PASSWORD_EXPIRED,                           /* Password expired                            */
+  RDNA_RESP_STATUS_OTP_EXPIRED,                                /* OTP expired                                 */
+  RDNA_RESP_STATUS_OTP_ALREADY_USED,                           /* OTP already exists                          */
+  RDNA_RESP_STATUS_AUTO_RESET_USER,                            /* Auto reset user                             */
+  RDNA_RESP_STATUS_INTERNAL_SERVER_ERROR,                      /* Internal server error                       */
+  RDNA_RESP_STATUS_POST_LOGIN_VERIFY_CREDS_FAILURE,            /* Post login verify credentials failure       */
+  RDNA_RESP_STATUS_DEVICE_UPDATE_FAILED,                       /* Failed to update device                     */
+  RDNA_RESP_STATUS_USER_UNENROLLED,                            /* User removed                                */
+  RDNA_RESP_STATUS_INVALID_USE_CASE,                           /* Invalid use case                            */
+  RDNA_RESP_STATUS_USER_LOCKED,                                /* User locked                                 */
+  RDNA_RESP_STATUS_PERMANENT_DEVICE_LIMIT_EXCEEDED,            /* Permanent device limit exceeded             */
+  RDNA_RESP_STATUS_CHALLENGE_NOT_FOUND,                        /* Challenge not found                         */
+  RDNA_RESP_STATUS_TOKEN_BASED_AUTH_FAILED,                    /* Token authentication failed                 */
+  RDNA_RESP_STATUS_TOKEN_BASED_AUTH_UPDATED,                   /* Token authentication updated                */
+  RDNA_RESP_STATUS_AD_USER_DISABLE,                            /* AD User disabled                            */
+  RDNA_RESP_STATUS_AD_USER_DELETED,                            /* AD User deleted                             */
+  RDNA_RESP_STATUS_USER_DEVICE_NOT_REGISTERED,                 /* User device not register                    */
+  RDNA_RESP_STATUS_USER_BLOCKED,                               /* User blocked                                */
+  RDNA_RESP_STATUS_USER_SUSPENDED,                             /* User suspended                              */
+  RDNA_RESP_STATUS_INVALID_CHALLENGE_JSON,                     /* Challenge JSON is invalid                   */
+  RDNA_RESP_STATUS_AD_PASSWORD_MISMATCH,                       /* AD password mismatch                        */
+  RDNA_RESP_STATUS_DEVICE_VALIDATION_FAILED,                   /* Device validation failed                    */
+  RDNA_RESP_STATUS_USER_ALREADY_ACTIVE,                        /* User already active                         */
+                                                                                                              */
+  RDNA_RESP_STATUS_UNKNOWN_ERROR                               /* Unknown error occured 					  */
 } RDNAResponseStatusCode;
 ```
-
-ChallengeStatus | Description
---------------- | -----------
-<b>RDNA_CHLNG_STATUS_SUCCESS</b> | This status is returned when the response to the challenge has been deemed verified
-<b>RDNA_CHLNG_STATUS_NO_SUCH_USER</b> | This status is returned when the specified user does not exist. The client either needs to correct the username or enroll the username through the Gateway Manager.
-<b>RDNA_CHLNG_STATUS_USER_SUSPENDED</b> | This status is returned when the specified user is in a SUSPENDED state. The administrator needs to unblock the user before the authentication can proceed.
-<b>RDNA_CHLNG_STATUS_USER_BLOCKED</b> | This status is returned when the specified user is in a BLOCKED state. The administrator needs to unblock the user before the authentication can proceed.
-<b>RDNA_CHLNG_STATUS_USER_ALREADY_ACTIVATED</b> | This status is returned when the user specified in the challenge has already been activated, yet the system is attempting to activate the user. In this case client needs to restart the user authentication sequence.
-<b>RDNA_CHLNG_STATUS_INVALID_ACT_CODE</b> | This status is returned when the user has entered an invalid activation code. The user needs to enter the appropriate activation code for the authentication to proceed.
-<b>RDNA_CHLNG_STATUS_UPDATE_CHALLENGES_FAILED</b> | This code is returned when the user has attempted to update the challenges, and server has failed to update them.
-<b>RDNA_CHLNG_STATUS_RESPONSE_VALIDATION_FAILED</b> | This code is returned when the server has failed to verify the user's response to a challenge. The server will usually present the challenges once again and the user needs to reattempt to respond to the challenges.
-<b>RDNA_CHLNG_STATUS_DEVICE_VALIDATION_FAILED</b> | This status is returned when the device from which the user is attempting to authenticate himself has been rejected by the server based on some policy.
-<b>RDNA_CHLNG_STATUS_INVALID_CHALLENGE_LIST</b> |  This status is returned by the server when it recieves improper challenge response for that state. The usual solution for this would be to restart the authentication sequence.
-<b>RDNA_CHLNG_STATUS_INTERNAL_SERVER_ERROR</b> | This status is returned when an internal server error has occurred. The only recourse is to contact the administrator.
-<b>RDNA_RESP_STATUS_FAILED_UPDATE_DEVICE_DETAILS</b> | This status is returned when update the device details at server is failed
-<b>RDNA_RESP_STATUS_NO_SUCH_USE_CASE_EXISTS</b> | This status is returned when the use case specified in post login challenges is not configured in server
-<b>RDNA_RESP_STATUS_ATTEMPTS_EXHAUSTED</b> | This status is returned when all the Challenge attempts exhausted
-<b>RDNA_CHLNG_STATUS_UNKNOWN_ERROR</b> | This status is returned when an error or unknown origin has occurred. The only recourse is to contact the administrator.
 
 ## RDNAChallengeOpMode (Enumeration)
 
@@ -2493,8 +2486,8 @@ public abstract class RDNA {
   public enum RDNAPrivacyScope {
     RDNA_PRIVACY_SCOPE_SESSION(1), /* use session-specific keys */
     RDNA_PRIVACY_SCOPE_DEVICE(2),  /* use device-specific keys */
-    RDNA_PRIVACY_SCOPE_USER(3),    /* use user-specific keys */
-    RDNA_PRIVACY_SCOPE_AGENT(4);   /* use agent-specific keys */
+    RDNA_PRIVACY_SCOPE_USER(4),    /* use user-specific keys */
+    RDNA_PRIVACY_SCOPE_AGENT(8);   /* use agent-specific keys */
   }
   //..
 }
@@ -2504,8 +2497,8 @@ public abstract class RDNA {
 typedef NS_ENUM(NSInteger, RDNAPrivacyScope) {
   RDNA_PRIVACY_SCOPE_SESSION = 0x01,  /* use session-specific keys */
   RDNA_PRIVACY_SCOPE_DEVICE = 0x02,   /* use device-specific keys  */
-  RDNA_PRIVACY_SCOPE_USER = 0x03,     /* use user-specific keys    */
-  RDNA_PRIVACY_SCOPE_AGENT = 0x04,    /* use agent-specific keys   */
+  RDNA_PRIVACY_SCOPE_USER = 0x04,     /* use user-specific keys    */
+  RDNA_PRIVACY_SCOPE_AGENT = 0x08,    /* use agent-specific keys   */
 };
 ```
 
@@ -2513,8 +2506,8 @@ typedef NS_ENUM(NSInteger, RDNAPrivacyScope) {
 typedef enum {
   RDNA_PRIVACY_SCOPE_SESSION = 0x01, /* use session-specific keys */
   RDNA_PRIVACY_SCOPE_DEVICE  = 0x02, /* use device-specific keys  */
-  RDNA_PRIVACY_SCOPE_USER    = 0x03, /* use user-specific keys    */
-  RDNA_PRIVACY_SCOPE_AGENT   = 0x04, /* use agent-specific keys   */
+  RDNA_PRIVACY_SCOPE_USER    = 0x04, /* use user-specific keys    */
+  RDNA_PRIVACY_SCOPE_AGENT   = 0x08, /* use agent-specific keys   */
 } RDNAPrivacyScope;
 ```
 
@@ -2647,8 +2640,7 @@ public abstract class RDNA {
   public abstract
     RDNAStatus<byte[]>
     encryptDataPacket(
-      RDNAPrivacyScope
-             privacyScope,
+      int    privacyScope,
       String cipherSpec,
       byte[] cipherSalt,
       byte[] plainText);
@@ -2656,8 +2648,7 @@ public abstract class RDNA {
   public abstract
     RDNAStatus<byte[]>
     decryptDataPacket(
-      RDNAPrivacyScope
-             privacyScope,
+      int    privacyScope,
       String cipherSpec,
       byte[] cipherSalt,
       byte[] cipherText);
@@ -2667,13 +2658,13 @@ public abstract class RDNA {
 
 ```objective_c
 @interface RDNA : NSObject
-  - (int)encryptDataPacket:(RDNAPrivacyScope)privacyScope
+  - (int)encryptDataPacket:(int)privacyScope
                 CipherSpec:(NSString *)cipherSpec
                 CipherSalt:(NSString *)cipherSalt
                       From:(NSData *)plainText
                       Into:(NSMutableData **)cipherText;
 
-  - (int)decryptDataPacket:(RDNAPrivacyScope)privacyScope
+  - (int)decryptDataPacket:(int)privacyScope
                 CipherSpec:(NSString *)cipherSpec
                 CipherSalt:(NSString *)cipherSalt
                       From:(NSData *)cipherText
@@ -2687,8 +2678,7 @@ class RDNA
 public:
   int
   encryptDataPacket
-  (RDNAPrivacyScope
-               privacyScope,
+  (int         privacyScope,
    std::string cipherSpec,
    std::string cipherSalt,
    void*       plainText,
@@ -2698,8 +2688,7 @@ public:
 
   int
   decryptDataPacket
-  (RDNAPrivacyScope
-               privacyScope,
+  (int         privacyScope,
    std::string cipherSpec,
    std::string cipherSalt,
    void*       cipherText,
@@ -2711,10 +2700,14 @@ public:
 
 Routine | Description
 ------- | -----------
-<b>EncryptDataPacket</b> | <li>Raw plaintext (unencrypted) data is supplied as a buffer of bytes.<li>This data is encrypted using keys as per specified privacy scope, and returned to calling API-client application.
+<b>EncryptDataPacket</b> | <li>Raw plaintext (unencrypted) data is supplied as a buffer of bytes.<li>This data is encrypted using keys as per specified privacy scope, and returned to calling API-client application.<li>The privacy scope can be a combination of RDNAPrivacyScope keys.<li> Example: 
+&nbsp; | 1. privacyScope = RDNA_PRIVACY_SCOPE_USER 
+&nbsp; | 2. privacyScope = RDNA_PRIVACY_SCOPE_USER + RDNA_PRIVACY_SCOPE_AGENT
 &nbsp; | ANSI C, C++ -<li>If the supplied ```cipherText``` and ```cipherTextLen``` are non-null, they are used to store the encrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)
 &nbsp; | Java, Objective C -<li>The output is always returned as a newly allocated array/buffer (```byte[]``` in Java, ```NSMutableData **``` in Objective C)
-<b>DecryptDataPacket</b> | <li>Encrypted data is supplied as a buffer of bytes.<li>This data is decrypted using keys as per specified privacy scope, and returned to calling API-client application.
+<b>DecryptDataPacket</b> | <li>Encrypted data is supplied as a buffer of bytes.<li>This data is decrypted using keys as per specified privacy scope, and returned to calling API-client application.<li>The privacy scope can be a combination of RDNAPrivacyScope keys.<li> Example: 
+&nbsp; | 1. privacyScope = RDNA_PRIVACY_SCOPE_USER 
+&nbsp; | 2. privacyScope = RDNA_PRIVACY_SCOPE_USER + RDNA_PRIVACY_SCOPE_AGENT
 &nbsp; | ANSI C, C++ -<li>If the supplied ```plainText``` and ```plainTextLen``` are non-null, they are used to store the decrypted output to be returned to caller.<li>If they were null, or if they were insufficient to store the output, then memory is allocated for storing the encrypted output, and these pointers are updated with the details of the allocated memory (buffer pointer and size of buffer)<li>Recommended method is to supply input encrypted buffer itself in these output parameters, since it will definitely be larger than or equal to what would be required to store the decrypted output. Moreover, if this is not done, the routine will not reuse the input encrypted buffer by itself
 &nbsp; | Java, Objective C -<li>The output is always returned as a newly allocated array/buffer (```byte[]``` in Java, ```NSMutableData **``` in Objective C)
 
@@ -3868,7 +3861,8 @@ typedef struct RDNAHTTPResponse_s{
   int StatusCode;
   string StatusMessage;
   std::map<string, string> Headers;
-  string Body;
+  unsigned char* Body;
+  int BodyLen;
 }RDNAHTTPResponse;
 
 typedef struct RDNAHttpStatus_s{
@@ -3876,6 +3870,7 @@ typedef struct RDNAHttpStatus_s{
   int requestID;
   RDNAHTTPRequest* request;
   RDNAHTTPResponse* response;
+  void * pvAppCtx;
 }RDNAHttpStatus;
 ```
 
@@ -4040,6 +4035,7 @@ class RDNA {
   int openHttpConnection
    (RDNAHTTPRequest* aHttpReq,
     onHttpResponse respHandler,
+	void* pvAppCtx,
     int& nTunnelRequestID);
 ```
 
