@@ -21,7 +21,7 @@ search: true
 <br>
 This specification is a <u>working pre-release draft</u>.
 <br>
-Last updated on <u>Thursday, 16th May 2018</u>
+Last updated on <u>Wednesday, 13th February 2019</u>
 </aside>
 
 Welcome to the REL-ID API !
@@ -1351,71 +1351,82 @@ typedef NS_ENUM(NSInteger, RDNAErrorID) {
 
 ```cpp
 typedef enum {
-    RDNA_ERR_NONE = 0,
-    RDNA_ERR_NOT_INITIALIZED,
-    RDNA_ERR_GENERIC_ERROR,
-    RDNA_ERR_INVALID_VERSION,
-    RDNA_ERR_INVALID_ARGS,
-    RDNA_ERR_SESSION_EXPIRED,
-    RDNA_ERR_PARENT_PROXY_CONNECT_FAILED,
-    RDNA_ERR_NULL_CALLBACKS,
-    RDNA_ERR_INVALID_HOST,
-    RDNA_ERR_INVALID_PORTNUM,
-    RDNA_ERR_INVALID_AGENT_INFO,
-    RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER,
-    RDNA_ERR_INVALID_SAVED_CONTEXT,
-    RDNA_ERR_INVALID_HTTP_REQUEST,
-    RDNA_ERR_INVALID_HTTP_RESPONSE,
-    RDNA_ERR_INVALID_CIPHERSPECS,
-    RDNA_ERR_SERVICE_NOT_SUPPORTED,
-    RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE,
-    RDNA_ERR_FAILED_TO_GET_STREAM_TYPE,
-    RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM,
-    RDNA_ERR_FAILED_TO_END_STREAM,
-    RDNA_ERR_FAILED_TO_DESTROY_STREAM,
-    RDNA_ERR_FAILED_TO_INITIALIZE,
-    RDNA_ERR_FAILED_TO_PAUSERUNTIME,
-    RDNA_ERR_FAILED_TO_RESUMERUNTIME,
-    RDNA_ERR_FAILED_TO_TERMINATE,
-    RDNA_ERR_FAILED_TO_GET_CIPHERSALT,
-    RDNA_ERR_FAILED_TO_GET_CIPHERSPECS,
-    RDNA_ERR_FAILED_TO_GET_AGENT_ID,
-    RDNA_ERR_FAILED_TO_GET_SESSION_ID,
-    RDNA_ERR_FAILED_TO_GET_DEVICE_ID,
-    RDNA_ERR_FAILED_TO_GET_SERVICE,
-    RDNA_ERR_FAILED_TO_START_SERVICE,
-    RDNA_ERR_FAILED_TO_STOP_SERVICE,
-    RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET,
-    RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET,
-    RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST,
-    RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE,
-    RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM,
-    RDNA_ERR_FAILED_TO_CHECK_CHALLENGE,
-    RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE,
-    RDNA_ERR_FAILED_TO_GET_CONFIG,
-    RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES,
-    RDNA_ERR_FAILED_TO_LOGOFF,
-    RDNA_ERR_FAILED_TO_RESET_CHALLENGE,
-    RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD,
-    RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES,
+    RDNA_ERR_NONE = 0,                              
+    RDNA_ERR_NOT_INITIALIZED,                       
+    RDNA_ERR_GENERIC_ERROR,                         
+    RDNA_ERR_INVALID_VERSION,                       
+    RDNA_ERR_INVALID_ARGS,                          
+    RDNA_ERR_SESSION_EXPIRED,                       
+    RDNA_ERR_PARENT_PROXY_CONNECT_FAILED,           
+    RDNA_ERR_NULL_CALLBACKS,                        
+    RDNA_ERR_INVALID_HOST,                          
+    RDNA_ERR_INVALID_PORTNUM,                       
+    RDNA_ERR_INVALID_AGENT_INFO,                    
+    RDNA_ERR_UNSUPPORTED_AGENT_RELID,               
+    RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER,           
+    RDNA_ERR_INVALID_SAVED_CONTEXT,                 
+    RDNA_ERR_INVALID_HTTP_REQUEST,                  
+    RDNA_ERR_INVALID_HTTP_RESPONSE,                 
+    RDNA_ERR_INVALID_CIPHERSPECS,                   
+    RDNA_ERR_SERVICE_NOT_SUPPORTED,                 
+    RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE,     
+    RDNA_ERR_FAILED_TO_GET_STREAM_TYPE,             
+    RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM,           
+    RDNA_ERR_FAILED_TO_END_STREAM,                  
+    RDNA_ERR_FAILED_TO_DESTROY_STREAM,              
+    RDNA_ERR_FAILED_TO_INITIALIZE,                  
+    RDNA_ERR_FAILED_TO_PAUSERUNTIME,                
+    RDNA_ERR_FAILED_TO_RESUMERUNTIME,               
+    RDNA_ERR_FAILED_TO_TERMINATE,                   
+    RDNA_ERR_FAILED_TO_GET_CIPHERSALT,              
+    RDNA_ERR_FAILED_TO_GET_CIPHERSPECS,             
+    RDNA_ERR_FAILED_TO_GET_AGENT_ID,                
+    RDNA_ERR_FAILED_TO_GET_SESSION_ID,              
+    RDNA_ERR_FAILED_TO_GET_DEVICE_ID,               
+    RDNA_ERR_FAILED_TO_GET_SERVICE,                 
+    RDNA_ERR_FAILED_TO_START_SERVICE,               
+    RDNA_ERR_FAILED_TO_STOP_SERVICE,                
+    RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET,         
+    RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET,         
+    RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST,        
+    RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE,       
+    RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM,       
+    RDNA_ERR_FAILED_TO_CHECK_CHALLENGE,             
+    RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE,            
+    RDNA_ERR_FAILED_TO_GET_CONFIG,                  
+    RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES,          
+    RDNA_ERR_FAILED_TO_LOGOFF,                      
+    RDNA_ERR_FAILED_TO_RESET_CHALLENGE,             
+    RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD,          
+    RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES,   
     RDNA_ERR_FAILED_TO_GET_REGISTERD_DEVICE_DETAILS,
-    RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS,
-    RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS,
-    RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION,
-    RDNA_ERR_FAILED_TO_OPEN_HTTP_CONNECTION,
-    RDNA_ERR_SSL_INIT_FAILED,
-    RDNA_ERR_SSL_ACTIVITY_FAILED,
-    RDNA_ERR_DNS_FAILED,
-    RDNA_ERR_NET_DOWN,
-    RDNA_ERR_SOCK_TIMEDOUT,
-    RDNA_ERR_DNA_INTERNAL,
-	RDNA_ERR_INVALID_USER_MR_STATE,
-	RDNA_ERR_NOTF_SIGN_INTERNAL_FAILURE,
-	//All above error enums are mapped to SDK error
-	
-    RDNA_ERR_FAILED_TO_PARSE_DEVICES,
-    RDNA_ERR_INVALID_CHALLENGE_CONFIG,
-    RDNA_ERR_INVALID_HTTP_API_REQ_URL,
+    RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS,       
+    RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS,           
+    RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION,         
+    RDNA_ERR_FAILED_TO_OPEN_HTTP_CONNECTION,        
+    RDNA_ERR_SSL_INIT_FAILED,                       
+    RDNA_ERR_SSL_ACTIVITY_FAILED,                   
+    RDNA_ERR_DNS_FAILED,                            
+    RDNA_ERR_NET_DOWN,                              
+    RDNA_ERR_SOCK_TIMEDOUT,                         
+    RDNA_ERR_DNA_INTERNAL,                          
+    RDNA_ERR_INVALID_USER_MR_STATE,                 
+    RDNA_ERR_NOTF_SIGN_INTERNAL_FAILURE,            
+    RDNA_ERR_INVALID_PROXY_CREDS,                   
+    RDNA_ERR_CONNECTION_TIMEDOUT,                   
+    RDNA_ERR_DNS_TIMEDOUT,                          
+    RDNA_ERR_RESPONSE_TIMEDOUT,                     
+    RDNA_ERR_UNSUPPORTED_USER_RELID_VERSION,        
+    RDNA_ERR_RMAK_INCORRECT_TIMESTAMP,              
+    RDNA_ERR_USER_NOT_LOGGED_IN,
+    RDNA_ERR_FAILED_TO_GET_NOTIFICATION_HISTORY,
+    RDNA_ERR_INVALID_TUNNEL_CONFIGURATION,
+    //All errors above this are mapped with the inte
+    
+    //Following error codes are specific to Wrapper
+    RDNA_ERR_FAILED_TO_PARSE_DEVICES,               
+    RDNA_ERR_INVALID_CHALLENGE_CONFIG,              
+    RDNA_ERR_INVALID_HTTP_API_REQ_URL,              
     RDNA_ERR_NO_MEMORY,
     RDNA_ERR_INVALID_CONTEXT,
     RDNA_ERR_CIPHERTEXT_LENGTH_INVALID,
@@ -1425,9 +1436,12 @@ typedef enum {
     RDNA_ERR_USERID_EMPTY,
     RDNA_ERR_CHALLENGE_EMPTY,
     RDNA_ERR_FAILED_TO_SERIALIZE_JSON,
-    RDNA_ERR_USECASE_EMPTY
+    RDNA_ERR_USECASE_EMPTY,
+    RDNA_ERR_NOTF_HISTORY_ARRAYLEN_MISMATCH
 } RDNAErrorID;
 ```
+
+Common Error Code Enums which is shared by CPP, Objective-C and Java.
 
 Error ID | Value | Meaning
 -------- | ----- | -------
@@ -1442,68 +1456,96 @@ RDNA_ERR_NULL_CALLBACKS | 7 | The callback/ptr passed in is null
 RDNA_ERR_INVALID_HOST | 8 | The hostname/IP is null or empty
 RDNA_ERR_INVALID_PORTNUM | 9 | The port number is invalid
 RDNA_ERR_INVALID_AGENT_INFO | 10 | The agent info is invalid (check the agent info blob received by Admin)
-RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER | 11 | Failed to connect to REL-ID Gateway Server
-RDNA_ERR_INVALID_SAVED_CONTEXT | 12 | The saved context passed to Resume is invalid
-RDNA_ERR_INVALID_HTTP_REQUEST | 13 | The Http Request passed to Encrypt Http API is invalid
-RDNA_ERR_INVALID_HTTP_RESPONSE | 14 | The Http Request passed to Decrypt Http API is invalid
-RDNA_ERR_INVALID_CIPHERSPECS | 15 | The cipher spec passed in is invalid
-RDNA_ERR_SERVICE_NOT_SUPPORTED | 16 | The service provided is not supported
-RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE | 17 | Failed to get stream privacy scope
-RDNA_ERR_FAILED_TO_GET_STREAM_TYPE | 18 | Failed to get stream type
-RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM | 19 | Failed to write into privacy stream
-RDNA_ERR_FAILED_TO_END_STREAM | 20 | Failed to end privacy stream
-RDNA_ERR_FAILED_TO_DESTROY_STREAM | 21 | Failed to destroy privacy stream
-RDNA_ERR_FAILED_TO_INITIALIZE | 22 | Failed to initialize
-RDNA_ERR_FAILED_TO_PAUSERUNTIME | 23 | Failed to pause runtime
-RDNA_ERR_FAILED_TO_RESUMERUNTIME | 24 | Failed to resume runtime
-RDNA_ERR_FAILED_TO_TERMINATE | 25 | Failed to terminate
-RDNA_ERR_FAILED_TO_GET_CIPHERSALT | 26 | Failed to get cipher salt
-RDNA_ERR_FAILED_TO_GET_CIPHERSPECS | 27 | Failed to get cipherspecs
-RDNA_ERR_FAILED_TO_GET_AGENT_ID | 28 | Failed to get agent id
-RDNA_ERR_FAILED_TO_GET_SESSION_ID | 29 | Failed to get session id
-RDNA_ERR_FAILED_TO_GET_DEVICE_ID | 30 | Failed to get device id
-RDNA_ERR_FAILED_TO_GET_SERVICE | 31 | Failed to get service
-RDNA_ERR_FAILED_TO_START_SERVICE | 32 | Failed to start service
-RDNA_ERR_FAILED_TO_STOP_SERVICE | 33 | Failed to stop service
-RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET | 34 | Failed to encrypt data packet
-RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET | 35 | Failed to decrypt data packet
-RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST | 36 | Failed to encrypt HTTP request
-RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE | 37 | Failed to decrypt HTTP response
-RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM | 38 | Failed to create privacy stream
-RDNA_ERR_FAILED_TO_CHECK_CHALLENGE | 39 | Failed to check challenge response
-RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE | 40 | Failed to update challenge
-RDNA_ERR_FAILED_TO_GET_CONFIG | 41 | Failed to retrieve configuration
-RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES | 42 | Failed to retrieve list of all challenges
-RDNA_ERR_FAILED_TO_LOGOFF | 43 | Failed to log off the user
-RDNA_ERR_FAILED_TO_RESET_CHALLENGE | 44 | Failed to reset challenge
-RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD | 45 | Failed to reset password via forgot password API
-RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES | 46 | Error while attempting to fetch post-login challenges
-RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | 47 | Error while attempting to get details of the registered devices of the user
-RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS | 48 | Failed to update device details of the user
-RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS | 49 | Failed to get the notifications from server
-RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION | 50 | Failed to update the notification
-RDNA_ERR_FAILED_TO_OPEN_HTTP_CONNECTION | 51 | Failed to open HTTP api tunnel connection
-RDNA_ERR_SSL_INIT_FAILED | 52 | SSL initialization failed
-RDNA_ERR_SSL_ACTIVITY_FAILED | 53 | Error occurs while performing SSL related network operations
-RDNA_ERR_DNS_FAILED | 54 | Domain name resolution failed
-RDNA_ERR_NET_DOWN | 55 | Network is down
-RDNA_ERR_SOCK_TIMEDOUT | 56 | Connection timed out.
-RDNA_ERR_DNA_INTERNAL | 57 | Generic DNA (networking library) error
-RDNA_ERR_FAILED_TO_PARSE_DEVICES | 58 | Failure in parsing device details
-RDNA_ERR_INVALID_CHALLENGE_CONFIG | 59 | Misconfigured claange received
-RDNA_ERR_INVALID_HTTP_API_REQ_URL | 60 | Invalid URL was specified in the HTTP appi tunnel connection
-RDNA_ERR_NO_MEMORY| 61 | Device is running out of space
-RDNA_ERR_INVALID_CONTEXT| 62 | The context passed to the API is invalid
-RDNA_ERR_CIPHERTEXT_EMPTY | 63 | The cipher text passed to Decrypt API is empty
-RDNA_ERR_CIPHERTEXT_LENGTH_INVALID | 64 | The cipher text length passed to Decrypt API is invalid
-RDNA_ERR_PLAINTEXT_EMPTY | 65 | The plain text passed to Encrypt API is empty
-RDNA_ERR_PLAINTEXT_LENGTH_INVALID | 66 | The plain text length passed to Encrypt API is invalid
-RDNA_ERR_USERID_EMPTY | 67 | Userid field is empty
-RDNA_ERR_CHALLENGE_EMPTY | 68 | Challenge field is empty
-RDNA_ERR_FAILED_TO_SERIALIZE_JSON | 69 | Failed to serialize to internal representation
-RDNA_ERR_USECASE_EMPTY | 70 | The input parameter to GetConfig API cannot be EMPTY or NULL
-RDNA_ERR_INVALID_SERVICE_NAME | 71 | Returned if service name is not valid or null (Java SDK)
-RDNA_ERR_DEVICE_DETAILS_EMPTY | 72 | Returned if passed device details is empty or null (Java SDK)
+RDNA_ERR_UNSUPPORTED_AGENT_RELID | 11 | An unsupported agent info was provided
+RDNA_ERR_FAILED_TO_CONNECT_TO_SERVER | 12 | Failed to connect to REL-ID Gateway Server
+RDNA_ERR_INVALID_SAVED_CONTEXT | 13 | The saved context passed to Resume is invalid
+RDNA_ERR_INVALID_HTTP_REQUEST | 14 | The Http Request passed to Encrypt Http API is invalid
+RDNA_ERR_INVALID_HTTP_RESPONSE | 15 | The Http Request passed to Decrypt Http API is invalid
+RDNA_ERR_INVALID_CIPHERSPECS | 16 | The cipher spec passed in is invalid
+RDNA_ERR_SERVICE_NOT_SUPPORTED | 17 | The service provided is not supported
+RDNA_ERR_FAILED_TO_GET_STREAM_PRIVACYSCOPE | 18 | Failed to get stream privacy scope
+RDNA_ERR_FAILED_TO_GET_STREAM_TYPE | 19 | Failed to get stream type
+RDNA_ERR_FAILED_TO_WRITE_INTO_STREAM | 20 | Failed to write into privacy stream
+RDNA_ERR_FAILED_TO_END_STREAM | 21 | Failed to end privacy stream
+RDNA_ERR_FAILED_TO_DESTROY_STREAM | 22 | Failed to destroy privacy stream
+RDNA_ERR_FAILED_TO_INITIALIZE | 23 | Failed to initialize
+RDNA_ERR_FAILED_TO_PAUSERUNTIME | 24 | Failed to pause runtime
+RDNA_ERR_FAILED_TO_RESUMERUNTIME | 25 | Failed to resume runtime
+RDNA_ERR_FAILED_TO_TERMINATE | 26 | Failed to terminate
+RDNA_ERR_FAILED_TO_GET_CIPHERSALT | 27 | Failed to get cipher salt
+RDNA_ERR_FAILED_TO_GET_CIPHERSPECS | 28 | Failed to get cipherspecs
+RDNA_ERR_FAILED_TO_GET_AGENT_ID | 29 | Failed to get agent id
+RDNA_ERR_FAILED_TO_GET_SESSION_ID | 30 | Failed to get session id
+RDNA_ERR_FAILED_TO_GET_DEVICE_ID | 31 | Failed to get device id
+RDNA_ERR_FAILED_TO_GET_SERVICE | 32 | Failed to get service
+RDNA_ERR_FAILED_TO_START_SERVICE | 33 | Failed to start service
+RDNA_ERR_FAILED_TO_STOP_SERVICE | 34 | Failed to stop service
+RDNA_ERR_FAILED_TO_ENCRYPT_DATA_PACKET | 35 | Failed to encrypt data packet
+RDNA_ERR_FAILED_TO_DECRYPT_DATA_PACKET | 36 | Failed to decrypt data packet
+RDNA_ERR_FAILED_TO_ENCRYPT_HTTP_REQUEST | 37 | Failed to encrypt HTTP request
+RDNA_ERR_FAILED_TO_DECRYPT_HTTP_RESPONSE | 38 | Failed to decrypt HTTP response
+RDNA_ERR_FAILED_TO_CREATE_PRIVACY_STREAM | 39 | Failed to create privacy stream
+RDNA_ERR_FAILED_TO_CHECK_CHALLENGE | 40 | Failed to check challenge response
+RDNA_ERR_FAILED_TO_UPDATE_CHALLENGE | 41 | Failed to update challenge
+RDNA_ERR_FAILED_TO_GET_CONFIG | 42 | Failed to retrieve configuration
+RDNA_ERR_FAILED_TO_GET_ALL_CHALLENGES | 43 | Failed to retrieve list of all challenges
+RDNA_ERR_FAILED_TO_LOGOFF | 44 | Failed to log off the user
+RDNA_ERR_FAILED_TO_RESET_CHALLENGE | 45 | Failed to reset challenge
+RDNA_ERR_FAILED_TO_DO_FORGOT_PASSWORD | 46 | Failed to reset password via forgot password API
+RDNA_ERR_FAILED_TO_GET_POST_LOGIN_CHALLENGES | 47 | Error while attempting to fetch post-login challenges
+RDNA_ERR_FAILED_TO_GET_REGISTERED_DEVICE_DETAILS | 48 | Error while attempting to get details of the registered devices of the user
+RDNA_ERR_FAILED_TO_UPDATE_DEVICE_DETAILS | 49 | Failed to update device details of the user
+RDNA_ERR_FAILED_TO_GET_NOTIFICATIONS | 50 | Failed to get the notifications from server
+RDNA_ERR_FAILED_TO_UPDATE_NOTIFICATION | 51 | Failed to update the notification
+RDNA_ERR_FAILED_TO_OPEN_HTTP_CONNECTION | 52 | Failed to open HTTP api tunnel connection
+RDNA_ERR_SSL_INIT_FAILED | 53 | SSL initialization failed
+RDNA_ERR_SSL_ACTIVITY_FAILED | 54 | Error occurs while performing SSL related network operations
+RDNA_ERR_DNS_FAILED | 55 | Domain name resolution failed
+RDNA_ERR_NET_DOWN | 56 | Network is down
+RDNA_ERR_SOCK_TIMEDOUT | 57 | Connection timed out.
+RDNA_ERR_DNA_INTERNAL | 58 | Generic DNA (networking library) error
+RDNA_ERR_INVALID_USER_MR_STATE | 59 | Invalid or no user data in secure storage 
+RDNA_ERR_NOTF_SIGN_INTERNAL_FAILURE | 60 | Failure occurred when signing notification data
+RDNA_ERR_INVALID_PROXY_CREDS | 61 | Invalid System Proxy credentials provided
+RDNA_ERR_CONNECTION_TIMEDOUT | 62 | Connection timedout when connecting to server
+RDNA_ERR_DNS_TIMEDOUT | 63 | Hostname resolution timedout
+RDNA_ERR_RESPONSE_TIMEDOUT | 64 | Request timedout when waiting for response from other end
+RDNA_ERR_UNSUPPORTED_USER_RELID_VERSION | 65 | An unsupported User REL-ID was received
+RDNA_ERR_RMAK_INCORRECT_TIMESTAMP | 66 | System date is incorrect.
+RDNA_ERR_USER_NOT_LOGGED_IN | 67 | User session is not valid.
+RDNA_ERR_FAILED_TO_GET_NOTIFICATION_HISTORY | 68 | User session is invalid while retreiving notification history
+RDNA_ERR_INVALID_TUNNEL_CONFIGURATION | 69 | Invalid tunnel configuration in server. 
+
+CPP Error Code Enums
+
+Error ID | Value | Meaning
+-------- | ----- | -------
+RDNA_ERR_FAILED_TO_PARSE_DEVICES | 70 | Failure in parsing device details
+RDNA_ERR_INVALID_CHALLENGE_CONFIG | 71 | Misconfigured claange received
+RDNA_ERR_INVALID_HTTP_API_REQ_URL | 72 | Invalid URL was specified in the HTTP appi tunnel connection
+RDNA_ERR_NO_MEMORY| 73 | Device is running out of space
+RDNA_ERR_INVALID_CONTEXT| 74 | The context passed to the API is invalid
+RDNA_ERR_CIPHERTEXT_LENGTH_INVALID | 75 | The cipher text length passed to Decrypt API is invalid
+RDNA_ERR_CIPHERTEXT_EMPTY | 76 | The cipher text passed to Decrypt API is empty
+RDNA_ERR_PLAINTEXT_EMPTY | 77 | The plain text passed to Encrypt API is empty
+RDNA_ERR_PLAINTEXT_LENGTH_INVALID | 78 | The plain text length passed to Encrypt API is invalid
+RDNA_ERR_USERID_EMPTY | 79 | Userid field is empty
+RDNA_ERR_CHALLENGE_EMPTY | 80 | Challenge field is empty
+RDNA_ERR_FAILED_TO_SERIALIZE_JSON | 81 | Failed to serialize to internal representation
+RDNA_ERR_USECASE_EMPTY | 82 | The input parameter to GetConfig API cannot be EMPTY or NULL
+RDNA_ERR_NOTF_HISTORY_ARRAYLEN_MISMATCH | 83 | Invalid notification history received
+
+Objective-C Error Code Enums
+
+Error ID | Value | Meaning
+-------- | ----- | -------
+RDNA_ERR_FAILED_TO_PARSE_DEVICES | 70 | Failure in parsing device details
+
+Java Error Code Enums
+
+Error ID | Value | Meaning
+-------- | ----- | -------
+RDNA_ERR_FAILED_TO_PARSE_DEVICES | 70 | Failure in parsing device details
 
 ## Method identifiers (enum)
 
@@ -2373,22 +2415,17 @@ public abstract class RDNA {
 class RDNA
 {
 public:
-  int
-  getServiceByServiceName
+  int getServiceByServiceName
   (std::string  serviceName,
    RDNAService& service);
 
-  int
-  getServiceByTargetCoordinate
+  int getServiceByTargetCoordinate
   (std::string   targetHNIP,
    unsigned port targetPORT,
-   vector<RDNAService>&
-                 services);
+   vector<RDNAService>& services);
 
-  int
-  getAllServices
-  (vector<RDNAService>&
-                services);
+  int getAllServices
+  (vector<RDNAService>& services);
 }
 ```
 
@@ -3235,6 +3272,37 @@ As part of the API call sequence to authenticate an end-user, the API-client rec
 
 <aside class="notice">This API should only be called to authenticate an end-user, and post authentication this API should not be used. Please refer to <u><i>getPostLoginChallenges</i></u> API for getting the end-user to authenticate, post successful authentication in the same session</aside>
 
+## GetAllChallenges
+
+```java
+public abstract class RDNA {
+  //..
+  public abstract int getAllChallenges(String userID);
+}
+```
+
+```objective_c
+@interface RDNA
+  //...
+  - (int)getAllChallenges:(NSString *)userID;
+@end
+```
+
+```cpp
+class RDNA {
+  //...
+  int getAllChallenges(std::string userID);
+}
+```
+
+GetAllChallenges API is used by the API-client to fetch all the challenges whose credentials can be updated post user login. To update any credential, the API-client needs to invoke the UpdateChallenges API. As an ideal way of implementing GetAllChallenges and UpdateChallenges, the API-client should invoke the GetAllChallenges function after every user login and cache its response received in the callback(caching is optional). Post that the user can invoke UpdateChallenges on the cached GetAllChallenges response.
+
+If caching is not done, the API-client will have to invoke GetAllChallenges each time before invoking the UpdateChallenges API. 
+
+Parameter | Description
+--------- | -----------
+<b>userID</b> | The username or userID of the user, for whom the list of configured challenge needs to be fetched.
+
 ## UpdateChallenges
 
 ```java
@@ -3257,6 +3325,13 @@ class RDNA {
   int updateChallenges(vector<RDNAChallenge> challenges, std::string userID);
 }
 ```
+
+UpdateChallenges API is used to update the credentials in the backend server. This API needs to be used in conjunction with GetAllChallenges.
+
+Parameter | Description
+--------- | -----------
+<b>challenges</b> | Contains challenge information with updated credentials which needs to be updated in server. The challenge is part of the challenges received as part of GetAllChallenges. 
+<b>userID</b> | The username or userID of the user, for whom the device details need to be updated.
 
 ## LogOff
 
@@ -3281,29 +3356,11 @@ class RDNA {
 }
 ```
 
+The LogOff API is used to log off the user session. As part of the API call, the sdk frees up memory and services with respect to user session and launches the app session.
 
-## GetAllChallenges
-
-```java
-public abstract class RDNA {
-  //..
-  public abstract int getAllChallenges(String userID);
-}
-```
-
-```objective_c
-@interface RDNA
-  //...
-  - (int)getAllChallenges:(NSString *)userID;
-@end
-```
-
-```cpp
-class RDNA {
-  //...
-  int getAllChallenges(std::string userID);
-}
-```
+Parameter | Description
+--------- | -----------
+<b>userID</b> | The username or userID of the user to be logged off.
 
 ## ResetChallenge
 
@@ -3328,6 +3385,8 @@ class RDNA {
 }
 ```
 
+ResetChallenge API is used to update the challenge state management in the SDK. The API-client should use this API during user authentication. If any unrecoverable error occurs, the API-client can invoke this API to reset the sdk challenge state and start again from the initial auth challenge.
+
 ## GetPostLoginChallenges
 
 ```java
@@ -3350,6 +3409,8 @@ class RDNA {
   int getPostLoginChallenges(std::string userID, std::string useCaseName);
 }
 ```
+
+After user logs into the system GetPostLoginChallenges API is used to fetch additional challenges which are necessary for the user to respond before completing any transaction.
 
 
 # API - Device Management
@@ -3399,7 +3460,22 @@ public abstract class RDNA {
 ```
 
 ```cpp
+enum RDNADeviceBinding {
+  RDNA_PERMENANT,
+  RDNA_TEMPORARY
+};
+
+enum RDNADeviceStatus {
+  RDNA_DEVSTATUS_ACTIVE,
+  RDNA_DEVSTATUS_UPDATE,
+  RDNA_DEVSTATUS_DELETE,
+  RDNA_DEVSTATUS_BLOCKED,
+  RDNA_DEVSTATUS_SUSPEND,
+};
+
 class RDNADeviceDetails {
+public:
+  RDNADeviceDetails() {}
 
 private:
   RDNADeviceBinding deviceBinding;
@@ -3408,17 +3484,17 @@ private:
   std::string lastAccessTime;
   std::string deviceRegistrationTime;
   std::string deviceUUID;
-  std::string lastLoginStatus;
+  std::string deviceAppUUID;
 
   RDNADeviceDetails(RDNADeviceBinding devBinding, RDNADeviceStatus devStatus, std::string devName,
-    std::string lastAccessTimeStamp, std::string devRegistrationTime, std::string devUUID, std::string lastLoginStatus)
+    std::string lastAccessTimeStamp, std::string devRegistrationTime, std::string devUUID, std::string devAppUUID)
     :deviceBinding(devBinding),
     deviceStatus(devStatus),
     deviceName(devName),
     lastAccessTime(lastAccessTimeStamp),
     deviceRegistrationTime(devRegistrationTime),
     deviceUUID(devUUID),
-    lastLoginStatus(lastLoginStatus)
+    deviceAppUUID(devAppUUID)
   {
   }
 
@@ -3428,9 +3504,9 @@ public:
   inline RDNADeviceStatus getDeviceStatus() { return deviceStatus; }
   inline std::string getLastAccessTime() { return lastAccessTime; }
   inline std::string getDeviceRegisterTime() { return deviceRegistrationTime; }
-  inline std::string getLastLoginStatusDevice() { return lastLoginStatus; }
   inline std::string getDeviceName() { return deviceName; }
   inline std::string getDeviceUUID() { return deviceUUID; }
+  inline std::string getDeviceAppUUID() { return deviceAppUUID; }
 
   inline void setNewDeviceName(std::string newDeviceName) { deviceName = newDeviceName; deviceStatus = RDNA_DEVSTATUS_UPDATE;}
   inline void deleteDevice() { deviceStatus = RDNA_DEVSTATUS_DELETE; }
@@ -3447,7 +3523,7 @@ Member | Description
 <b>lastAccessTime</b> | This is the string representation of the time stamp, when the device was accessed last time.
 <b>deviceRegistrationTime</b> | This is the string representation of the time stamp when the device was registred first time with the RelID-core
 <b>deviceUUID</b> | This is the string representation of the device unique identifier. This is for internal use only by the RelID-core.
-<b>lastLoginStatus</b> | This is the string representation of the status of login whether last login from this device was success or failed.
+<b>deviceAppUUID</b> | This is the string representation of the agent uuid which was used to register/login into the device.
 
 
 Method | Description
@@ -3480,7 +3556,7 @@ class RDNA {
 }
 ```
 
-UpdateDeviceDetails API is to be used by the API-client to persist any changes made to the list of list of registered devices for that user.
+UpdateDeviceDetails API is to be used by the API-client to persist any changes made to the list of registered devices for that user.
 
 Parameter | Description
 --------- | -----------
@@ -3511,6 +3587,10 @@ class RDNA {
   int getRegisteredDeviceDetails(std::string userID);
 }
 ```
+
+Parameter | Description
+--------- | -----------
+<b>userID</b> | The username or userID of the user, for whom the list of registered device details need to be fetched.
 
 # API - Notification Management
 
@@ -3579,23 +3659,32 @@ public abstract class RDNA {
 ```
 
 ```cpp
-
-struct RDNAExpectedResponse
+struct RDNANotfBody
 {
-  string responseLabel;
-  string response;
+  string language;                               //Language of the payload
+  string subject;                                //Subject of the notification
+  string notificationMessage;                    //Notification Text to be displayed to user
+  vector<RDNAResponseLabel> displayLabels;
 };
+
+typedef struct RDNAExpectedResponse_s
+{
+  string responseLabel;                         //Label of the expected notification response
+  string response;                              //Actual response value to be set for the notification
+  int nAuthLevel;
+}RDNAExpectedResponse, RDNAResponseLabel;
 
 class RDNANotification
 {
 public:
-  string notificationID;
-  string subject;
-  string notificationMessage;
-  string notificationResponse;
-  string notificationExpiryTime;
-  string enterpriseID;
-  vector<RDNAExpectedResponse> expectedResponse;
+  string notificationID;                         //Unique ID for notifications
+  string notificationResponse;                   //user response of the Notification
+  string notificationExpiryTime;                 //Notification expiry timestamp
+  string enterpriseID;                           //Enterprise ID which we have got while onboarding the enterprise application
+  int nNumLanguages;
+  string isDsReqd;
+  vector<RDNANotfBody> notfBody;
+  vector<RDNAExpectedResponse> expectedResponse; //All the possible responses of the notification
 };
 
 ```
@@ -3608,21 +3697,24 @@ Member | Description
 ------ | -----------
 <b>responseLabel</b> | Label name of the action that can be performed on the notification
 <b>response</b> | The actual response value of the above response label, this value has to be provided while updating the notification
+<b>nAuthLevel</b> | Type of extra authentication required in order to respond to notification.
 
 ###RDNANotification
 
 Member | Description
 ------ | -----------
 <b>notificationID</b> | This is a string representation of unique notification ID.
-<b>subject</b> | This is string representation of notification subject, a message can have a subject such as the if a transaction notification then subject for the notification could be the Transaction.
-<b>notificationMessage</b> | This is string representation of the actual notification message.
 <b>notificationResponse</b> | This is the string representation of the response which user has provded after the notification is processed by the user. Note: Right now this not been used, this is added for future.
 <b>notificationExpiryTime</b> | This is the string representation of the expiry time stamp when notifiction wil be expired.
 <b>enterpriseID</b> | This is the string representation enterprise ID, this specifies that for which enterprise the notification is related to.
+<b>nNumLanguages</b> | Number of languages the notification(body-message) can be translated/viewed into.
+<b>isDsReqd</b> | Should the notification be digitally signed by the sdk internaly or not.
+<b>notfBody</b> | List of language specific notification content
+<b>expectedResponse</b> | List of legitimate expected reponse for that notification.
 
 ## GetNotifications
 
-This API fetches the list of notifications which are active. We can get the notifications for a specific enterprise also, Even we can specify the number of records to be fetched, and even we can specify the index number from which the records to be fetched to support the paging of notification. To get all the notifications from the server we should provide the recordCount value as 0 and server send all the active Notifications of the user.
+This API fetches the list of notifications which are active. We can get the notifications for a specific enterprise also, Even we can specify the number of records to be fetched, and even we can specify the index number from which the records to be fetched to support the paging of notification. To get all the notifications from the server we should provide the recordCount value as 0 and server will send all the active Notifications of the user.
 
 ```java
 public abstract class RDNA {
@@ -3660,7 +3752,7 @@ class RDNA {
 
 ## UpdateNotification
 
-This API is to update the notification response selected by the user. We can update the only one notification at a time, to update the multiple notifications application has to call this API multiple times.
+This API is to update the notification response selected by the user. We can update only one notification at a time, to update the multiple notifications application has to call this API multiple times.
 
 ```java
 public abstract class RDNA {
@@ -3692,8 +3784,6 @@ class RDNA {
 ## RDNANotificationHistory
 
 The RDNANotificationHistory class provides history of a single notification in a structured format. Object of this class defines a notification information such as notification ID, action taken, notification message etc. A list of RDNANotificationHistory objects is returned as a part of query statement provided in the API - ```GetNotificationsHistory```.
-
-###RDNANotification
 
 ```java
 public static class RDNANotificationHistory {
@@ -3732,35 +3822,57 @@ public static class RDNANotificationHistory {
 ```
 
 ```cpp
+struct RDNANotfHistBody
+{
+  string language;                               //Language of the payload
+  string subject;                                //Subject of the notification
+  string notificationMessage;                    //Notification Text to be displayed to user
+};
+
 class RDNANotificationHistory
 {
 public:
-  string notificationID;  //Unique ID for notifications
-  string status;          //<ACTIVE / EXPIRED / UPDATED>
-  string subject;         //Subject of the notification
-  string message;         //Notification Text to be displayed to user
-  string actionTaken;     //Notification action taken by user
-  string deviceName;      //Notification action taken on specific device
-  string createdTime;     //Notification generated time on server
-  string updatedTime;     //Notification action taken by user time
-  string expiredTime;     //Notification expired time
-  string enterpriseID;    //Enterprise ID which we have got while onboarding the enterprise application
+  int nNumLanguages;                 // Number of languages the notification has           
+  string notificationID;             //Unique ID for notifications                         
+  string status;                     //<ACTIVE / EXPIRED / UPDATED>                        
+  vector<RDNANotfHistBody> notfBody; //Subject & Message of notification                   
+  string actionPerformed;            //Notification action taken by user                   
+  string deviceName;                 //Notification action taken on specific device        
+  string deviceUUID;                 //Device on which action was performed                
+  string createdTime;                //Notification generated time on server               
+  string updatedTime;                //Notification action taken by user time              
+  string expiredTime;                //Notification expired time                           
+  string enterpriseID;               //Enterprise ID got while onboarding enterprise-app   
+  string signingStatus;              //Whether the notification signing was success or not 
+  string deliveryStatus;             //Notification delivery status                        
 };
 ```
 
+###RDNANotfHistBody
+
 Member | Description
 ------ | -----------
-<b>notificationID</b> | This is a string representation of unique notification ID.
-<b>deliveryStatus</b> | This specifies if the client has been notified about the notification. The values can be NOTIFIED / PARTIALLY_NOTIFIED / FAILED_TO_NOTIFY.
-<b>status</b> | This represents the status of the notification. It can have values as ACTIVE / EXPIRED / UPDATED.
+<b>language </b> | Language of notification message
 <b>subject</b> | This is string representation of notification subject. If a message is a transaction notification then subject for the notification could be Transaction.
-<b>message</b> | This is string representation of the actual notification message.
-<b>actionTaken</b> | This is string representation of the action taken by the user on the notification.
+<b>notificationMessage</b> | This is string representation of the actual notification message.
+
+###RDNANotificationHistory
+
+Member | Description
+------ | -----------
+<b>nNumLanguages</b> |  Number of languages the notification has
+<b>notificationID</b> | This is a string representation of unique notification ID.
+<b>status</b> | This represents the status of the notification. It can have values as ACTIVE / EXPIRED / UPDATED.
+<b>notfBody</b> | Notification body that contains language, subject, and notification message
+<b>actionPerformed</b> | This is string representation of the action taken by the user on the notification.
 <b>deviceName</b> | This is string representation of the device on which an action was performed by the user for the said notification.
+<b>deviceUUID</b> | Device on which action was performed
 <b>createdTime</b> | This specifies the notification generated time on server.
 <b>updatedTime</b> | This specifies the time when the user performed an action on the notification
 <b>expiredTime</b> | This specifies the expiry time of the notification.
 <b>enterpriseID</b> | This is the string representation enterprise ID, this specifies that for which enterprise the notification is related to.
+<b>signingStatus</b> | Notification signing status
+<b>deliveryStatus</b> | This specifies if the client has been notified about the notification. The values can be NOTIFIED / PARTIALLY_NOTIFIED / FAILED_TO_NOTIFY.
 
 ## GetNotificationsHistory
 
@@ -3817,15 +3929,15 @@ public abstract class RDNA {
 class RDNA {
   //...
   int getNotificationHistory
-   (int nRecordCount,
-    string pcEnterpriseID,
-    int nStartRecord,
-    string pcStartDate,
-    string pcEndDate,
-    string pcStatus,
-    string pcAction,
-    string pcKeyword,
-    string pcDevUUID);
+  (int nRecordCount
+  , string pcEnterpriseID
+  , int nStartRecord
+  , string pcStartDate
+  , string pcEndDate
+  , string pcStatus
+  , string pcAction
+  , string pcKeyword
+  , string pcDevUUID);
 }
 ```
 
@@ -3833,7 +3945,7 @@ This API is used to fetch the notification history for a particular user. The fe
 
 # API - HTTP Tunnel (Rest) connection
 
-The CORE SDK has the facility to provide secure access to any resource via the Rel-ID authenticated channel using HTTP, HTTPs and Port forwarding proxies. In addition to this proxies, there came a need to add an API which can handle similar such request but limited to a single request response (Similar to RESTful web services).
+The CORE SDK has the facility to provide secure access to any resource via the REL-ID authenticated channel using HTTP, HTTPs and Port forwarding proxies. In addition to these proxies, there came a need to add an API which can handle similar such request but limited to a single request response (Similar to RESTful web services).
 
 ## Structures
 
@@ -3946,7 +4058,7 @@ Enumeration | Description
 Members | Description
 ------- | -----------
 <b>Method</b> | HTTP method
-<b>StatusCode</b> | URL whose web resource is to be fetched
+<b>URL</b> | URL whose web resource is to be fetched
 <b>Headers</b> | List of request headers
 <b>Body</b> | HTTP request body
 
@@ -3960,6 +4072,7 @@ Members | Description
 <b>StatusMessage</b> | HTTP status message
 <b>Headers</b> | List of response headers
 <b>Body</b> | HTTP response body
+<b>BodyLen</b> | HTTP response body length
 
 <br>
 <b>RDNAHttpStatus</b>
@@ -4039,6 +4152,6 @@ class RDNA {
     int& nTunnelRequestID);
 ```
 
-The API tunnels HTTP request data on a Rel-ID authenticated channel. This api can be used post session creation for light weight http calls via Rel-ID authenticated channels. The application needs to register a callback method each time it invokes the api. This makes it very easy for the application developer to handle http response for http request made using the api in a different manner.
+The API tunnels HTTP request data on a REL-ID authenticated channel. This api can be used post session creation for light weight http calls via REL-ID authenticated channels. The application needs to register a callback method each time it invokes the api. This makes it very easy for the application developer to handle http response for http request made using the api in a different manner.
 
 In case of java SDK, the tunnel request ID is provided as a part of return value, and for other SDK it is provided as part of out parameter.
